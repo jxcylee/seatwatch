@@ -149,6 +149,24 @@ function notify(title, body) {
   ]);
 }
 
+async function notifyWebhook(url, title, text) {
+  const parsed = new URL(url);
+  let body = text;
+  const headers = {};
+  if (parsed.hostname === "discord.com" && parsed.pathname.startsWith("/api/webhooks")) {
+    body = JSON.stringify({ content: text });
+    headers["Content-Type"] = "application/json";
+  } else if (parsed.hostname === "hooks.slack.com") {
+    body = JSON.stringify({ text });
+    headers["Content-Type"] = "application/json";
+  } else {
+    headers["Content-Type"] = "text/plain; charset=utf-8";
+    headers.Title = title;
+  }
+  const res = await fetch(url, { method: "POST", headers, body, signal: AbortSignal.timeout(5000) });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+}
+
 // Score 0..1: prefer rows ~60% back from the screen, seats centered in the row.
 function seatGeometry(seats) {
   const rows = [...new Set(seats.map((s) => s.row))].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
@@ -232,6 +250,7 @@ function openMonitorDb() {
       target TEXT NOT NULL,
       label TEXT,
       want TEXT,
+      notifyUrl TEXT,
       intervalMinutes INTEGER NOT NULL DEFAULT 10 CHECK (intervalMinutes >= 1),
       until TEXT,
       createdAt TEXT NOT NULL,
@@ -252,9 +271,10 @@ function openMonitorDb() {
     );
     CREATE INDEX IF NOT EXISTS checks_watch_ts ON checks(watchId, ts DESC);
   `);
-  // Migration: honor-backoff cooldown, added after the initial schema shipped.
+  // Migrations for columns added after the initial schema shipped.
   const columns = db.prepare("PRAGMA table_info(watches)").all().map((c) => c.name);
   if (!columns.includes("cooldownUntil")) db.exec("ALTER TABLE watches ADD COLUMN cooldownUntil TEXT");
+  if (!columns.includes("notifyUrl")) db.exec("ALTER TABLE watches ADD COLUMN notifyUrl TEXT");
   return db;
 }
 
@@ -284,6 +304,7 @@ function publicWatch(watch, now = Date.now()) {
     target: watch.target,
     label: watch.label,
     want: watch.want,
+    notifyUrl: watch.notifyUrl,
     interval: watch.intervalMinutes,
     effectiveInterval: effectiveIntervalMinutes(watch, now),
     until: watch.until,
@@ -720,8 +741,13 @@ function cmdMonitorAdd(positionals, options) {
   if (chain === "amc" && !/^\d+$/.test(target)) throw new Error("AMC target must be a showtimeId");
   if (chain === "alamo" && !/^\d+\/\d+$/.test(target)) throw new Error("Alamo target must be cinemaId/sessionId");
 
-  const { want = null, label = null, until: untilRaw, interval: intervalRaw = "10" } = options;
+  const { want = null, label = null, notify: notifyUrl = null, until: untilRaw, interval: intervalRaw = "10" } = options;
   compileWant(want);
+  if (notifyUrl) {
+    let parsed;
+    try { parsed = new URL(notifyUrl); } catch {}
+    if (!parsed || !["http:", "https:"].includes(parsed.protocol)) throw new Error("--notify must be an http(s) URL");
+  }
   const intervalMinutes = Number(intervalRaw);
   if (!Number.isInteger(intervalMinutes) || intervalMinutes < 1) throw new Error("--interval must be a positive whole number of minutes");
   let until = null;
@@ -735,9 +761,9 @@ function cmdMonitorAdd(positionals, options) {
   try {
     const createdAt = new Date().toISOString();
     const result = db.prepare(`
-      INSERT INTO watches (chain, target, label, want, intervalMinutes, until, createdAt)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
-    `).run(chain, target, label, want, intervalMinutes, until, createdAt);
+      INSERT INTO watches (chain, target, label, want, notifyUrl, intervalMinutes, until, createdAt)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(chain, target, label, want, notifyUrl, intervalMinutes, until, createdAt);
     const watch = db.prepare("SELECT * FROM watches WHERE id = ?").get(result.lastInsertRowid);
     console.log(JSON.stringify(publicWatch(watch), null, 2));
   } finally {
@@ -868,6 +894,24 @@ async function cmdMonitorTick() {
         bestOpen: diff.bestOpen,
         newlyOpen,
       };
+      if (alertSeats.length) {
+        summary.alerts++;
+        const title = watch.chain === "alamo" ? `Alamo seats opened: ${watch.target}` : `Seats opened: showtime ${watch.target}`;
+        notify(title, `${alertSeats.join(", ")} now available (${diff.open.length} open total)`);
+        if (watch.notifyUrl) {
+          const bookingUrl = watch.chain === "amc"
+            ? `https://www.amctheatres.com/showtimes/${watch.target}/seats`
+            : "https://drafthouse.com";
+          const text = `${watch.label || `${watch.chain}/${watch.target}`}: ${alertSeats.join(", ")} now available (${diff.open.length} open total) — ${bookingUrl}`;
+          try {
+            await notifyWebhook(watch.notifyUrl, title, text);
+            result.notifyStatus = "sent";
+          } catch (error) {
+            result.notifyStatus = "failed";
+            process.stderr.write(`Webhook notification failed for watch ${watch.id}: ${error.message}\n`);
+          }
+        }
+      }
       const resultJson = JSON.stringify(result);
       db.exec("BEGIN");
       try {
@@ -877,11 +921,6 @@ async function cmdMonitorTick() {
       } catch (e) {
         db.exec("ROLLBACK");
         throw e;
-      }
-      if (alertSeats.length) {
-        summary.alerts++;
-        const title = watch.chain === "alamo" ? `Alamo seats opened: ${watch.target}` : `Seats opened: showtime ${watch.target}`;
-        notify(title, `${alertSeats.join(", ")} now available (${diff.open.length} open total)`);
       }
       summary.results.push(result);
     }
@@ -967,7 +1006,7 @@ async function main(argv = process.argv.slice(2)) {
       const [subcommand, ...monitorArgs] = rest;
       let parsed;
       if (subcommand === "add") {
-        parsed = parseCommandArgs(monitorArgs, { want: STRING_OPTION, label: STRING_OPTION, until: STRING_OPTION, interval: STRING_OPTION });
+        parsed = parseCommandArgs(monitorArgs, { want: STRING_OPTION, label: STRING_OPTION, notify: STRING_OPTION, until: STRING_OPTION, interval: STRING_OPTION });
       } else if (["list", "remove", "clear", "tick", "status"].includes(subcommand)) {
         parsed = parseCommandArgs(monitorArgs);
       } else {
@@ -993,7 +1032,7 @@ async function main(argv = process.argv.slice(2)) {
   seatwatch check <showtimeId...> [--want <seat-regex>] [--together N]
   seatwatch alamo-discover [market=nyc] [movie-regex] [date]  # Alamo sessions
   seatwatch alamo-check <cinemaId/sessionId...> [--want <re>] [--together N]
-  seatwatch monitor add <amc|alamo> <id> [--want <re>] [--label <text>] [--until <ISO-datetime>] [--interval <minutes>]
+  seatwatch monitor add <amc|alamo> <id> [--want <re>] [--label <text>] [--notify <url>] [--until <ISO-datetime>] [--interval <minutes>]
   seatwatch monitor list                                      # list watches
   seatwatch monitor remove <watchId>                          # remove one watch
   seatwatch monitor clear                                     # remove all watches
@@ -1009,7 +1048,7 @@ async function main(argv = process.argv.slice(2)) {
   }
 }
 
-export { extractSeatingLayout, effectiveIntervalMinutes, monitorStatusName, rankTogether, parseRetryAfter, conditionalHeaders, main };
+export { extractSeatingLayout, effectiveIntervalMinutes, monitorStatusName, notifyWebhook, rankTogether, parseRetryAfter, conditionalHeaders, main };
 
 if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(resolve(process.argv[1]))) {
   process.exitCode = await main();

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
-import { conditionalHeaders, effectiveIntervalMinutes, extractSeatingLayout, main, monitorStatusName, parseRetryAfter, rankTogether } from "../cli.js";
+import { conditionalHeaders, effectiveIntervalMinutes, extractSeatingLayout, main, monitorStatusName, notifyWebhook, parseRetryAfter, rankTogether } from "../cli.js";
 
 const headersFrom = (obj) => ({ headers: { get: (name) => obj[name.toLowerCase()] ?? null } });
 
@@ -83,6 +83,39 @@ test("conditionalHeaders only sets validators it actually has", () => {
     conditionalHeaders({ etag: '"abc"', lastModified: "Wed, 21 Oct 2026 07:28:00 GMT" }),
     { "If-None-Match": '"abc"', "If-Modified-Since": "Wed, 21 Oct 2026 07:28:00 GMT" },
   );
+});
+
+test("webhook payloads match Discord, Slack, and generic endpoints", async () => {
+  const originalFetch = globalThis.fetch;
+  const calls = [];
+  globalThis.fetch = async (url, options) => {
+    calls.push({ url, options });
+    return { ok: true };
+  };
+  try {
+    await notifyWebhook("https://discord.com/api/webhooks/1/token", "Title", "Seats open");
+    await notifyWebhook("https://hooks.slack.com/services/T/B/X", "Title", "Seats open");
+    await notifyWebhook("https://ntfy.sh/seatwatch-test", "Title", "Seats open");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+
+  assert.equal(calls[0].options.body, JSON.stringify({ content: "Seats open" }));
+  assert.equal(calls[1].options.body, JSON.stringify({ text: "Seats open" }));
+  assert.equal(calls[2].options.body, "Seats open");
+  assert.equal(calls[2].options.headers.Title, "Title");
+  assert.ok(calls.every(({ options }) => options.method === "POST" && options.signal instanceof AbortSignal));
+});
+
+test("monitor add rejects non-http webhook URLs", async () => {
+  const originalError = console.error;
+  console.error = () => {};
+  try {
+    assert.equal(await main(["monitor", "add", "alamo", "1/2", "--notify", "file:///tmp/hook"]), 1);
+    assert.equal(await main(["monitor", "add", "alamo", "1/2", "--notify", "not-a-url"]), 1);
+  } finally {
+    console.error = originalError;
+  }
 });
 
 test("rejects together ranking for monitors instead of silently ignoring it", async () => {

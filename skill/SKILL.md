@@ -31,7 +31,8 @@ npx -y seatwatch alamo-check 2103/93423 --want '^7' --together 2
 
 # Register a recurring watch in SQLite with one command.
 npx -y seatwatch monitor add alamo 2103/93423 --want '^7' \
-  --label 'Odyssey 7pm' --until 2026-07-17T19:00:00-04:00 --interval 10
+  --label 'Odyssey 7pm' --notify 'https://ntfy.sh/my-seat-alerts' \
+  --until 2026-07-17T19:00:00-04:00 --interval 10
 
 # Cron/automation calls this every 1–2 minutes; it only checks watches that are due.
 npx -y seatwatch monitor tick
@@ -76,7 +77,7 @@ JSON array, one object per showtime:
 Monitor commands:
 
 ```bash
-npx -y seatwatch monitor add <amc|alamo> <id> [--want <re>] [--label <text>] [--until <ISO-datetime>] [--interval <minutes>]
+npx -y seatwatch monitor add <amc|alamo> <id> [--want <re>] [--label <text>] [--notify <url>] [--until <ISO-datetime>] [--interval <minutes>]
 npx -y seatwatch monitor list
 npx -y seatwatch monitor remove <watchId>
 npx -y seatwatch monitor clear
@@ -85,6 +86,8 @@ npx -y seatwatch monitor status [watchId]
 ```
 
 `monitor tick` prints JSON and exits 0 normally or 3 when alerts fire, which makes cron branching cheap. `monitor status` reads only `~/.seatwatch/seatwatch.db`—use it to answer “anything open yet?” without causing a network request. It includes the last result and recent newly-open events. Plain `check` commands continue using the legacy `~/.seatwatch/state.json` state.
+
+For headless/VPS alerts, pass `--notify` a Discord, Slack, or generic webhook URL. A bare `https://ntfy.sh/<topic>` URL sends free phone push through ntfy.
 
 Monitor `--want` has the same alert-filter semantics as plain checks. Monitors do not support `--together`; run `check` or `alamo-check` for adjacent-group ranking. The first successful tick seeds the monitor's SQLite seat state without alerting, independently of the plain-check history in `state.json`.
 

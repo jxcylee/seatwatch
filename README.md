@@ -12,7 +12,7 @@ seatwatch discover <theatre-slug> [date] [movie-regex]
 seatwatch check <showtimeId...> [--want <seat-regex>] [--together N]
 seatwatch alamo-discover [market=nyc] [movie-regex] [date]
 seatwatch alamo-check <cinemaId/sessionId...> [--want <seat-regex>] [--together N]
-seatwatch monitor add <amc|alamo> <id> [--want <seat-regex>] [--label <text>] [--until <ISO-datetime>] [--interval <minutes>]
+seatwatch monitor add <amc|alamo> <id> [--want <seat-regex>] [--label <text>] [--notify <url>] [--until <ISO-datetime>] [--interval <minutes>]
 seatwatch monitor list
 seatwatch monitor remove <watchId>
 seatwatch monitor clear
@@ -62,7 +62,7 @@ Pass `--together N` to either `check` command to add `bestTogether`, the top fiv
 
 ```bash
 seatwatch monitor add <amc|alamo> <id> \
-  [--want <seat-regex>] [--label <text>] [--until <ISO-datetime>] [--interval <minutes>]
+  [--want <seat-regex>] [--label <text>] [--notify <url>] [--until <ISO-datetime>] [--interval <minutes>]
 seatwatch monitor list
 seatwatch monitor remove <watchId>
 seatwatch monitor clear
@@ -75,6 +75,8 @@ AMC targets are showtime IDs; Alamo targets are `cinemaId/sessionId`. The defaul
 Monitors support `--want` with the same alert-filter semantics as the two plain check commands. They do not support `--together`; use `check` or `alamo-check` when adjacent-group ranking is needed. The first successful monitor tick seeds its independent SQLite seat state and does not alert. Plain checks keep their independent history in `~/.seatwatch/state.json`, so the two subsystems never overwrite each other's state.
 
 Run `monitor tick` every 1–2 minutes from a single cron entry or agent automation. It prints one JSON summary and exits 0 normally or 3 when one or more newly opened seat matches trigger alerts. `monitor status` never accesses the network: it returns each watch's last result and recent newly-open events directly from SQLite, making it the right command for answering “anything open yet?”
+
+Use `--notify <url>` to POST alerts from headless/VPS monitors. Discord webhook URLs receive `{"content": text}`, Slack webhook URLs receive `{"text": text}`, and other URLs receive a plain-text body with an ntfy-compatible `Title` header. A bare `https://ntfy.sh/<topic>` URL provides free phone push through ntfy.
 
 Example cron entry:
 
