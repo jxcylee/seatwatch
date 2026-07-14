@@ -9,9 +9,9 @@
 //
 // Usage:
 //   seatwatch discover <theatre-slug> [date YYYY-MM-DD] [movie-regex]
-//   seatwatch check <showtimeId...> [--want <seat-regex>]
+//   seatwatch check <showtimeId...> [--want <seat-regex>] [--together N]
 //   seatwatch alamo-discover [market=nyc] [movie-regex] [date]
-//   seatwatch alamo-check <cinemaId/sessionId...> [--want <seat-regex>]
+//   seatwatch alamo-check <cinemaId/sessionId...> [--want <seat-regex>] [--together N]
 //   seatwatch monitor <add|list|remove|clear|tick|status> ...
 //   seatwatch install-skill [--dev]
 
@@ -56,22 +56,50 @@ function notify(title, body) {
 }
 
 // Score 0..1: prefer rows ~60% back from the screen, seats centered in the row.
-function rankSeats(seats /* [{id, row, col, ...}] */) {
+function seatGeometry(seats) {
   const rows = [...new Set(seats.map((s) => s.row))].sort((a, b) => (a < b ? -1 : 1));
   const byRow = {};
   for (const s of seats) (byRow[s.row] ||= []).push(s.col);
+  for (const cols of Object.values(byRow)) cols.sort((a, b) => a - b);
+  return { rows, byRow };
+}
+
+function scorePosition(rowPositions, col, cols) {
+  const rowPos = rowPositions.reduce((sum, n) => sum + n, 0) / rowPositions.length;
+  const colPos = cols.length > 1 ? (col - cols[0]) / (cols[cols.length - 1] - cols[0]) : 0.5;
+  const score = 1 - (Math.abs(rowPos - 0.6) * 0.9 + Math.abs(colPos - 0.5) * 1.1);
+  return Math.round(score * 100) / 100;
+}
+
+function rankSeats(seats /* [{id, row, col, ...}] */) {
+  const { rows, byRow } = seatGeometry(seats);
   return seats
     .map((s) => {
       const rowPos = rows.length > 1 ? rows.indexOf(s.row) / (rows.length - 1) : 0.6;
-      const cols = byRow[s.row].sort((a, b) => a - b);
-      const colPos = cols.length > 1 ? (s.col - cols[0]) / (cols[cols.length - 1] - cols[0]) : 0.5;
-      const score = 1 - (Math.abs(rowPos - 0.6) * 0.9 + Math.abs(colPos - 0.5) * 1.1);
-      return { ...s, score: Math.round(score * 100) / 100 };
+      return { ...s, score: scorePosition([rowPos], s.col, byRow[s.row]) };
     })
     .sort((a, b) => b.score - a.score);
 }
 
-function diffAndReport({ state, key, allSeats, want }) {
+function rankTogether(seats, count) {
+  const { rows, byRow } = seatGeometry(seats);
+  const openByRow = {};
+  for (const seat of seats) if (seat.open) (openByRow[seat.row] ||= []).push(seat);
+  const runs = [];
+  for (const [row, openSeats] of Object.entries(openByRow)) {
+    openSeats.sort((a, b) => a.col - b.col);
+    for (let i = 0; i <= openSeats.length - count; i++) {
+      const run = openSeats.slice(i, i + count);
+      if (run.some((seat, j) => j > 0 && seat.col - run[j - 1].col !== 1)) continue;
+      const rowPos = rows.length > 1 ? rows.indexOf(run[0].row) / (rows.length - 1) : 0.6;
+      const avgCol = run.reduce((sum, seat) => sum + seat.col, 0) / run.length;
+      runs.push({ seats: run.map((seat) => seat.id), score: scorePosition(run.map(() => rowPos), avgCol, byRow[row]) });
+    }
+  }
+  return runs.sort((a, b) => b.score - a.score);
+}
+
+function diffAndReport({ state, key, allSeats, want, together }) {
   // allSeats: [{id, row, col, open}]
   const open = allSeats.filter((s) => s.open).map((s) => s.id);
   const prev = new Set(state[key]?.open || []);
@@ -80,10 +108,21 @@ function diffAndReport({ state, key, allSeats, want }) {
     .filter((s) => s.open)
     .slice(0, 10)
     .map(({ id, score }) => ({ id, score }));
+  const togetherRuns = together ? rankTogether(allSeats, together) : [];
+  const newlyOpenSet = new Set(newlyOpen);
+  const notifyTogether = togetherRuns.find((run) => run.seats.some((id) => newlyOpenSet.has(id)));
   const initialized = state[key + ":initialized"];
   state[key] = { open, total: allSeats.length, checkedAt: new Date().toISOString() };
   state[key + ":initialized"] = true;
-  return { open, newlyOpen, bestOpen, total: allSeats.length, shouldNotify: newlyOpen.length > 0 && initialized };
+  return {
+    open,
+    newlyOpen,
+    bestOpen,
+    bestTogether: togetherRuns.slice(0, 5),
+    notifyTogether,
+    total: allSeats.length,
+    shouldNotify: initialized && (together ? !!notifyTogether : newlyOpen.length > 0),
+  };
 }
 
 // ---------- monitor database ----------
@@ -362,7 +401,7 @@ async function cmdDiscover(slug, date, movieRe) {
   if (!seen.size) process.stderr.write("No showtimes matched.\n");
 }
 
-async function cmdCheck(ids, wantRe) {
+async function cmdCheck(ids, wantRe, together) {
   const state = loadState();
   const want = wantRe ? new RegExp(wantRe, "i") : null;
   const report = [];
@@ -374,24 +413,34 @@ async function cmdCheck(ids, wantRe) {
     }
     if (r.blocked) { report.push({ id, error: `rate limited (${r.blocked}) on both paths — back off 30+ minutes` }); continue; }
     if (r.error) { report.push({ id, error: r.error }); continue; }
-    const d = diffAndReport({ state, key: id, allSeats: r.seats, want });
-    report.push({ id, total: d.total, openCount: d.open.length, open: d.open, bestOpen: d.bestOpen, newlyOpen: d.newlyOpen });
-    if (d.shouldNotify) notify(`Seats opened: showtime ${id}`, `${d.newlyOpen.join(", ")} now available (${d.open.length} open total)`);
+    const d = diffAndReport({ state, key: id, allSeats: r.seats, want, together });
+    report.push({ id, total: d.total, openCount: d.open.length, open: d.open, bestOpen: d.bestOpen, ...(together && { bestTogether: d.bestTogether }), newlyOpen: d.newlyOpen });
+    if (d.shouldNotify) {
+      const body = together
+        ? `${d.notifyTogether.seats.join(", ")} available together; newly opened: ${d.newlyOpen.join(", ")} (${d.open.length} open total)`
+        : `${d.newlyOpen.join(", ")} now available (${d.open.length} open total)`;
+      notify(`Seats opened: showtime ${id}`, body);
+    }
   }
   saveState(state);
   console.log(JSON.stringify(report, null, 2));
 }
 
-async function cmdAlamoCheck(pairs, wantRe) {
+async function cmdAlamoCheck(pairs, wantRe, together) {
   const state = loadState();
   const want = wantRe ? new RegExp(wantRe, "i") : null;
   const report = [];
   for (const pair of pairs) {
     const r = await alamoFetchSeats(pair);
     if (r.error) { report.push({ id: pair, error: r.error }); continue; }
-    const d = diffAndReport({ state, key: `alamo:${pair}`, allSeats: r.seats, want });
-    report.push({ id: pair, total: d.total, openCount: d.open.length, open: d.open, bestOpen: d.bestOpen, newlyOpen: d.newlyOpen });
-    if (d.shouldNotify) notify(`Alamo seats opened: ${pair}`, `${d.newlyOpen.join(", ")} now available (${d.open.length} open total)`);
+    const d = diffAndReport({ state, key: `alamo:${pair}`, allSeats: r.seats, want, together });
+    report.push({ id: pair, total: d.total, openCount: d.open.length, open: d.open, bestOpen: d.bestOpen, ...(together && { bestTogether: d.bestTogether }), newlyOpen: d.newlyOpen });
+    if (d.shouldNotify) {
+      const body = together
+        ? `${d.notifyTogether.seats.join(", ")} available together; newly opened: ${d.newlyOpen.join(", ")} (${d.open.length} open total)`
+        : `${d.newlyOpen.join(", ")} now available (${d.open.length} open total)`;
+      notify(`Alamo seats opened: ${pair}`, body);
+    }
   }
   saveState(state);
   console.log(JSON.stringify(report, null, 2));
@@ -624,20 +673,27 @@ async function main(argv = process.argv.slice(2)) {
   const [cmd, ...rest] = argv;
   const wantIdx = rest.indexOf("--want");
   const wantRe = wantIdx >= 0 ? rest[wantIdx + 1] : null;
-  const args = rest.filter((a, i) => a !== "--want" && (wantIdx < 0 || i !== wantIdx + 1) && !a.startsWith("--"));
+  const togetherIdx = rest.indexOf("--together");
+  const togetherArg = togetherIdx >= 0 ? rest[togetherIdx + 1] : null;
+  const together = togetherArg === null ? null : Number(togetherArg);
+  const args = rest.filter((a, i) =>
+    a !== "--want" && (wantIdx < 0 || i !== wantIdx + 1) &&
+    a !== "--together" && (togetherIdx < 0 || i !== togetherIdx + 1) &&
+    !a.startsWith("--"));
 
   try {
+    if (togetherIdx >= 0 && (!Number.isInteger(together) || together < 1)) throw new Error("--together requires a positive integer");
     if (cmd === "discover") await cmdDiscover(args[0], args[1], args[2]);
     else if (cmd === "check") {
       if (!args.length) throw new Error("no showtime ids given");
-      await cmdCheck(args, wantRe);
+      await cmdCheck(args, wantRe, together);
     } else if (cmd === "alamo-discover") {
       const rows = await alamoDiscover(args[0] || "nyc", args[1], args[2]);
       for (const r of rows) console.log(`${r.id}\t${r.movie}\t${r.time}\t${r.cinema}\t${r.status}`);
       if (!rows.length) process.stderr.write("No sessions matched.\n");
     } else if (cmd === "alamo-check") {
       if (!args.length) throw new Error("no cinemaId/sessionId pairs given");
-      await cmdAlamoCheck(args, wantRe);
+      await cmdAlamoCheck(args, wantRe, together);
     } else if (cmd === "monitor") {
       ({ DatabaseSync } = await import("node:sqlite"));
       const [subcommand, ...monitorArgs] = rest;
@@ -653,9 +709,9 @@ async function main(argv = process.argv.slice(2)) {
     } else {
       console.error(`usage:
   seatwatch discover <theatre-slug> [date] [movie-regex]      # AMC showtimes
-  seatwatch check <showtimeId...> [--want <seat-regex>]       # AMC per-seat check
+  seatwatch check <showtimeId...> [--want <seat-regex>] [--together N]
   seatwatch alamo-discover [market=nyc] [movie-regex] [date]  # Alamo sessions
-  seatwatch alamo-check <cinemaId/sessionId...> [--want <re>] # Alamo per-seat check
+  seatwatch alamo-check <cinemaId/sessionId...> [--want <re>] [--together N]
   seatwatch monitor add <amc|alamo> <id> [options]            # register a recurring watch
   seatwatch monitor list                                      # list watches
   seatwatch monitor remove <watchId> | monitor clear          # remove watches

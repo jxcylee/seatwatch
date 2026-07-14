@@ -9,11 +9,11 @@ JSON-out and exit-coded — built to be driven by agents and cron, without a dae
 ```bash
 # any open seats for the 70mm Odyssey at Lincoln Square on opening day?
 npx -y seatwatch discover new-york-city/amc-lincoln-square-13 2026-07-17 odyssey
-npx -y seatwatch check 134717192
+npx -y seatwatch check 134717192 --together 2
 
 # Alamo (open JSON API)
 npx -y seatwatch alamo-discover nyc odyssey 2026-07-17
-npx -y seatwatch alamo-check 2103/93423
+npx -y seatwatch alamo-check 2103/93423 --together 2
 
 # Watch a showtime with one command. Run `monitor tick` from cron every 1–2 min;
 # it only makes network requests for watches that are due.
@@ -24,6 +24,12 @@ npx -y seatwatch monitor status
 ```
 
 `check` output per showtime: `total`, `openCount`, `open` (all open seat ids), `bestOpen` (top 10 ranked by geometry — ~60% back, centered), and `newlyOpen` (diff vs the last run, persisted in `~/.seatwatch/state.json`). On macOS, newly opened seats fire a native notification.
+
+Pass `--together N` to either `check` command to add `bestTogether`, the top five contiguous open runs of N seats ranked by the centroid of each run. Seats must have consecutive column values in the same row; a column gap is treated as an aisle. With this flag, notifications fire only when a qualifying run includes at least one newly opened seat, and the notification names that run.
+
+```json
+{"bestTogether": [{"seats": ["C5", "C6"], "score": 0.81}]}
+```
 
 ## Recurring monitors
 
