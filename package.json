@@ -1,0 +1,27 @@
+{
+  "name": "seatwatch",
+  "version": "0.1.0",
+  "description": "Watch movie seat availability and cancellation openings at AMC and Alamo Drafthouse — per-seat status, best-seat ranking, diff-based alerts. Agent-friendly JSON CLI, plus a Claude skill installer.",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "seatwatch": "./cli.js"
+  },
+  "files": [
+    "cli.js",
+    "skill/SKILL.md",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "keywords": [
+    "amc",
+    "alamo-drafthouse",
+    "movie-tickets",
+    "seat-alert",
+    "seat-availability",
+    "claude-skill",
+    "agent"
+  ]
+}
