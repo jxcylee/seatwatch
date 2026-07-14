@@ -10,6 +10,10 @@ The `seatwatch` CLI does all the real work. Never scrape ticketing sites by hand
 ## Commands
 
 ```bash
+# Resolve theatre names/cities to an AMC URL slug or Alamo market.
+npx -y seatwatch theatres brooklyn
+# → tab-separated: chain  slug-or-market  display name  location
+
 # AMC: list showtimes for a theatre/date, optional movie regex.
 # Theatre slug is the amctheatres.com URL path segment.
 npx -y seatwatch discover new-york-city/amc-lincoln-square-13 2026-07-17 odyssey
@@ -62,7 +66,7 @@ JSON array, one object per showtime:
 
 ## Typical workflows
 
-**"Any seats for X?"** — discover to find the showtime id, check it, report `openCount` and the top few `bestOpen` seats in plain language.
+**"Any seats for X?"** — if the AMC slug or Alamo market is unknown, run `theatres <name-or-city>` first. Then discover to find the showtime id, check it, and report `openCount` and the top few `bestOpen` seats in plain language.
 
 **"Watch this showtime for cancellations"** — use `monitor add <amc|alamo> <id>` once, including `--until` whenever the showtime is known. Then arrange one shared cron/automation to run `monitor tick` every 1–2 minutes. Tick decides which watches are due: 10 minutes by default, automatically ramping to 2 minutes in the final 2 hours before `--until`, and expiring after it. Do not schedule a separate network check per watch.
 

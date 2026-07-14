@@ -12,6 +12,7 @@
   },
   "files": [
     "cli.js",
+    "data/amc-theatres.json",
     "skill/SKILL.md",
     "README.md"
   ],
