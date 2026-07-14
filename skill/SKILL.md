@@ -92,6 +92,8 @@ Install this skill with `npx -y seatwatch install-skill`. When developing from a
 
 **Buying**: seatwatch never buys tickets. When seats open, tell the user immediately with the direct link — AMC: `https://www.amctheatres.com/showtimes/<id>/seats`, Alamo: the drafthouse.com session page — so they can grab it themselves.
 
-## Rate limiting
+## Rate limiting & staying unblocked
 
-AMC rate-limits bursts: too many page loads in a short window earns a temporary ban (HTTP 429, or Cloudflare "error 1015" on the browser path). The CLI reports this distinctly and falls back to a local Chrome if one is running with the debug port. If both paths are blocked, stop checking AMC for at least 30 minutes and slow the cadence. One invocation checks all given ids over one connection — prefer one run with many ids over many runs.
+AMC rate-limits bursts: too many page loads in a short window earns a temporary ban (HTTP 429, or Cloudflare "error 1015" on the browser path). Throttling is per-IP and self-contained — it only affects the machine doing the polling. The CLI already softens this automatically: it jitters each request by 0–1.5s, honors the origin's `Retry-After` on a block (a monitor watch reports `cooling-down` and is skipped until the cooldown passes, then resumes), and revalidates with `ETag`/`Last-Modified` when offered. A `check` result with an `error` like `rate limited (429) … back off ~N min` means you should stop and wait — do not keep retrying.
+
+Guidance: prefer one invocation with many ids over many separate runs; keep monitor intervals ≥ 5–10 min (the final-2-hour ramp already caps at 2 min); and note that AMC from a datacenter/VPS IP is often challenged, so AMC watches are most reliable from a residential connection. Alamo's API has no such limits and is safe to run anywhere.

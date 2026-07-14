@@ -1,7 +1,9 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
-import { effectiveIntervalMinutes, extractSeatingLayout, main, monitorStatusName, rankTogether } from "../cli.js";
+import { conditionalHeaders, effectiveIntervalMinutes, extractSeatingLayout, main, monitorStatusName, parseRetryAfter, rankTogether } from "../cli.js";
+
+const headersFrom = (obj) => ({ headers: { get: (name) => obj[name.toLowerCase()] ?? null } });
 
 test("extracts the AMC seat layout from the offline fixture", () => {
   const html = readFileSync(new URL("../fixtures/amc-seats-page.html", import.meta.url), "utf8");
@@ -63,6 +65,24 @@ test("monitor status derives active and expired state", () => {
   assert.equal(monitorStatusName({ active: 1, until: "2026-07-17T20:00:01Z" }, now), "active");
   assert.equal(monitorStatusName({ active: 1, until: "2026-07-17T20:00:00Z" }, now), "expired");
   assert.equal(monitorStatusName({ active: 0, until: null }, now), "expired");
+});
+
+test("parseRetryAfter reads delta-seconds, HTTP-dates, and falls back", () => {
+  assert.equal(parseRetryAfter(headersFrom({ "retry-after": "120" })), 120000);
+  const soon = new Date(Date.now() + 90000).toUTCString();
+  const ms = parseRetryAfter(headersFrom({ "retry-after": soon }));
+  assert.ok(ms > 80000 && ms <= 90000, `expected ~90s, got ${ms}`);
+  assert.equal(parseRetryAfter(headersFrom({}), 5000), 5000);
+  assert.equal(parseRetryAfter(headersFrom({ "retry-after": "garbage" }), 7000), 7000);
+});
+
+test("conditionalHeaders only sets validators it actually has", () => {
+  assert.deepEqual(conditionalHeaders(null), {});
+  assert.deepEqual(conditionalHeaders({ etag: '"abc"' }), { "If-None-Match": '"abc"' });
+  assert.deepEqual(
+    conditionalHeaders({ etag: '"abc"', lastModified: "Wed, 21 Oct 2026 07:28:00 GMT" }),
+    { "If-None-Match": '"abc"', "If-Modified-Since": "Wed, 21 Oct 2026 07:28:00 GMT" },
+  );
 });
 
 test("rejects together ranking for monitors instead of silently ignoring it", async () => {

@@ -31,6 +31,12 @@ const STATE_FILE = join(STATE_DIR, "state.json");
 const MONITOR_DB = join(STATE_DIR, "seatwatch.db");
 const THEATRES_CACHE_FILE = join(STATE_DIR, "theatres-cache.json");
 const THEATRES_CACHE_TTL = 30 * 24 * 60 * 60 * 1000;
+const ETAGS_FILE = join(STATE_DIR, "etags.json");
+// Politeness: max random pre-request delay (ms) so repeated polls don't fire on
+// exact clock boundaries. Set SEATWATCH_JITTER_MS=0 to disable (e.g. in tests).
+const JITTER_MS = Number(process.env.SEATWATCH_JITTER_MS ?? 1500);
+// Fallback cooldown when we're throttled but the origin gives no Retry-After.
+const DEFAULT_COOLDOWN_MS = 30 * 60 * 1000;
 const UA =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36";
 const HTML_HEADERS = {
@@ -40,6 +46,50 @@ const HTML_HEADERS = {
 };
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// Random pre-request pause so a cron-driven poll doesn't hit the origin at the
+// exact same instant every interval — cheap way to look less like a robot.
+async function politeJitter() {
+  if (!(JITTER_MS > 0)) return;
+  await sleep(Math.floor(Math.random() * JITTER_MS));
+}
+
+// Parse a Retry-After header (delta-seconds or HTTP-date) into ms.
+function parseRetryAfter(res, fallbackMs = DEFAULT_COOLDOWN_MS) {
+  const raw = res.headers.get("retry-after");
+  if (raw) {
+    const secs = Number(raw);
+    if (Number.isFinite(secs)) return Math.max(0, secs * 1000);
+    const when = Date.parse(raw);
+    if (!Number.isNaN(when)) return Math.max(0, when - Date.now());
+  }
+  return fallbackMs;
+}
+
+// Conditional-request validators, keyed by URL, so an unchanged seat map comes
+// back as a cheap 304 instead of a full re-download. Only ever engages if the
+// origin actually returned an ETag/Last-Modified — otherwise it's a no-op.
+function loadEtags() {
+  try { return JSON.parse(readFileSync(ETAGS_FILE, "utf8")); } catch { return {}; }
+}
+function saveEtags(store) {
+  mkdirSync(STATE_DIR, { recursive: true });
+  writeFileSync(ETAGS_FILE, JSON.stringify(store, null, 2));
+}
+function conditionalHeaders(entry) {
+  const headers = {};
+  if (entry?.etag) headers["If-None-Match"] = entry.etag;
+  if (entry?.lastModified) headers["If-Modified-Since"] = entry.lastModified;
+  return headers;
+}
+function storeValidators(url, res, seats) {
+  const etag = res.headers.get("etag");
+  const lastModified = res.headers.get("last-modified");
+  if (!etag && !lastModified) return; // origin ignores conditional requests
+  const store = loadEtags();
+  store[url] = { etag: etag || null, lastModified: lastModified || null, seats };
+  saveEtags(store);
+}
 
 const STRING_OPTION = { type: "string" };
 
@@ -202,6 +252,9 @@ function openMonitorDb() {
     );
     CREATE INDEX IF NOT EXISTS checks_watch_ts ON checks(watchId, ts DESC);
   `);
+  // Migration: honor-backoff cooldown, added after the initial schema shipped.
+  const columns = db.prepare("PRAGMA table_info(watches)").all().map((c) => c.name);
+  if (!columns.includes("cooldownUntil")) db.exec("ALTER TABLE watches ADD COLUMN cooldownUntil TEXT");
   return db;
 }
 
@@ -236,6 +289,7 @@ function publicWatch(watch, now = Date.now()) {
     until: watch.until,
     lastChecked: watch.lastChecked,
     lastOpenCount: watch.lastOpenCount,
+    cooldownUntil: watch.cooldownUntil && Date.parse(watch.cooldownUntil) > now ? watch.cooldownUntil : null,
     status: monitorStatusName(watch, now),
   };
 }
@@ -273,14 +327,19 @@ function extractSeatingLayout(html) {
 }
 
 async function amcFetchSeatsHttp(showtimeId) {
-  const res = await fetch(`https://www.amctheatres.com/showtimes/${showtimeId}/seats`, { headers: HTML_HEADERS });
-  if (res.status === 429 || res.status === 403) return { blocked: res.status };
+  const url = `https://www.amctheatres.com/showtimes/${showtimeId}/seats`;
+  await politeJitter();
+  const cached = loadEtags()[url];
+  const res = await fetch(url, { headers: { ...HTML_HEADERS, ...conditionalHeaders(cached) } });
+  if (res.status === 304 && cached?.seats) return { seats: cached.seats, notModified: true };
+  if (res.status === 429 || res.status === 403) return { blocked: res.status, retryAfterMs: parseRetryAfter(res) };
   if (!res.ok) return { error: `HTTP ${res.status}` };
   const layout = extractSeatingLayout(await res.text());
   if (!layout?.seats?.length) return { error: "no seatingLayout in page (expired showtime or page change)" };
   const seats = layout.seats
     .filter((s) => s.type !== "NotASeat")
     .map((s) => ({ id: s.name || `r${s.row}c${s.column}`, row: s.row, col: s.column, open: !!s.available, tier: s.seatTier }));
+  storeValidators(url, res, seats);
   return { seats };
 }
 
@@ -402,7 +461,12 @@ async function alamoDiscover(market, movieRe, date) {
 
 async function alamoFetchSeats(pair) {
   const [cinemaId, sessionId] = pair.split("/");
-  const res = await fetch(`https://drafthouse.com/s/mother/v1/app/seats/${cinemaId}/${sessionId}`);
+  const url = `https://drafthouse.com/s/mother/v1/app/seats/${cinemaId}/${sessionId}`;
+  await politeJitter();
+  const cached = loadEtags()[url];
+  const res = await fetch(url, { headers: conditionalHeaders(cached) });
+  if (res.status === 304 && cached?.seats) return { seats: cached.seats, notModified: true };
+  if (res.status === 429 || res.status === 403) return { blocked: res.status, retryAfterMs: parseRetryAfter(res) };
   if (!res.ok) return { error: `seat fetch failed (${res.status})` };
   const { data } = await res.json();
   const seats = [];
@@ -417,6 +481,7 @@ async function alamoFetchSeats(pair) {
           open: seat.seatStatus === "EMPTY",
         });
       }
+  storeValidators(url, res, seats);
   return { seats };
 }
 
@@ -596,16 +661,22 @@ async function cmdDiscover(slug, date, movieRe) {
   if (!seen.size) process.stderr.write("No showtimes matched.\n");
 }
 
+function backoffMessage(status, retryAfterMs) {
+  const mins = Math.max(1, Math.round((retryAfterMs ?? DEFAULT_COOLDOWN_MS) / 60000));
+  return `rate limited (${status}) on both paths — back off ~${mins} min`;
+}
+
 async function cmdCheck(ids, want, together) {
   const state = loadState();
   const report = [];
   for (const id of ids) {
     let r = await amcFetchSeatsHttp(id);
+    const retryAfterMs = r.retryAfterMs;
     if (r.blocked) {
       process.stderr.write(`HTTP blocked (${r.blocked}) for ${id}; trying Chrome CDP fallback...\n`);
       r = await amcFetchSeatsCdp(id).catch((e) => ({ error: e.message }));
     }
-    if (r.blocked) { report.push({ id, error: `rate limited (${r.blocked}) on both paths — back off 30+ minutes` }); continue; }
+    if (r.blocked) { report.push({ id, error: backoffMessage(r.blocked, r.retryAfterMs ?? retryAfterMs) }); continue; }
     if (r.error) { report.push({ id, error: r.error }); continue; }
     const d = diffAndReport({ state, key: id, allSeats: r.seats, want, together });
     report.push({ id, total: d.total, openCount: d.open.length, open: d.open, bestOpen: d.bestOpen, ...(together && { bestTogether: d.bestTogether }), newlyOpen: d.newlyOpen });
@@ -625,6 +696,7 @@ async function cmdAlamoCheck(pairs, want, together) {
   const report = [];
   for (const pair of pairs) {
     const r = await alamoFetchSeats(pair);
+    if (r.blocked) { report.push({ id: pair, error: backoffMessage(r.blocked, r.retryAfterMs) }); continue; }
     if (r.error) { report.push({ id: pair, error: r.error }); continue; }
     const d = diffAndReport({ state, key: `alamo:${pair}`, allSeats: r.seats, want, together });
     report.push({ id: pair, total: d.total, openCount: d.open.length, open: d.open, bestOpen: d.bestOpen, ...(together && { bestTogether: d.bestTogether }), newlyOpen: d.newlyOpen });
@@ -707,13 +779,21 @@ function cmdMonitorClear() {
 }
 
 async function fetchMonitorSeats(watch) {
-  if (watch.chain === "alamo") return alamoFetchSeats(watch.target);
+  if (watch.chain === "alamo") {
+    const result = await alamoFetchSeats(watch.target);
+    if (result.blocked) return { error: backoffMessage(result.blocked, result.retryAfterMs), cooldownMs: result.retryAfterMs ?? DEFAULT_COOLDOWN_MS };
+    return result;
+  }
   let result = await amcFetchSeatsHttp(watch.target);
+  const retryAfterMs = result.retryAfterMs;
   if (result.blocked) {
     process.stderr.write(`HTTP blocked (${result.blocked}) for ${watch.target}; trying Chrome CDP fallback...\n`);
     result = await amcFetchSeatsCdp(watch.target).catch((e) => ({ error: e.message }));
   }
-  if (result.blocked) return { error: `rate limited (${result.blocked}) on both paths — back off 30+ minutes` };
+  if (result.blocked) {
+    const cooldownMs = result.retryAfterMs ?? retryAfterMs ?? DEFAULT_COOLDOWN_MS;
+    return { error: backoffMessage(result.blocked, cooldownMs), cooldownMs };
+  }
   return result;
 }
 
@@ -725,9 +805,9 @@ async function cmdMonitorTick() {
   try {
     const watches = db.prepare("SELECT * FROM watches WHERE active = 1 ORDER BY id").all();
     const updateSuccess = db.prepare(`
-      UPDATE watches SET lastChecked = ?, lastOpenCount = ?, lastResult = ?, seatState = ?, initialized = 1 WHERE id = ?
+      UPDATE watches SET lastChecked = ?, lastOpenCount = ?, lastResult = ?, seatState = ?, initialized = 1, cooldownUntil = NULL WHERE id = ?
     `);
-    const updateError = db.prepare("UPDATE watches SET lastChecked = ?, lastResult = ? WHERE id = ?");
+    const updateError = db.prepare("UPDATE watches SET lastChecked = ?, lastResult = ?, cooldownUntil = ? WHERE id = ?");
     const insertCheck = db.prepare("INSERT INTO checks (watchId, ts, openCount, newlyOpen, result) VALUES (?, ?, ?, ?, ?)");
 
     for (const watch of watches) {
@@ -735,6 +815,11 @@ async function cmdMonitorTick() {
         db.prepare("UPDATE watches SET active = 0 WHERE id = ?").run(watch.id);
         summary.expired++;
         summary.results.push({ watchId: watch.id, chain: watch.chain, target: watch.target, status: "expired" });
+        continue;
+      }
+      if (watch.cooldownUntil && Date.parse(watch.cooldownUntil) > now) {
+        summary.skipped++;
+        summary.results.push({ watchId: watch.id, chain: watch.chain, target: watch.target, status: "cooling-down", cooldownUntil: watch.cooldownUntil });
         continue;
       }
       const effectiveInterval = effectiveIntervalMinutes(watch, now);
@@ -748,11 +833,14 @@ async function cmdMonitorTick() {
       summary.checked++;
       const fetched = await fetchMonitorSeats(watch);
       if (fetched.error) {
-        const result = { watchId: watch.id, chain: watch.chain, target: watch.target, status: "error", error: fetched.error };
+        const cooldownUntil = fetched.cooldownMs
+          ? new Date(now + fetched.cooldownMs).toISOString()
+          : watch.cooldownUntil ?? null;
+        const result = { watchId: watch.id, chain: watch.chain, target: watch.target, status: "error", error: fetched.error, ...(cooldownUntil && { cooldownUntil }) };
         const resultJson = JSON.stringify(result);
         db.exec("BEGIN");
         try {
-          updateError.run(checkedAt, resultJson, watch.id);
+          updateError.run(checkedAt, resultJson, cooldownUntil, watch.id);
           insertCheck.run(watch.id, checkedAt, null, "[]", resultJson);
           db.exec("COMMIT");
         } catch (e) {
@@ -921,7 +1009,7 @@ async function main(argv = process.argv.slice(2)) {
   }
 }
 
-export { extractSeatingLayout, effectiveIntervalMinutes, monitorStatusName, rankTogether, main };
+export { extractSeatingLayout, effectiveIntervalMinutes, monitorStatusName, rankTogether, parseRetryAfter, conditionalHeaders, main };
 
 if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(resolve(process.argv[1]))) {
   process.exitCode = await main();

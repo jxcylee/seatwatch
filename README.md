@@ -97,9 +97,20 @@ Installs a skill into `~/.claude/skills/seatwatch` (and `~/.bb/skills/seatwatch`
 - **AMC**: the seat map ships as JSON inside the server-rendered seats page; seatwatch fetches it over plain HTTP. If AMC blocks or rate-limits that request (HTTP 403/429), it falls back to a local Chrome running with `--remote-debugging-port=9222`, reading the same map from the live DOM.
 - **Alamo**: their open `s/mother` JSON API (`schedule/market/<market>`, `app/seats/<cinemaId>/<sessionId>`).
 
-## Be polite
+## Be polite (and avoid getting yourself blocked)
 
-This reads public seat maps at human-like rates. Keep cadences modest (≥ 5–10 min baseline; never faster than once a minute), check many showtimes in one invocation rather than many invocations, and back off 30+ minutes on 429/1015. seatwatch never reserves or buys seats.
+Every user runs seatwatch from their own machine, so throttling is self-inflicted and self-contained — one aggressive poller only gets its *own* IP cooled off, never anyone else's. The tool leans into that with three built-in courtesies so a normal cadence stays under the radar:
+
+- **Request jitter** — each seat fetch waits a random 0–1.5s so cron-driven polls don't hammer the origin on exact clock boundaries. Tune with `SEATWATCH_JITTER_MS` (`0` disables).
+- **Honored backoff** — on an HTTP 429/403 the tool reads the origin's `Retry-After` header and, for monitors, actually sits out that long (a `cooling-down` watch is skipped until the cooldown passes, then auto-clears on the next success). No header → a 30-minute default.
+- **Conditional requests** — if the origin sends an `ETag`/`Last-Modified`, seatwatch revalidates with it so an unchanged seat map returns a cheap `304` instead of a full re-download. Purely a no-op if the origin ignores it.
+
+Beyond that: keep cadences modest (≥ 5–10 min baseline; the final-2-hour ramp already caps at 2 min), check many showtimes in one invocation rather than spawning many, and prefer Alamo when running headless. seatwatch never reserves or buys seats.
+
+### Where to run it
+
+- **Alamo** uses an open JSON API with no bot fingerprinting — it runs fine from anywhere, including a VPS or cloud function.
+- **AMC** sits behind Cloudflare, which treats datacenter IPs far more harshly than residential ones. The plain-HTTP path is validated from residential IPs; from a VPS it may be challenged, and the Chrome-CDP fallback needs a local Chrome that a headless box won't have. **Run AMC watches from a residential connection** (a home machine, Mac mini, or Raspberry Pi), or treat AMC as best-effort and test from your target IP before relying on it.
 
 Requires Node ≥ 22 (built-in `fetch`, `WebSocket`, and `node:sqlite`). macOS notifications use `osascript`; other platforms just get JSON.
 
