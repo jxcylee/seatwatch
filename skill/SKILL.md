@@ -15,15 +15,15 @@ The `seatwatch` CLI does all the real work. Never scrape ticketing sites by hand
 npx -y seatwatch discover new-york-city/amc-lincoln-square-13 2026-07-17 odyssey
 # → tab-separated: showtimeId  movie  time  status (AlmostFull, Sellable, ...)
 
-# AMC: per-seat availability for one or more showtime ids.
-npx -y seatwatch check 134717192 145066519 --want '^(F|G|H)'
+# AMC: per-seat availability; optionally rank adjacent groups.
+npx -y seatwatch check 134717192 145066519 --want '^(F|G|H)' --together 2
 
 # Alamo: list sessions for a market (nyc, austin, ...), optional movie regex and YYYY-MM-DD.
 npx -y seatwatch alamo-discover nyc odyssey 2026-07-17
 # → cinemaId/sessionId  movie-slug  showtime  cinema  status
 
 # Alamo: per-seat availability for cinemaId/sessionId pairs from discover.
-npx -y seatwatch alamo-check 2103/93423 --want '^7'
+npx -y seatwatch alamo-check 2103/93423 --want '^7' --together 2
 ```
 
 ## Output format (both `check` commands)
@@ -37,13 +37,16 @@ JSON array, one object per showtime:
   "openCount": 0,        // currently available
   "open": ["A4", "..."], // all open seat ids
   "bestOpen": [{"id": "D6", "score": 0.59}, ...],  // top 10 open seats, best first
+  "bestTogether": [{"seats": ["C5", "C6"], "score": 0.81}, ...],
   "newlyOpen": ["D6"]    // opened since the last check (respects --want filter)
 }
 ```
 
 - `bestOpen` scores 0–1: seats ~60% back from the screen and centered in their row score highest. Recommend seats in this order unless the user states a preference.
+- `--together N` adds `bestTogether`, the top five open runs of N physically adjacent seats, scored at each run's centroid with the same geometry. Adjacent seats have consecutive column values in one row; column gaps are aisles and break a run.
 - `newlyOpen` is the alert signal. State persists in `~/.seatwatch/state.json`; the **first check of a showtime seeds state** (no notification fires). Real alerts start from the second check.
 - On macOS a notification (with sound) fires automatically when seats newly open.
+- With `--together`, an alert fires only if an open run of N includes at least one `newlyOpen` seat, and the notification names the run.
 - `--want <regex>` limits alerts to matching seat ids (e.g. `'^(C|D|E)'`). It filters alerts only; `open`/`bestOpen` still show everything.
 - An `error` field usually means the showtime expired or rate limiting hit — the message says which.
 
