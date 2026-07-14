@@ -37,6 +37,10 @@ npx -y seatwatch monitor add alamo 2103/93423 --want '^7' \
 # Cron/automation calls this every 1–2 minutes; it only checks watches that are due.
 npx -y seatwatch monitor tick
 
+# Install or remove the shared cron entry (defaults to every 2 minutes).
+npx -y seatwatch monitor install-cron [--every <minutes>]
+npx -y seatwatch monitor uninstall-cron
+
 # Cached answer with last results and recent openings; never makes a network request.
 npx -y seatwatch monitor status
 
@@ -83,6 +87,8 @@ npx -y seatwatch monitor remove <watchId>
 npx -y seatwatch monitor clear
 npx -y seatwatch monitor tick
 npx -y seatwatch monitor status [watchId]
+npx -y seatwatch monitor install-cron [--every <minutes>]
+npx -y seatwatch monitor uninstall-cron
 ```
 
 `monitor tick` prints JSON and exits 0 normally or 3 when alerts fire, which makes cron branching cheap. `monitor status` reads only `~/.seatwatch/seatwatch.db`—use it to answer “anything open yet?” without causing a network request. It includes the last result and recent newly-open events. Plain `check` commands continue using the legacy `~/.seatwatch/state.json` state.

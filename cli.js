@@ -13,7 +13,7 @@
 //   seatwatch check <showtimeId...> [--want <seat-regex>] [--together N]
 //   seatwatch alamo-discover [market=nyc] [movie-regex] [date]
 //   seatwatch alamo-check <cinemaId/sessionId...> [--want <seat-regex>] [--together N]
-//   seatwatch monitor <add|list|remove|clear|tick|status> ...
+//   seatwatch monitor <add|list|remove|clear|tick|status|install-cron|uninstall-cron> ...
 //   seatwatch install-skill [--dev]
 
 import { mkdirSync, readFileSync, writeFileSync, existsSync, realpathSync } from "node:fs";
@@ -92,6 +92,7 @@ function storeValidators(url, res, seats) {
 }
 
 const STRING_OPTION = { type: "string" };
+const CRON_MARKER = "# seatwatch-monitor";
 
 function parseCommandArgs(args, options = {}) {
   return parseArgs({ args, options, allowPositionals: true, strict: true });
@@ -114,6 +115,18 @@ function parseCheckArgs(args, missingTargetsMessage) {
   }
   if (!positionals.length) throw new Error(missingTargetsMessage);
   return { targets: positionals, want: compileWant(values.want), together };
+}
+
+function transformCrontab(existing, newEntry = null) {
+  const lines = existing.split("\n");
+  if (lines.at(-1) === "") lines.pop();
+  const kept = lines.filter((line) => !line.trimEnd().endsWith(CRON_MARKER));
+  if (newEntry) kept.push(newEntry);
+  return kept.length ? `${kept.join("\n")}\n` : "";
+}
+
+function shellQuote(value) {
+  return `'${value.replaceAll("'", `'"'"'`)}'`;
 }
 
 async function importSqlite() {
@@ -804,6 +817,47 @@ function cmdMonitorClear() {
   }
 }
 
+function readCrontab() {
+  const result = spawnSync("crontab", ["-l"], { encoding: "utf8" });
+  if (result.error) throw result.error;
+  if (result.status === 0) return result.stdout;
+  if (/no crontab for/i.test(result.stderr)) return "";
+  throw new Error(`could not read crontab: ${result.stderr.trim() || `exit ${result.status}`}`);
+}
+
+function writeCrontab(table) {
+  const result = spawnSync("crontab", ["-"], { input: table, encoding: "utf8" });
+  if (result.error) throw result.error;
+  if (result.status !== 0) throw new Error(`could not write crontab: ${result.stderr.trim() || `exit ${result.status}`}`);
+}
+
+function cmdMonitorInstallCron({ every: everyRaw = "2" }) {
+  const every = Number(everyRaw);
+  if (!Number.isInteger(every) || every < 1 || every > 59) {
+    throw new Error("--every must be a whole number of minutes from 1 to 59");
+  }
+  const cliPath = fileURLToPath(import.meta.url);
+  const entry = `*/${every} * * * * ${shellQuote(process.execPath)} ${shellQuote(cliPath)} monitor tick >> ~/.seatwatch/tick.log 2>&1 ${CRON_MARKER}`;
+  mkdirSync(STATE_DIR, { recursive: true });
+  writeCrontab(transformCrontab(readCrontab(), entry));
+  console.log(entry);
+  console.log(`Runs every ${every} minute${every === 1 ? "" : "s"}; tick cheaply decides which watches are due.`);
+  if (cliPath.includes("/_npx/")) {
+    console.warn("warning: cli.js is inside an npx cache; run `npm i -g seatwatch` and reinstall cron for a stable path.");
+  }
+}
+
+function cmdMonitorUninstallCron() {
+  const existing = readCrontab();
+  const removed = existing.split("\n").filter((line) => line.trimEnd().endsWith(CRON_MARKER));
+  if (!removed.length) {
+    console.log("nothing installed");
+    return;
+  }
+  writeCrontab(transformCrontab(existing));
+  for (const line of removed) console.log(`removed: ${line}`);
+}
+
 async function fetchMonitorSeats(watch) {
   if (watch.chain === "alamo") {
     const result = await alamoFetchSeats(watch.target);
@@ -1007,20 +1061,26 @@ async function main(argv = process.argv.slice(2)) {
       let parsed;
       if (subcommand === "add") {
         parsed = parseCommandArgs(monitorArgs, { want: STRING_OPTION, label: STRING_OPTION, notify: STRING_OPTION, until: STRING_OPTION, interval: STRING_OPTION });
-      } else if (["list", "remove", "clear", "tick", "status"].includes(subcommand)) {
+      } else if (subcommand === "install-cron") {
+        parsed = parseCommandArgs(monitorArgs, { every: STRING_OPTION });
+      } else if (["list", "remove", "clear", "tick", "status", "uninstall-cron"].includes(subcommand)) {
         parsed = parseCommandArgs(monitorArgs);
       } else {
-        throw new Error("monitor command must be add, list, remove, clear, tick, or status");
+        throw new Error("monitor command must be add, list, remove, clear, tick, status, install-cron, or uninstall-cron");
       }
       const maxPositionals = ["remove", "status"].includes(subcommand) ? 1 : subcommand === "add" ? 2 : 0;
       if (parsed.positionals.length > maxPositionals) throw new Error(`monitor ${subcommand} received too many arguments`);
-      ({ DatabaseSync } = await importSqlite());
-      if (subcommand === "add") cmdMonitorAdd(parsed.positionals, parsed.values);
-      else if (subcommand === "list") cmdMonitorList();
-      else if (subcommand === "remove") cmdMonitorRemove(parsed.positionals[0]);
-      else if (subcommand === "clear") cmdMonitorClear();
-      else if (subcommand === "tick") return (await cmdMonitorTick()) ? 3 : 0;
-      else cmdMonitorStatus(parsed.positionals[0]);
+      if (subcommand === "install-cron") cmdMonitorInstallCron(parsed.values);
+      else if (subcommand === "uninstall-cron") cmdMonitorUninstallCron();
+      else {
+        ({ DatabaseSync } = await importSqlite());
+        if (subcommand === "add") cmdMonitorAdd(parsed.positionals, parsed.values);
+        else if (subcommand === "list") cmdMonitorList();
+        else if (subcommand === "remove") cmdMonitorRemove(parsed.positionals[0]);
+        else if (subcommand === "clear") cmdMonitorClear();
+        else if (subcommand === "tick") return (await cmdMonitorTick()) ? 3 : 0;
+        else cmdMonitorStatus(parsed.positionals[0]);
+      }
     } else if (cmd === "install-skill") {
       const { values, positionals } = parseCommandArgs(rest, { dev: { type: "boolean" } });
       if (positionals.length) throw new Error("install-skill does not accept positional arguments");
@@ -1038,6 +1098,8 @@ async function main(argv = process.argv.slice(2)) {
   seatwatch monitor clear                                     # remove all watches
   seatwatch monitor tick                                      # check active watches that are due
   seatwatch monitor status [watchId]                          # cached status; no network
+  seatwatch monitor install-cron [--every <minutes>]          # install recurring ticks (default: 2)
+  seatwatch monitor uninstall-cron                            # remove recurring ticks
   seatwatch install-skill [--dev]                             # install the agent skill`);
       return 2;
     }
@@ -1048,7 +1110,7 @@ async function main(argv = process.argv.slice(2)) {
   }
 }
 
-export { extractSeatingLayout, effectiveIntervalMinutes, monitorStatusName, notifyWebhook, rankTogether, parseRetryAfter, conditionalHeaders, main };
+export { extractSeatingLayout, effectiveIntervalMinutes, monitorStatusName, notifyWebhook, rankTogether, parseRetryAfter, conditionalHeaders, transformCrontab, main };
 
 if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(resolve(process.argv[1]))) {
   process.exitCode = await main();
