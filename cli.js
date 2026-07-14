@@ -21,6 +21,7 @@ import { spawnSync } from "node:child_process";
 import { homedir } from "node:os";
 import { join, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { parseArgs } from "node:util";
 
 let DatabaseSync;
 
@@ -39,6 +40,44 @@ const HTML_HEADERS = {
 };
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const STRING_OPTION = { type: "string" };
+
+function parseCommandArgs(args, options = {}) {
+  return parseArgs({ args, options, allowPositionals: true, strict: true });
+}
+
+function compileWant(value) {
+  if (value == null) return null;
+  try {
+    return new RegExp(value, "i");
+  } catch (error) {
+    throw new Error(`invalid --want regex: ${error.message}`);
+  }
+}
+
+function parseCheckArgs(args, missingTargetsMessage) {
+  const { values, positionals } = parseCommandArgs(args, { want: STRING_OPTION, together: STRING_OPTION });
+  const together = values.together == null ? null : Number(values.together);
+  if (values.together != null && (!Number.isInteger(together) || together < 1)) {
+    throw new Error("--together requires a positive integer");
+  }
+  if (!positionals.length) throw new Error(missingTargetsMessage);
+  return { targets: positionals, want: compileWant(values.want), together };
+}
+
+async function importSqlite() {
+  const emitWarning = process.emitWarning;
+  process.emitWarning = function (warning, type, ...args) {
+    if (type === "ExperimentalWarning" && warning === "SQLite is an experimental feature and might change at any time") return;
+    return emitWarning.call(process, warning, type, ...args);
+  };
+  try {
+    return await import("node:sqlite");
+  } finally {
+    process.emitWarning = emitWarning;
+  }
+}
 
 // ---------- shared: state, notify, ranking ----------
 function loadState() {
@@ -62,7 +101,7 @@ function notify(title, body) {
 
 // Score 0..1: prefer rows ~60% back from the screen, seats centered in the row.
 function seatGeometry(seats) {
-  const rows = [...new Set(seats.map((s) => s.row))].sort((a, b) => (a < b ? -1 : 1));
+  const rows = [...new Set(seats.map((s) => s.row))].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
   const byRow = {};
   for (const s of seats) (byRow[s.row] ||= []).push(s.col);
   for (const cols of Object.values(byRow)) cols.sort((a, b) => a - b);
@@ -73,7 +112,7 @@ function scorePosition(rowPositions, col, cols) {
   const rowPos = rowPositions.reduce((sum, n) => sum + n, 0) / rowPositions.length;
   const colPos = cols.length > 1 ? (col - cols[0]) / (cols[cols.length - 1] - cols[0]) : 0.5;
   const score = 1 - (Math.abs(rowPos - 0.6) * 0.9 + Math.abs(colPos - 0.5) * 1.1);
-  return Math.round(score * 100) / 100;
+  return Math.round(Math.max(0, Math.min(1, score)) * 100) / 100;
 }
 
 function rankSeats(seats /* [{id, row, col, ...}] */) {
@@ -210,9 +249,19 @@ function extractSeatingLayout(html) {
   if (anchor < 0) return null;
   const start = text.indexOf("{", anchor);
   let depth = 0;
+  let inString = false;
+  let escaped = false;
   for (let i = start; i < text.length; i++) {
-    if (text[i] === "{") depth++;
-    else if (text[i] === "}" && --depth === 0) {
+    const char = text[i];
+    if (inString) {
+      if (escaped) escaped = false;
+      else if (char === "\\") escaped = true;
+      else if (char === '"') inString = false;
+      continue;
+    }
+    if (char === '"') inString = true;
+    else if (char === "{") depth++;
+    else if (char === "}" && --depth === 0) {
       try {
         return JSON.parse(text.slice(start, i + 1));
       } catch {
@@ -547,9 +596,8 @@ async function cmdDiscover(slug, date, movieRe) {
   if (!seen.size) process.stderr.write("No showtimes matched.\n");
 }
 
-async function cmdCheck(ids, wantRe, together) {
+async function cmdCheck(ids, want, together) {
   const state = loadState();
-  const want = wantRe ? new RegExp(wantRe, "i") : null;
   const report = [];
   for (const id of ids) {
     let r = await amcFetchSeatsHttp(id);
@@ -572,9 +620,8 @@ async function cmdCheck(ids, wantRe, together) {
   console.log(JSON.stringify(report, null, 2));
 }
 
-async function cmdAlamoCheck(pairs, wantRe, together) {
+async function cmdAlamoCheck(pairs, want, together) {
   const state = loadState();
-  const want = wantRe ? new RegExp(wantRe, "i") : null;
   const report = [];
   for (const pair of pairs) {
     const r = await alamoFetchSeats(pair);
@@ -593,28 +640,18 @@ async function cmdAlamoCheck(pairs, wantRe, together) {
 }
 
 // ---------- monitor commands ----------
-function optionValue(args, name) {
-  const index = args.indexOf(name);
-  if (index < 0) return null;
-  if (!args[index + 1] || args[index + 1].startsWith("--")) throw new Error(`${name} requires a value`);
-  return args[index + 1];
-}
-
-function cmdMonitorAdd(args) {
-  const [chain, target] = args;
+function cmdMonitorAdd(positionals, options) {
+  const [chain, target] = positionals;
   if (!["amc", "alamo"].includes(chain)) throw new Error("monitor add chain must be amc or alamo");
   if (!target) throw new Error("monitor add target required");
+  if (positionals.length > 2) throw new Error("monitor add accepts only a chain and target");
   if (chain === "amc" && !/^\d+$/.test(target)) throw new Error("AMC target must be a showtimeId");
   if (chain === "alamo" && !/^\d+\/\d+$/.test(target)) throw new Error("Alamo target must be cinemaId/sessionId");
 
-  const want = optionValue(args, "--want");
-  if (want) {
-    try { new RegExp(want, "i"); } catch (e) { throw new Error(`invalid --want regex: ${e.message}`); }
-  }
-  const intervalRaw = optionValue(args, "--interval") || "10";
+  const { want = null, label = null, until: untilRaw, interval: intervalRaw = "10" } = options;
+  compileWant(want);
   const intervalMinutes = Number(intervalRaw);
   if (!Number.isInteger(intervalMinutes) || intervalMinutes < 1) throw new Error("--interval must be a positive whole number of minutes");
-  const untilRaw = optionValue(args, "--until");
   let until = null;
   if (untilRaw) {
     const parsed = Date.parse(untilRaw);
@@ -628,7 +665,7 @@ function cmdMonitorAdd(args) {
     const result = db.prepare(`
       INSERT INTO watches (chain, target, label, want, intervalMinutes, until, createdAt)
       VALUES (?, ?, ?, ?, ?, ?, ?)
-    `).run(chain, target, optionValue(args, "--label"), want, intervalMinutes, until, createdAt);
+    `).run(chain, target, label, want, intervalMinutes, until, createdAt);
     const watch = db.prepare("SELECT * FROM watches WHERE id = ?").get(result.lastInsertRowid);
     console.log(JSON.stringify(publicWatch(watch), null, 2));
   } finally {
@@ -727,9 +764,10 @@ async function cmdMonitorTick() {
       }
 
       const { key, state } = monitorState(watch);
-      const want = watch.want ? new RegExp(watch.want, "i") : null;
+      const want = compileWant(watch.want);
       const diff = diffAndReport({ state, key, allSeats: fetched.seats, want });
-      const newlyOpen = diff.shouldNotify ? diff.newlyOpen : [];
+      const newlyOpen = diff.newlyOpen;
+      const alertSeats = diff.shouldNotify ? newlyOpen : [];
       const result = {
         watchId: watch.id,
         chain: watch.chain,
@@ -746,16 +784,16 @@ async function cmdMonitorTick() {
       db.exec("BEGIN");
       try {
         updateSuccess.run(checkedAt, diff.open.length, resultJson, JSON.stringify(diff.open), watch.id);
-        insertCheck.run(watch.id, checkedAt, diff.open.length, JSON.stringify(newlyOpen), resultJson);
+        insertCheck.run(watch.id, checkedAt, diff.open.length, JSON.stringify(alertSeats), resultJson);
         db.exec("COMMIT");
       } catch (e) {
         db.exec("ROLLBACK");
         throw e;
       }
-      if (newlyOpen.length) {
+      if (alertSeats.length) {
         summary.alerts++;
         const title = watch.chain === "alamo" ? `Alamo seats opened: ${watch.target}` : `Seats opened: showtime ${watch.target}`;
-        notify(title, `${newlyOpen.join(", ")} now available (${diff.open.length} open total)`);
+        notify(title, `${alertSeats.join(", ")} now available (${diff.open.length} open total)`);
       }
       summary.results.push(result);
     }
@@ -817,42 +855,49 @@ function cmdInstallSkill({ dev }) {
 // ---------- main ----------
 async function main(argv = process.argv.slice(2)) {
   const [cmd, ...rest] = argv;
-  const wantIdx = rest.indexOf("--want");
-  const wantRe = wantIdx >= 0 ? rest[wantIdx + 1] : null;
-  const togetherIdx = rest.indexOf("--together");
-  const togetherArg = togetherIdx >= 0 ? rest[togetherIdx + 1] : null;
-  const together = togetherArg === null ? null : Number(togetherArg);
-  const args = rest.filter((a, i) =>
-    a !== "--want" && (wantIdx < 0 || i !== wantIdx + 1) &&
-    a !== "--together" && (togetherIdx < 0 || i !== togetherIdx + 1) &&
-    !a.startsWith("--"));
-
   try {
-    if (togetherIdx >= 0 && (!Number.isInteger(together) || together < 1)) throw new Error("--together requires a positive integer");
-    if (cmd === "theatres") await cmdTheatres(args.join(" "));
-    else if (cmd === "discover") await cmdDiscover(args[0], args[1], args[2]);
-    else if (cmd === "check") {
-      if (!args.length) throw new Error("no showtime ids given");
-      await cmdCheck(args, wantRe, together);
+    if (cmd === "theatres") {
+      const { positionals } = parseCommandArgs(rest);
+      await cmdTheatres(positionals.join(" "));
+    } else if (cmd === "discover") {
+      const { positionals } = parseCommandArgs(rest);
+      if (positionals.length > 3) throw new Error("discover accepts at most a theatre slug, date, and movie regex");
+      await cmdDiscover(positionals[0], positionals[1], positionals[2]);
+    } else if (cmd === "check") {
+      const { targets, want, together } = parseCheckArgs(rest, "no showtime ids given");
+      await cmdCheck(targets, want, together);
     } else if (cmd === "alamo-discover") {
-      const rows = await alamoDiscover(args[0] || "nyc", args[1], args[2]);
+      const { positionals } = parseCommandArgs(rest);
+      if (positionals.length > 3) throw new Error("alamo-discover accepts at most a market, movie regex, and date");
+      const rows = await alamoDiscover(positionals[0] || "nyc", positionals[1], positionals[2]);
       for (const r of rows) console.log(`${r.id}\t${r.movie}\t${r.time}\t${r.cinema}\t${r.status}`);
       if (!rows.length) process.stderr.write("No sessions matched.\n");
     } else if (cmd === "alamo-check") {
-      if (!args.length) throw new Error("no cinemaId/sessionId pairs given");
-      await cmdAlamoCheck(args, wantRe, together);
+      const { targets, want, together } = parseCheckArgs(rest, "no cinemaId/sessionId pairs given");
+      await cmdAlamoCheck(targets, want, together);
     } else if (cmd === "monitor") {
-      ({ DatabaseSync } = await import("node:sqlite"));
       const [subcommand, ...monitorArgs] = rest;
-      if (subcommand === "add") cmdMonitorAdd(monitorArgs);
+      let parsed;
+      if (subcommand === "add") {
+        parsed = parseCommandArgs(monitorArgs, { want: STRING_OPTION, label: STRING_OPTION, until: STRING_OPTION, interval: STRING_OPTION });
+      } else if (["list", "remove", "clear", "tick", "status"].includes(subcommand)) {
+        parsed = parseCommandArgs(monitorArgs);
+      } else {
+        throw new Error("monitor command must be add, list, remove, clear, tick, or status");
+      }
+      const maxPositionals = ["remove", "status"].includes(subcommand) ? 1 : subcommand === "add" ? 2 : 0;
+      if (parsed.positionals.length > maxPositionals) throw new Error(`monitor ${subcommand} received too many arguments`);
+      ({ DatabaseSync } = await importSqlite());
+      if (subcommand === "add") cmdMonitorAdd(parsed.positionals, parsed.values);
       else if (subcommand === "list") cmdMonitorList();
-      else if (subcommand === "remove") cmdMonitorRemove(monitorArgs[0]);
+      else if (subcommand === "remove") cmdMonitorRemove(parsed.positionals[0]);
       else if (subcommand === "clear") cmdMonitorClear();
       else if (subcommand === "tick") return (await cmdMonitorTick()) ? 3 : 0;
-      else if (subcommand === "status") cmdMonitorStatus(monitorArgs[0]);
-      else throw new Error("monitor command must be add, list, remove, clear, tick, or status");
+      else cmdMonitorStatus(parsed.positionals[0]);
     } else if (cmd === "install-skill") {
-      cmdInstallSkill({ dev: rest.includes("--dev") });
+      const { values, positionals } = parseCommandArgs(rest, { dev: { type: "boolean" } });
+      if (positionals.length) throw new Error("install-skill does not accept positional arguments");
+      cmdInstallSkill({ dev: values.dev });
     } else {
       console.error(`usage:
   seatwatch theatres <query>                                  # resolve AMC slugs / Alamo markets
@@ -860,12 +905,13 @@ async function main(argv = process.argv.slice(2)) {
   seatwatch check <showtimeId...> [--want <seat-regex>] [--together N]
   seatwatch alamo-discover [market=nyc] [movie-regex] [date]  # Alamo sessions
   seatwatch alamo-check <cinemaId/sessionId...> [--want <re>] [--together N]
-  seatwatch monitor add <amc|alamo> <id> [options]            # register a recurring watch
+  seatwatch monitor add <amc|alamo> <id> [--want <re>] [--label <text>] [--until <ISO-datetime>] [--interval <minutes>]
   seatwatch monitor list                                      # list watches
-  seatwatch monitor remove <watchId> | monitor clear          # remove watches
+  seatwatch monitor remove <watchId>                          # remove one watch
+  seatwatch monitor clear                                     # remove all watches
   seatwatch monitor tick                                      # check active watches that are due
   seatwatch monitor status [watchId]                          # cached status; no network
-  seatwatch install-skill [--dev]                             # install the Claude skill`);
+  seatwatch install-skill [--dev]                             # install the agent skill`);
       return 2;
     }
     return 0;
@@ -875,7 +921,7 @@ async function main(argv = process.argv.slice(2)) {
   }
 }
 
-export { extractSeatingLayout, effectiveIntervalMinutes, monitorStatusName, main };
+export { extractSeatingLayout, effectiveIntervalMinutes, monitorStatusName, rankTogether, main };
 
 if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(resolve(process.argv[1]))) {
   process.exitCode = await main();

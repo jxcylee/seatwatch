@@ -4,6 +4,23 @@ Watch movie seat availability and cancellation openings at **AMC** and **Alamo D
 
 JSON-out and exit-coded — built to be driven by agents and cron, without a daemon.
 
+## Command reference
+
+```text
+seatwatch theatres <query>
+seatwatch discover <theatre-slug> [date] [movie-regex]
+seatwatch check <showtimeId...> [--want <seat-regex>] [--together N]
+seatwatch alamo-discover [market=nyc] [movie-regex] [date]
+seatwatch alamo-check <cinemaId/sessionId...> [--want <seat-regex>] [--together N]
+seatwatch monitor add <amc|alamo> <id> [--want <seat-regex>] [--label <text>] [--until <ISO-datetime>] [--interval <minutes>]
+seatwatch monitor list
+seatwatch monitor remove <watchId>
+seatwatch monitor clear
+seatwatch monitor tick
+seatwatch monitor status [watchId]
+seatwatch install-skill [--dev]
+```
+
 ## Quick start
 
 ```bash
@@ -33,6 +50,8 @@ npx -y seatwatch monitor status
 
 Pass `--together N` to either `check` command to add `bestTogether`, the top five contiguous open runs of N seats ranked by the centroid of each run. Seats must have consecutive column values in the same row; a column gap is treated as an aisle. With this flag, notifications fire only when a qualifying run includes at least one newly opened seat, and the notification names that run.
 
+`--want <seat-regex>` filters `newlyOpen` and alerts only; it does not filter `open`, `bestOpen`, or `bestTogether`.
+
 ```json
 {"bestTogether": [{"seats": ["C5", "C6"], "score": 0.81}]}
 ```
@@ -53,6 +72,8 @@ seatwatch monitor status [watchId]
 
 AMC targets are showtime IDs; Alamo targets are `cinemaId/sessionId`. The default interval is 10 minutes. During the final two hours before `--until`, the effective interval automatically becomes the smaller of the configured interval and 2 minutes. A tick marks watches expired after `--until`, skips them, and cheaply skips every active watch that is not due.
 
+Monitors support `--want` with the same alert-filter semantics as the two plain check commands. They do not support `--together`; use `check` or `alamo-check` when adjacent-group ranking is needed. The first successful monitor tick seeds its independent SQLite seat state and does not alert. Plain checks keep their independent history in `~/.seatwatch/state.json`, so the two subsystems never overwrite each other's state.
+
 Run `monitor tick` every 1–2 minutes from a single cron entry or agent automation. It prints one JSON summary and exits 0 normally or 3 when one or more newly opened seat matches trigger alerts. `monitor status` never accesses the network: it returns each watch's last result and recent newly-open events directly from SQLite, making it the right command for answering “anything open yet?”
 
 Example cron entry:
@@ -65,13 +86,15 @@ Example cron entry:
 
 ```bash
 npx -y seatwatch install-skill
+# For a checkout, rewrite the installed skill to invoke this checkout's cli.js:
+npx -y seatwatch install-skill --dev
 ```
 
 Installs a skill into `~/.claude/skills/seatwatch` (and `~/.bb/skills/seatwatch`) that teaches Claude Code / compatible agents to answer "are there seats for X?", "watch this showtime for cancellations", and "best seats left" by driving this CLI. New agent sessions pick it up automatically.
 
 ## How it works
 
-- **AMC**: the seat map ships as JSON inside the server-rendered seats page; seatwatch fetches it over plain HTTP. If AMC rate-limits (HTTP 429), it falls back to a local Chrome running with `--remote-debugging-port=9222`, reading the same map from the live DOM.
+- **AMC**: the seat map ships as JSON inside the server-rendered seats page; seatwatch fetches it over plain HTTP. If AMC blocks or rate-limits that request (HTTP 403/429), it falls back to a local Chrome running with `--remote-debugging-port=9222`, reading the same map from the live DOM.
 - **Alamo**: their open `s/mother` JSON API (`schedule/market/<market>`, `app/seats/<cinemaId>/<sessionId>`).
 
 ## Be polite

@@ -5,7 +5,7 @@ description: Check movie seat availability and watch for cancellation openings a
 
 # seatwatch — movie seat availability checker
 
-The `seatwatch` CLI does all the real work. Never scrape ticketing sites by hand — run it and interpret its JSON. All checks are plain HTTP (AMC falls back to a local Chrome on `--remote-debugging-port=9222` only if HTTP gets rate-limited), so no browser setup is normally needed.
+The `seatwatch` CLI does all the real work. Never scrape ticketing sites by hand — run it and interpret its JSON. All checks are plain HTTP (AMC falls back to a local Chrome on `--remote-debugging-port=9222` if HTTP is blocked or rate-limited), so no browser setup is normally needed.
 
 ## Commands
 
@@ -38,6 +38,9 @@ npx -y seatwatch monitor tick
 
 # Cached answer with last results and recent openings; never makes a network request.
 npx -y seatwatch monitor status
+
+# Install this agent skill; --dev rewrites commands to use the current checkout.
+npx -y seatwatch install-skill [--dev]
 ```
 
 ## Output format (both `check` commands)
@@ -61,7 +64,7 @@ JSON array, one object per showtime:
 - `newlyOpen` is the alert signal. State persists in `~/.seatwatch/state.json`; the **first check of a showtime seeds state** (no notification fires). Real alerts start from the second check.
 - On macOS a notification (with sound) fires automatically when seats newly open.
 - With `--together`, an alert fires only if an open run of N includes at least one `newlyOpen` seat, and the notification names the run.
-- `--want <regex>` limits alerts to matching seat ids (e.g. `'^(C|D|E)'`). It filters alerts only; `open`/`bestOpen` still show everything.
+- `--want <regex>` limits `newlyOpen` and alerts to matching seat ids (e.g. `'^(C|D|E)'`). It does not filter `open`, `bestOpen`, or `bestTogether`.
 - An `error` field usually means the showtime expired or rate limiting hit — the message says which.
 
 ## Typical workflows
@@ -82,6 +85,10 @@ npx -y seatwatch monitor status [watchId]
 ```
 
 `monitor tick` prints JSON and exits 0 normally or 3 when alerts fire, which makes cron branching cheap. `monitor status` reads only `~/.seatwatch/seatwatch.db`—use it to answer “anything open yet?” without causing a network request. It includes the last result and recent newly-open events. Plain `check` commands continue using the legacy `~/.seatwatch/state.json` state.
+
+Monitor `--want` has the same alert-filter semantics as plain checks. Monitors do not support `--together`; run `check` or `alamo-check` for adjacent-group ranking. The first successful tick seeds the monitor's SQLite seat state without alerting, independently of the plain-check history in `state.json`.
+
+Install this skill with `npx -y seatwatch install-skill`. When developing from a checkout, `npx -y seatwatch install-skill --dev` rewrites installed commands to invoke that checkout's `cli.js` directly.
 
 **Buying**: seatwatch never buys tickets. When seats open, tell the user immediately with the direct link — AMC: `https://www.amctheatres.com/showtimes/<id>/seats`, Alamo: the drafthouse.com session page — so they can grab it themselves.
 
