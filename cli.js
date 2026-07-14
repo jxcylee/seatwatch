@@ -8,6 +8,7 @@
 // to be driven by agents or cron, not to daemonize.
 //
 // Usage:
+//   seatwatch theatres <query>
 //   seatwatch discover <theatre-slug> [date YYYY-MM-DD] [movie-regex]
 //   seatwatch check <showtimeId...> [--want <seat-regex>]
 //   seatwatch alamo-discover [market=nyc] [movie-regex] [date]
@@ -23,6 +24,8 @@ import { fileURLToPath } from "node:url";
 const CDP_HTTP = process.env.SEATWATCH_CDP || "http://127.0.0.1:9222";
 const STATE_DIR = join(homedir(), ".seatwatch");
 const STATE_FILE = join(STATE_DIR, "state.json");
+const THEATRES_CACHE_FILE = join(STATE_DIR, "theatres-cache.json");
+const THEATRES_CACHE_TTL = 30 * 24 * 60 * 60 * 1000;
 const UA =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36";
 const HTML_HEADERS = {
@@ -30,6 +33,8 @@ const HTML_HEADERS = {
   Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
   "Accept-Language": "en-US,en;q=0.9",
 };
+
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // ---------- shared: state, notify, ranking ----------
 function loadState() {
@@ -252,6 +257,147 @@ async function alamoFetchSeats(pair) {
   return { seats };
 }
 
+// ---------- theatre index ----------
+function decodeXml(s = "") {
+  return s
+    .replaceAll("&amp;", "&")
+    .replaceAll("&quot;", '"')
+    .replaceAll("&#39;", "'")
+    .replaceAll("&lt;", "<")
+    .replaceAll("&gt;", ">");
+}
+
+function parseAmcTheatreSitemap(xml) {
+  const attribute = (block, name) =>
+    decodeXml((block.match(new RegExp(`<Attribute name="${name}">([\\s\\S]*?)<\\/Attribute>`)) || [])[1]);
+  const theatres = [];
+  for (const [, block] of xml.matchAll(/<url>([\s\S]*?)<\/url>/g)) {
+    const slug = (block.match(/<loc>https:\/\/www\.amctheatres\.com\/movie-theatres\/([^<]+)<\/loc>/) || [])[1];
+    const name = attribute(block, "title");
+    if (!slug || !name) continue;
+    theatres.push({
+      chain: "AMC",
+      slug: decodeXml(slug),
+      name,
+      address: attribute(block, "addressLine1"),
+      city: attribute(block, "city"),
+      state: attribute(block, "state"),
+      postalCode: attribute(block, "postalCode"),
+    });
+  }
+  return theatres;
+}
+
+async function fetchAmcTheatres() {
+  const root = await fetch("https://www.amctheatres.com/sitemap.xml", {
+    headers: HTML_HEADERS,
+    signal: AbortSignal.timeout(20000),
+  });
+  if (root.status === 403 || root.status === 429) throw new Error(`AMC sitemap blocked (HTTP ${root.status})`);
+  if (!root.ok) throw new Error(`AMC sitemap fetch failed (HTTP ${root.status})`);
+  const rootXml = await root.text();
+  const sitemapUrl = decodeXml(
+    (rootXml.match(/<loc>(https:\/\/www\.amctheatres\.com\/sitemaps\/[^<]*theatre[^<]*\.xml)<\/loc>/i) || [])[1],
+  );
+  if (!sitemapUrl) throw new Error("AMC theatre sitemap was not listed in sitemap.xml");
+  await sleep(3000);
+  const res = await fetch(sitemapUrl, { headers: HTML_HEADERS, signal: AbortSignal.timeout(30000) });
+  if (res.status === 403 || res.status === 429) throw new Error(`AMC theatre sitemap blocked (HTTP ${res.status})`);
+  if (!res.ok) throw new Error(`AMC theatre sitemap fetch failed (HTTP ${res.status})`);
+  const theatres = parseAmcTheatreSitemap(await res.text());
+  if (!theatres.length) throw new Error("AMC theatre sitemap contained no theatres");
+  return theatres;
+}
+
+function bundledAmcTheatres() {
+  const here = dirname(fileURLToPath(import.meta.url));
+  return JSON.parse(readFileSync(join(here, "data", "amc-theatres.json"), "utf8")).map((t) => ({
+    chain: "AMC",
+    ...t,
+  }));
+}
+
+async function fetchAlamoTheatres() {
+  const base = "https://drafthouse.com/s/mother";
+  const national = await fetch(`${base}/v1/page/cclamp?useUnifiedSchedule=true`, {
+    signal: AbortSignal.timeout(20000),
+  });
+  if (!national.ok) throw new Error(`Alamo market index fetch failed (HTTP ${national.status})`);
+  const { data } = await national.json();
+  const markets = (data.marketSummaries || []).filter((m) => m.slug && !["national", "test"].includes(m.slug));
+  if (!markets.length) throw new Error("Alamo market index contained no markets");
+  const results = await Promise.allSettled(
+    markets.map(async (market) => {
+      const res = await fetch(`${base}/v1/page/cclamp/${market.slug}?useUnifiedSchedule=true`, {
+        signal: AbortSignal.timeout(20000),
+      });
+      if (!res.ok) throw new Error(`${market.slug}: HTTP ${res.status}`);
+      const body = await res.json();
+      return (body.data?.cinemaSummaries || []).map((cinema) => ({
+        chain: "Alamo",
+        market: market.slug,
+        marketName: market.name,
+        name: cinema.name,
+        address: [cinema.street1, cinema.street2].filter(Boolean).join(", "),
+        city: cinema.city,
+        state: cinema.state,
+        postalCode: cinema.postalCode,
+      }));
+    }),
+  );
+  const theatres = results.flatMap((r) => (r.status === "fulfilled" ? r.value : []));
+  if (!theatres.length) throw new Error("Alamo cinema indexes contained no cinemas");
+  const failures = results.filter((r) => r.status === "rejected");
+  if (failures.length) process.stderr.write(`Warning: ${failures.length} Alamo market index(es) could not be fetched.\n`);
+  return theatres;
+}
+
+function loadTheatreCache() {
+  try {
+    const cache = JSON.parse(readFileSync(THEATRES_CACHE_FILE, "utf8"));
+    if (Date.now() - new Date(cache.fetchedAt).getTime() < THEATRES_CACHE_TTL && cache.amc?.length && cache.alamo?.length) {
+      return cache;
+    }
+  } catch {}
+  return null;
+}
+
+async function theatreIndex() {
+  const cached = loadTheatreCache();
+  if (cached) return cached;
+  const [amcResult, alamoResult] = await Promise.allSettled([fetchAmcTheatres(), fetchAlamoTheatres()]);
+  let amc;
+  if (amcResult.status === "fulfilled") amc = amcResult.value;
+  else {
+    process.stderr.write(`Warning: ${amcResult.reason.message}; using bundled AMC theatre index.\n`);
+    amc = bundledAmcTheatres();
+  }
+  if (alamoResult.status === "rejected") throw new Error(alamoResult.reason.message);
+  const cache = { fetchedAt: new Date().toISOString(), amc, alamo: alamoResult.value };
+  mkdirSync(STATE_DIR, { recursive: true });
+  writeFileSync(THEATRES_CACHE_FILE, JSON.stringify(cache, null, 2));
+  return cache;
+}
+
+function theatreLocation(t) {
+  return [t.address, [t.city, t.state].filter(Boolean).join(", ") + (t.postalCode ? ` ${t.postalCode}` : "")]
+    .filter(Boolean)
+    .join(", ");
+}
+
+async function cmdTheatres(query) {
+  if (!query) throw new Error("theatre query required, e.g. theatres lincoln square");
+  const index = await theatreIndex();
+  const needle = query.toLowerCase();
+  const matches = [...index.amc, ...index.alamo].filter((t) =>
+    [t.name, t.city, t.state, t.marketName].filter(Boolean).join(" ").toLowerCase().includes(needle),
+  );
+  for (const t of matches) {
+    console.log(`${t.chain}\t${t.slug || t.market}\t${t.name}\t${theatreLocation(t)}`);
+  }
+  if (!matches.length) process.stderr.write("No theatres matched.\n");
+}
+
 // ---------- commands ----------
 async function cmdDiscover(slug, date, movieRe) {
   if (!slug) throw new Error("theatre slug required, e.g. new-york-city/amc-lincoln-square-13");
@@ -344,7 +490,8 @@ const wantRe = wantIdx >= 0 ? rest[wantIdx + 1] : null;
 const args = rest.filter((a, i) => a !== "--want" && (wantIdx < 0 || i !== wantIdx + 1) && !a.startsWith("--"));
 
 try {
-  if (cmd === "discover") await cmdDiscover(args[0], args[1], args[2]);
+  if (cmd === "theatres") await cmdTheatres(args.join(" "));
+  else if (cmd === "discover") await cmdDiscover(args[0], args[1], args[2]);
   else if (cmd === "check") {
     if (!args.length) throw new Error("no showtime ids given");
     await cmdCheck(args, wantRe);
@@ -359,6 +506,7 @@ try {
     cmdInstallSkill({ dev: rest.includes("--dev") });
   } else {
     console.error(`usage:
+  seatwatch theatres <query>                                    # resolve AMC slugs / Alamo markets
   seatwatch discover <theatre-slug> [date] [movie-regex]      # AMC showtimes
   seatwatch check <showtimeId...> [--want <seat-regex>]       # AMC per-seat check
   seatwatch alamo-discover [market=nyc] [movie-regex] [date]  # Alamo sessions

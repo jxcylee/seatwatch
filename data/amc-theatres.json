@@ -1,0 +1,4194 @@
+[
+  {
+    "slug": "st-louis/amc-esquire-7",
+    "name": "AMC Esquire 7",
+    "address": "6706 Clayton Road",
+    "city": "SAINT LOUIS",
+    "state": "MO",
+    "postalCode": "63117-1604"
+  },
+  {
+    "slug": "st-louis/amc-streets-of-st-charles-8",
+    "name": "AMC Streets Of St Charles 8",
+    "address": "311 Lombard Street",
+    "city": "ST CHARLES",
+    "state": "MO",
+    "postalCode": "63303"
+  },
+  {
+    "slug": "kansas-city/amc-ward-parkway-14",
+    "name": "AMC Ward Parkway 14",
+    "address": "8600 Ward Parkway",
+    "city": "KANSAS CITY",
+    "state": "MO",
+    "postalCode": "64114"
+  },
+  {
+    "slug": "kansas-city/amc-independence-commons-20",
+    "name": "AMC Independence Commons 20",
+    "address": "19200 E 39th St S",
+    "city": "INDEPENDENCE",
+    "state": "MO",
+    "postalCode": "64057-2319"
+  },
+  {
+    "slug": "kansas-city/amc-town-center-20",
+    "name": "AMC Town Center 20",
+    "address": "11701 Nall Avenue",
+    "city": "LEAWOOD",
+    "state": "KS",
+    "postalCode": "66211-2025"
+  },
+  {
+    "slug": "denver/amc-flatiron-crossing-14",
+    "name": "AMC Flatiron Crossing 14",
+    "address": "61 West Flatiron Crossing Dr.",
+    "city": "BROOMFIELD",
+    "state": "CO",
+    "postalCode": "80021-8870"
+  },
+  {
+    "slug": "denver/amc-orchard-12",
+    "name": "AMC Orchard 12",
+    "address": "14653 Orchard Pkwy",
+    "city": "WESTMINSTER",
+    "state": "CO",
+    "postalCode": "80023-9177"
+  },
+  {
+    "slug": "denver/amc-9-co-10",
+    "name": "AMC 9+CO 10",
+    "address": "826 Albion Street",
+    "city": "DENVER",
+    "state": "CO",
+    "postalCode": "80220"
+  },
+  {
+    "slug": "denver/amc-highlands-ranch-24",
+    "name": "AMC Highlands Ranch 24",
+    "address": "103 W Centennial Blvd",
+    "city": "HIGHLANDS RANCH",
+    "state": "CO",
+    "postalCode": "80129-2303"
+  },
+  {
+    "slug": "salt-lake-city/amc-west-jordan-12",
+    "name": "AMC West Jordan 12",
+    "address": "1600 West Fox Park Drive",
+    "city": "WEST JORDAN",
+    "state": "UT",
+    "postalCode": "84088"
+  },
+  {
+    "slug": "morristown/amc-headquarters-plaza-10",
+    "name": "AMC Headquarters Plaza 10",
+    "address": "72 Headquarters Plaza",
+    "city": "MORRISTOWN",
+    "state": "NJ",
+    "postalCode": "07960"
+  },
+  {
+    "slug": "philadelphia/amc-marketfair-10",
+    "name": "AMC MarketFair 10",
+    "address": "3521 US-1",
+    "city": "PRINCETON",
+    "state": "NJ",
+    "postalCode": "08540"
+  },
+  {
+    "slug": "philadelphia/amc-deptford-8",
+    "name": "AMC Deptford 8",
+    "address": "1740 Clements Bridge Road",
+    "city": "DEPTFORD",
+    "state": "NJ",
+    "postalCode": "08096-2010"
+  },
+  {
+    "slug": "philadelphia/amc-marlton-8",
+    "name": "AMC Marlton 8",
+    "address": "800 N. Route 73",
+    "city": "MARLTON",
+    "state": "NJ",
+    "postalCode": "08053-0000"
+  },
+  {
+    "slug": "denver/amc-westminster-promenade-24",
+    "name": "AMC Westminster Promenade 24",
+    "address": "10655 Westminster Blvd.",
+    "city": "WESTMINSTER",
+    "state": "CO",
+    "postalCode": "80020-4166"
+  },
+  {
+    "slug": "phoenix/amc-ahwatukee-24",
+    "name": "AMC Ahwatukee 24",
+    "address": "4915 East Ray Road",
+    "city": "PHOENIX",
+    "state": "AZ",
+    "postalCode": "85044-6401"
+  },
+  {
+    "slug": "phoenix/amc-centerpoint-11",
+    "name": "AMC Centerpoint 11",
+    "address": "730 South Mill Ave",
+    "city": "TEMPE",
+    "state": "AZ",
+    "postalCode": "85281"
+  },
+  {
+    "slug": "phoenix/amc-dine-in-esplanade-14",
+    "name": "AMC DINE-IN Esplanade 14",
+    "address": "2515 E CAMELBACK RD",
+    "city": "PHOENIX",
+    "state": "AZ",
+    "postalCode": "85016-4203"
+  },
+  {
+    "slug": "phoenix/amc-superstition-east-12",
+    "name": "AMC Superstition East 12",
+    "address": "1935 S Signal Butte Road",
+    "city": "MESA",
+    "state": "AZ",
+    "postalCode": "85209"
+  },
+  {
+    "slug": "phoenix/amc-deer-valley-17",
+    "name": "AMC Deer Valley 17",
+    "address": "3033 West Agua Fria Freeway",
+    "city": "PHOENIX",
+    "state": "AZ",
+    "postalCode": "85027-0000"
+  },
+  {
+    "slug": "phoenix/amc-mesa-grand-14",
+    "name": "AMC Mesa Grand 14",
+    "address": "1645 South Stapley Drive",
+    "city": "MESA",
+    "state": "AZ",
+    "postalCode": "85204-6609"
+  },
+  {
+    "slug": "st-louis/amc-creve-coeur-12",
+    "name": "AMC Creve Coeur 12",
+    "address": "10465 Olive Blvd.",
+    "city": "CREVE COEUR",
+    "state": "MO",
+    "postalCode": "63141"
+  },
+  {
+    "slug": "wichita/amc-northrock-14",
+    "name": "AMC Northrock 14",
+    "address": "3151 PENSTEMON ST.",
+    "city": "WICHITA",
+    "state": "KS",
+    "postalCode": "67226"
+  },
+  {
+    "slug": "kansas-city/amc-legends-14",
+    "name": "AMC Legends 14",
+    "address": "1841 Village West Parkway",
+    "city": "KANSAS CITY",
+    "state": "KS",
+    "postalCode": "66111"
+  },
+  {
+    "slug": "kansas-city/amc-barrywoods-24",
+    "name": "AMC Barrywoods 24",
+    "address": "8101 Roanridge Road",
+    "city": "KANSAS CITY",
+    "state": "MO",
+    "postalCode": "64151-1356"
+  },
+  {
+    "slug": "phoenix/amc-arizona-center-24",
+    "name": "AMC Arizona Center 24",
+    "address": "565 North 3rd Street",
+    "city": "PHOENIX",
+    "state": "AZ",
+    "postalCode": "85004-2136"
+  },
+  {
+    "slug": "phoenix/amc-arrowhead-14",
+    "name": "AMC Arrowhead 14",
+    "address": "7700 West Arrowhead Towne Ctr",
+    "city": "GLENDALE",
+    "state": "AZ",
+    "postalCode": "85308-8616"
+  },
+  {
+    "slug": "chicago/amc-randhurst-12",
+    "name": "AMC Randhurst 12",
+    "address": "200 Randhurst Village Drive",
+    "city": "MT PROSPECT",
+    "state": "IL",
+    "postalCode": "60056-1297"
+  },
+  {
+    "slug": "chicago/amc-river-east-21",
+    "name": "AMC River East 21",
+    "address": "322 East Illinois Street",
+    "city": "CHICAGO",
+    "state": "IL",
+    "postalCode": "60611"
+  },
+  {
+    "slug": "vernon-hills/amc-hawthorn-12",
+    "name": "AMC Hawthorn 12",
+    "address": "675 Hawthorn Center",
+    "city": "VERNON HILLS",
+    "state": "IL",
+    "postalCode": "60061"
+  },
+  {
+    "slug": "chicago/amc-norridge-6",
+    "name": "AMC Norridge 6",
+    "address": "4520 N. Harlem Avenue",
+    "city": "NORRIDGE",
+    "state": "IL",
+    "postalCode": "60706"
+  },
+  {
+    "slug": "chicago/amc-dine-in-block-37",
+    "name": "AMC DINE-IN Block 37",
+    "address": "108 N. State Street",
+    "city": "CHICAGO",
+    "state": "IL",
+    "postalCode": "60602"
+  },
+  {
+    "slug": "oklahoma-city/amc-robinson-crossing-6",
+    "name": "AMC Robinson Crossing 6",
+    "address": "1300 Interstate Drive",
+    "city": "NORMAN",
+    "state": "OK",
+    "postalCode": "73072-0000"
+  },
+  {
+    "slug": "tulsa/amc-southroads-20",
+    "name": "AMC Southroads 20",
+    "address": "4923 E. 41st Street",
+    "city": "TULSA",
+    "state": "OK",
+    "postalCode": "74135-0000"
+  },
+  {
+    "slug": "oklahoma-city/amc-quail-springs-mall-24",
+    "name": "AMC Quail Springs Mall 24",
+    "address": "2501 W. Memorial Rd",
+    "city": "OKLAHOMA CITY",
+    "state": "OK",
+    "postalCode": "73134-8025"
+  },
+  {
+    "slug": "oklahoma-city/amc-penn-square-10",
+    "name": "AMC Penn Square 10",
+    "address": "1901 N.w.expressway",
+    "city": "OKLAHOMA CITY",
+    "state": "OK",
+    "postalCode": "73118"
+  },
+  {
+    "slug": "houston/amc-katy-mills-20",
+    "name": "AMC Katy Mills 20",
+    "address": "5000 Katy Mills Circle, #131",
+    "city": "KATY",
+    "state": "TX",
+    "postalCode": "77494"
+  },
+  {
+    "slug": "dallas-ft-worth/amc-the-parks-at-arlington-18",
+    "name": "AMC The Parks At Arlington 18",
+    "address": "3861 South Cooper Street",
+    "city": "ARLINGTON",
+    "state": "TX",
+    "postalCode": "76015"
+  },
+  {
+    "slug": "dallas-ft-worth/amc-northpark-15",
+    "name": "AMC NorthPark 15",
+    "address": "8687 N Central Expy",
+    "city": "DALLAS",
+    "state": "TX",
+    "postalCode": "75225-0000"
+  },
+  {
+    "slug": "dallas-ft-worth/amc-highland-village-12",
+    "name": "AMC Highland Village 12",
+    "address": "4090 Barton Creek",
+    "city": "HIGHLAND VILLAGE",
+    "state": "TX",
+    "postalCode": "75077"
+  },
+  {
+    "slug": "austin/amc-lakeline-9",
+    "name": "AMC Lakeline 9",
+    "address": "11200 Lakeline Mall Dr",
+    "city": "CEDAR PARK",
+    "state": "TX",
+    "postalCode": "78613"
+  },
+  {
+    "slug": "houston/amc-willowbrook-24",
+    "name": "AMC Willowbrook 24",
+    "address": "17145 Tomball Parkway",
+    "city": "HOUSTON",
+    "state": "TX",
+    "postalCode": "77064"
+  },
+  {
+    "slug": "dallas-ft-worth/amc-village-on-the-parkway-9",
+    "name": "AMC Village On The Parkway 9",
+    "address": "5100 Belt Line Rd",
+    "city": "ADDISON",
+    "state": "TX",
+    "postalCode": "75254"
+  },
+  {
+    "slug": "dallas-ft-worth/amc-eastchase-9",
+    "name": "AMC Eastchase 9",
+    "address": "8301 Ederville Road",
+    "city": "FORT WORTH",
+    "state": "TX",
+    "postalCode": "76120"
+  },
+  {
+    "slug": "dallas-ft-worth/amc-burleson-14",
+    "name": "AMC Burleson 14",
+    "address": "301 W Rendon Crowley Road",
+    "city": "BURLESON",
+    "state": "TX",
+    "postalCode": "76028"
+  },
+  {
+    "slug": "austin/amc-dine-in-tech-ridge-10",
+    "name": "AMC DINE-IN Tech Ridge 10",
+    "address": "12625 N Interstate Hwy 35",
+    "city": "AUSTIN",
+    "state": "TX",
+    "postalCode": "78753"
+  },
+  {
+    "slug": "houston/amc-metropark-square-10",
+    "name": "AMC Metropark Square 10",
+    "address": "8870 Metropark Drive",
+    "city": "SHENANDOAH",
+    "state": "TX",
+    "postalCode": "77385"
+  },
+  {
+    "slug": "dallas-ft-worth/amc-grapevine-mills-24",
+    "name": "AMC Grapevine Mills 24",
+    "address": "3150 Grapevine Mills Parkway",
+    "city": "GRAPEVINE",
+    "state": "TX",
+    "postalCode": "76051"
+  },
+  {
+    "slug": "houston/amc-deerbrook-24",
+    "name": "AMC Deerbrook 24",
+    "address": "20131 Highway 59 N",
+    "city": "HUMBLE",
+    "state": "TX",
+    "postalCode": "77338"
+  },
+  {
+    "slug": "phoenix/amc-desert-ridge-18",
+    "name": "AMC Desert Ridge 18",
+    "address": "21001 North Tatum Blvd",
+    "city": "PHOENIX",
+    "state": "AZ",
+    "postalCode": "85050"
+  },
+  {
+    "slug": "los-angeles/amc-porter-ranch-9",
+    "name": "AMC Porter Ranch 9",
+    "address": "20059 Rinaldi Street",
+    "city": "PORTER RANCH",
+    "state": "CA",
+    "postalCode": "91326"
+  },
+  {
+    "slug": "los-angeles/amc-santa-monica-7",
+    "name": "AMC Santa Monica 7",
+    "address": "1310 3rd Street",
+    "city": "SANTA MONICA",
+    "state": "CA",
+    "postalCode": "90401-1310"
+  },
+  {
+    "slug": "los-angeles/amc-santa-anita-16",
+    "name": "AMC Santa Anita 16",
+    "address": "400 South Baldwin Avenue",
+    "city": "ARCADIA",
+    "state": "CA",
+    "postalCode": "91007-0000"
+  },
+  {
+    "slug": "los-angeles/amc-burbank-town-center-8",
+    "name": "AMC Burbank Town Center 8",
+    "address": "201 E. Magnolia Blvd #345",
+    "city": "BURBANK",
+    "state": "CA",
+    "postalCode": "91501-1159"
+  },
+  {
+    "slug": "los-angeles/amc-topanga-12",
+    "name": "AMC Topanga 12",
+    "address": "6600 N Topanga Canyon Blvd #3100",
+    "city": "CANOGA PARK",
+    "state": "CA",
+    "postalCode": "91303"
+  },
+  {
+    "slug": "los-angeles/amc-anaheim-gardenwalk-6",
+    "name": "AMC Anaheim GardenWalk 6",
+    "address": "400 West Disney Way",
+    "city": "ANAHEIM",
+    "state": "CA",
+    "postalCode": "92802"
+  },
+  {
+    "slug": "oakland/amc-bay-street-16",
+    "name": "AMC Bay Street 16",
+    "address": "5614 Bay Street",
+    "city": "EMERYVILLE",
+    "state": "CA",
+    "postalCode": "94608"
+  },
+  {
+    "slug": "los-angeles/amc-burbank-16",
+    "name": "AMC Burbank 16",
+    "address": "125 East Palm Avenue",
+    "city": "BURBANK",
+    "state": "CA",
+    "postalCode": "91502-1833"
+  },
+  {
+    "slug": "san-jose/amc-eastridge-15",
+    "name": "AMC Eastridge 15",
+    "address": "2190 Eastridge Loop",
+    "city": "SAN JOSE",
+    "state": "CA",
+    "postalCode": "95122"
+  },
+  {
+    "slug": "los-angeles/amc-montebello-10",
+    "name": "AMC Montebello 10",
+    "address": "1475 N. Montebello Blvd",
+    "city": "MONTEBELLO",
+    "state": "CA",
+    "postalCode": "90640-2584"
+  },
+  {
+    "slug": "los-angeles/amc-marina-pacifica-12",
+    "name": "AMC Marina Pacifica 12",
+    "address": "6346 E. Pacific Coast Hwy",
+    "city": "LONG BEACH",
+    "state": "CA",
+    "postalCode": "90803-4863"
+  },
+  {
+    "slug": "san-diego/amc-palm-promenade-24",
+    "name": "AMC Palm Promenade 24",
+    "address": "770 Dennery Road",
+    "city": "SAN DIEGO",
+    "state": "CA",
+    "postalCode": "92154-8400"
+  },
+  {
+    "slug": "los-angeles/amc-victoria-gardens-12",
+    "name": "AMC Victoria Gardens 12",
+    "address": "12600 North Mainstreet",
+    "city": "RANCHO CUCAMONGA",
+    "state": "CA",
+    "postalCode": "91739-0000"
+  },
+  {
+    "slug": "los-angeles/amc-covina-17",
+    "name": "AMC Covina 17",
+    "address": "1414 North Azusa Avenue",
+    "city": "COVINA",
+    "state": "CA",
+    "postalCode": "91722-0000"
+  },
+  {
+    "slug": "los-angeles/amc-rolling-hills-20",
+    "name": "AMC Rolling Hills 20",
+    "address": "2591 Airport Drive",
+    "city": "TORRANCE",
+    "state": "CA",
+    "postalCode": "90505-6137"
+  },
+  {
+    "slug": "los-angeles/amc-century-city-15",
+    "name": "AMC Century City 15",
+    "address": "10250 Santa Monica Blvd,2000",
+    "city": "LOS ANGELES",
+    "state": "CA",
+    "postalCode": "90067"
+  },
+  {
+    "slug": "san-diego/amc-mission-valley-20",
+    "name": "AMC Mission Valley 20",
+    "address": "1640 Camino Del Rio, North",
+    "city": "SAN DIEGO",
+    "state": "CA",
+    "postalCode": "92108"
+  },
+  {
+    "slug": "los-angeles/amc-fullerton-20",
+    "name": "AMC Fullerton 20",
+    "address": "1001 S Lemon St",
+    "city": "FULLERTON",
+    "state": "CA",
+    "postalCode": "92832"
+  },
+  {
+    "slug": "los-angeles/amc-puente-hills-20",
+    "name": "AMC Puente Hills 20",
+    "address": "1560 South Azusa Avenue",
+    "city": "CITY OF INDUSTRY",
+    "state": "CA",
+    "postalCode": "91748"
+  },
+  {
+    "slug": "dallas-ft-worth/amc-palace-9",
+    "name": "AMC Palace 9",
+    "address": "220 East Third Street",
+    "city": "FORT WORTH",
+    "state": "TX",
+    "postalCode": "76102-0000"
+  },
+  {
+    "slug": "dallas-ft-worth/amc-dine-in-clearfork-8",
+    "name": "AMC DINE-IN Clearfork 8",
+    "address": "5015 Trailhead Bend Way",
+    "city": "FORT WORTH",
+    "state": "TX",
+    "postalCode": "76109"
+  },
+  {
+    "slug": "dallas-ft-worth/amc-stonebriar-24",
+    "name": "AMC Stonebriar 24",
+    "address": "2601 Preston Road  Ste 300",
+    "city": "FRISCO",
+    "state": "TX",
+    "postalCode": "75034-0000"
+  },
+  {
+    "slug": "houston/amc-first-colony-24",
+    "name": "AMC First Colony 24",
+    "address": "3301 Town Centre Blvd South",
+    "city": "SUGAR LAND",
+    "state": "TX",
+    "postalCode": "77479-2327"
+  },
+  {
+    "slug": "san-antonio/amc-rivercenter-11-with-alamo-imax",
+    "name": "AMC Rivercenter 11",
+    "address": "849 E. Commerce Street",
+    "city": "SAN ANTONIO",
+    "state": "TX",
+    "postalCode": "78205-0000"
+  },
+  {
+    "slug": "dallas-ft-worth/amc-firewheel-18",
+    "name": "AMC Firewheel 18",
+    "address": "100 Coneflower Drive",
+    "city": "GARLAND",
+    "state": "TX",
+    "postalCode": "75040"
+  },
+  {
+    "slug": "houston/amc-gulf-pointe-30",
+    "name": "AMC Gulf Pointe 30",
+    "address": "11801 S Sam Houston Pkwy E",
+    "city": "HOUSTON",
+    "state": "TX",
+    "postalCode": "77089"
+  },
+  {
+    "slug": "dallas-ft-worth/amc-mesquite-30",
+    "name": "AMC Mesquite 30",
+    "address": "19919 Lyndon B Johnson Fwy",
+    "city": "MESQUITE",
+    "state": "TX",
+    "postalCode": "75149"
+  },
+  {
+    "slug": "miami-ft-lauderdale/amc-dine-in-coral-ridge-10",
+    "name": "AMC DINE-IN Coral Ridge 10",
+    "address": "3401 N.e. 26th Avenue",
+    "city": "FORT LAUDERDALE",
+    "state": "FL",
+    "postalCode": "33306-0000"
+  },
+  {
+    "slug": "fort-myers/amc-merchants-crossing-16",
+    "name": "AMC Merchants Crossing 16",
+    "address": "15201 N. Cleveland Avenue",
+    "city": "NORTH FORT MYERS",
+    "state": "FL",
+    "postalCode": "33903"
+  },
+  {
+    "slug": "tampa-st-petersburg/amc-veterans-24",
+    "name": "AMC Veterans 24",
+    "address": "9302 Anderson Road",
+    "city": "TAMPA",
+    "state": "FL",
+    "postalCode": "33634-0000"
+  },
+  {
+    "slug": "miami-ft-lauderdale/amc-tamiami-18",
+    "name": "AMC Tamiami 18",
+    "address": "11865 Sw 26th St",
+    "city": "MIAMI",
+    "state": "FL",
+    "postalCode": "33175"
+  },
+  {
+    "slug": "tampa-st-petersburg/amc-the-regency-20",
+    "name": "AMC The Regency 20",
+    "address": "2496 W. Brandon Blvd",
+    "city": "BRANDON",
+    "state": "FL",
+    "postalCode": "33511-4717"
+  },
+  {
+    "slug": "orlando-daytona-beach/amc-altamonte-mall-18",
+    "name": "AMC Altamonte Mall 18",
+    "address": "433 E ALTAMONTE DR",
+    "city": "ALTAMONTE SPRINGS",
+    "state": "FL",
+    "postalCode": "32701-4603"
+  },
+  {
+    "slug": "miami-ft-lauderdale/amc-sunset-place-24",
+    "name": "AMC Sunset Place 24",
+    "address": "5701 Sunset Drive",
+    "city": "SOUTH MIAMI",
+    "state": "FL",
+    "postalCode": "33143-0000"
+  },
+  {
+    "slug": "tampa-st-petersburg/amc-riverview-14",
+    "name": "AMC Riverview 14",
+    "address": "9390 Theater Dr",
+    "city": "GIBSONTON",
+    "state": "FL",
+    "postalCode": "33534"
+  },
+  {
+    "slug": "leesburg/amc-lake-square-12",
+    "name": "AMC Lake Square 12",
+    "address": "10401-015 Us Highway 441 South",
+    "city": "LEESBURG",
+    "state": "FL",
+    "postalCode": "34788"
+  },
+  {
+    "slug": "jacksonville/amc-regency-24",
+    "name": "AMC Regency 24",
+    "address": "9451 Regency Square Blvd.",
+    "city": "JACKSONVILLE",
+    "state": "FL",
+    "postalCode": "32225-0000"
+  },
+  {
+    "slug": "norfolk/amc-lynnhaven-18",
+    "name": "AMC Lynnhaven 18",
+    "address": "1001 Lynnhaven Mall Loop",
+    "city": "VIRGINIA BEACH",
+    "state": "VA",
+    "postalCode": "23452-7206"
+  },
+  {
+    "slug": "washington-d-c/amc-hoffman-center-22",
+    "name": "AMC Hoffman Center 22",
+    "address": "206 Hoffman Street",
+    "city": "ALEXANDRIA",
+    "state": "VA",
+    "postalCode": "22314"
+  },
+  {
+    "slug": "washington-d-c/amc-rivertowne-12",
+    "name": "AMC Rivertowne 12",
+    "address": "6075 Oxon Hill Road",
+    "city": "OXON HILL",
+    "state": "MD",
+    "postalCode": "20745"
+  },
+  {
+    "slug": "washington-d-c/amc-montgomery-16",
+    "name": "AMC Montgomery 16",
+    "address": "7101 Democracy Blvd",
+    "city": "BETHESDA",
+    "state": "MD",
+    "postalCode": "20817"
+  },
+  {
+    "slug": "baltimore/amc-columbia-14",
+    "name": "AMC Columbia 14",
+    "address": "10300 LITTLE PATUXENT PKWY",
+    "city": "COLUMBIA",
+    "state": "MD",
+    "postalCode": "21044-3341"
+  },
+  {
+    "slug": "philadelphia/amc-neshaminy-24",
+    "name": "AMC Neshaminy 24",
+    "address": "660 Neshaminy Mall",
+    "city": "BENSALEM",
+    "state": "PA",
+    "postalCode": "19020-1612"
+  },
+  {
+    "slug": "washington-d-c/amc-courthouse-plaza-8",
+    "name": "AMC Courthouse Plaza 8",
+    "address": "2150 Clarendon Blvd",
+    "city": "ARLINGTON",
+    "state": "VA",
+    "postalCode": "22201-0000"
+  },
+  {
+    "slug": "washington-d-c/amc-potomac-mills-18",
+    "name": "AMC Potomac Mills 18",
+    "address": "2700 Potomac Mills Circle",
+    "city": "WOODBRIDGE",
+    "state": "VA",
+    "postalCode": "22192-4625"
+  },
+  {
+    "slug": "washington-d-c/amc-academy-8",
+    "name": "AMC Academy 8",
+    "address": "6198 Greenbelt Road",
+    "city": "GREENBELT",
+    "state": "MD",
+    "postalCode": "20770"
+  },
+  {
+    "slug": "washington-d-c/amc-tysons-corner-16",
+    "name": "AMC Tysons Corner 16",
+    "address": "1961 Chain Bridge Road Mall MAJ04",
+    "city": "MCLEAN",
+    "state": "VA",
+    "postalCode": "22102"
+  },
+  {
+    "slug": "washington-d-c/amc-worldgate-9",
+    "name": "AMC Worldgate 9",
+    "address": "13025 Worldgate Drive",
+    "city": "HERNDON",
+    "state": "VA",
+    "postalCode": "20170"
+  },
+  {
+    "slug": "washington-d-c/amc-wheaton-mall-9",
+    "name": "AMC Wheaton Mall 9",
+    "address": "11006 Veirs Mill Road",
+    "city": "WHEATON",
+    "state": "MD",
+    "postalCode": "20902"
+  },
+  {
+    "slug": "norfolk/amc-hampton-towne-centre-24",
+    "name": "AMC Hampton Towne Centre 24",
+    "address": "1 TOWN CENTER WAY",
+    "city": "HAMPTON",
+    "state": "VA",
+    "postalCode": "23666-1999"
+  },
+  {
+    "slug": "columbus/amc-dublin-village-18",
+    "name": "AMC Dublin Village 18",
+    "address": "6700 Village Parkway",
+    "city": "DUBLIN",
+    "state": "OH",
+    "postalCode": "43017-2073"
+  },
+  {
+    "slug": "columbus/amc-indian-mound-9",
+    "name": "AMC Indian Mound 9",
+    "address": "771 South 30th St",
+    "city": "HEATH",
+    "state": "OH",
+    "postalCode": "43056"
+  },
+  {
+    "slug": "columbus/amc-easton-town-center-30",
+    "name": "AMC Easton Town Center 30",
+    "address": "275 Easton Town Center",
+    "city": "COLUMBUS",
+    "state": "OH",
+    "postalCode": "43219"
+  },
+  {
+    "slug": "atlanta/amc-north-dekalb-16",
+    "name": "AMC North Dekalb 16",
+    "address": "2042 Lawrenceville Hwy",
+    "city": "DECATUR",
+    "state": "GA",
+    "postalCode": "30033"
+  },
+  {
+    "slug": "atlanta/amc-sugarloaf-mills-18",
+    "name": "AMC Sugarloaf Mills 18",
+    "address": "5900 Sugarloaf Parkway",
+    "city": "LAWRENCEVILLE",
+    "state": "GA",
+    "postalCode": "30043-0000"
+  },
+  {
+    "slug": "atlanta/amc-avenue-forsyth-12",
+    "name": "AMC Avenue Forsyth 12",
+    "address": "350 Peachtree Pkwy",
+    "city": "CUMMING",
+    "state": "GA",
+    "postalCode": "30041"
+  },
+  {
+    "slug": "atlanta/amc-north-point-mall-12",
+    "name": "AMC North Point Mall 12",
+    "address": "4500 North Point Circle",
+    "city": "ALPHARETTA",
+    "state": "GA",
+    "postalCode": "30022"
+  },
+  {
+    "slug": "atlanta/amc-phipps-plaza-14",
+    "name": "AMC Phipps Plaza 14",
+    "address": "3500 Peachtree Road N.e.",
+    "city": "ATLANTA",
+    "state": "GA",
+    "postalCode": "30326"
+  },
+  {
+    "slug": "atlanta/amc-colonial-18",
+    "name": "AMC Colonial 18",
+    "address": "825 Lawrenceville-suwanee Rd",
+    "city": "LAWRENCEVILLE",
+    "state": "GA",
+    "postalCode": "30043-5484"
+  },
+  {
+    "slug": "atlanta/amc-madison-yards-8",
+    "name": "AMC Madison Yards 8",
+    "address": "975 Memorial Drive",
+    "city": "ATLANTA",
+    "state": "GA",
+    "postalCode": "30316"
+  },
+  {
+    "slug": "atlanta/amc-southlake-24",
+    "name": "AMC Southlake 24",
+    "address": "7065 Mount Zion Circle",
+    "city": "MORROW",
+    "state": "GA",
+    "postalCode": "30260-0000"
+  },
+  {
+    "slug": "atlanta/amc-barrett-commons-24",
+    "name": "AMC Barrett Commons 24",
+    "address": "2600 Cobb Place Lane Nw",
+    "city": "KENNESAW",
+    "state": "GA",
+    "postalCode": "30144-0000"
+  },
+  {
+    "slug": "las-vegas/amc-rainbow-promenade-10",
+    "name": "AMC Rainbow Promenade 10",
+    "address": "2321 N Rainbow Blvd",
+    "city": "LAS VEGAS",
+    "state": "NV",
+    "postalCode": "89108"
+  },
+  {
+    "slug": "san-francisco/amc-sunnyvale-12",
+    "name": "AMC Sunnyvale 12",
+    "address": "150 E. McKinley Ave",
+    "city": "SUNNYVALE",
+    "state": "CA",
+    "postalCode": "94086"
+  },
+  {
+    "slug": "los-angeles/amc-del-amo-18",
+    "name": "AMC Del Amo 18",
+    "address": "3525 W. Carson St",
+    "city": "TORRANCE",
+    "state": "CA",
+    "postalCode": "90503-5704"
+  },
+  {
+    "slug": "los-angeles/amc-tyler-galleria-16",
+    "name": "AMC Tyler Galleria 16",
+    "address": "3775 Tyler Avenue",
+    "city": "RIVERSIDE",
+    "state": "CA",
+    "postalCode": "92503"
+  },
+  {
+    "slug": "san-diego/amc-la-jolla-12",
+    "name": "AMC La Jolla 12",
+    "address": "8657 Villa La Jolla Dr",
+    "city": "LA JOLLA",
+    "state": "CA",
+    "postalCode": "92037-2356"
+  },
+  {
+    "slug": "los-angeles/amc-tustin-14-at-the-district",
+    "name": "AMC Tustin 14 @ The District",
+    "address": "2457 Park Ave",
+    "city": "TUSTIN",
+    "state": "CA",
+    "postalCode": "92782-2705"
+  },
+  {
+    "slug": "san-diego/amc-otay-ranch-12",
+    "name": "AMC Otay Ranch 12",
+    "address": "2015 Birch Road",
+    "city": "CHULA VISTA",
+    "state": "CA",
+    "postalCode": "91915"
+  },
+  {
+    "slug": "san-diego/amc-plaza-bonita-14",
+    "name": "AMC Plaza Bonita 14",
+    "address": "3050 Plaza Bonita Rd.",
+    "city": "NATIONAL CITY",
+    "state": "CA",
+    "postalCode": "91950"
+  },
+  {
+    "slug": "los-angeles/amc-glendora-12",
+    "name": "AMC Glendora 12 @ 210/57",
+    "address": "1337 East Gladstone St.",
+    "city": "GLENDORA",
+    "state": "CA",
+    "postalCode": "91740"
+  },
+  {
+    "slug": "san-jose/amc-saratoga-14",
+    "name": "AMC Saratoga 14",
+    "address": "700 El Paseo De Saratoga",
+    "city": "SAN JOSE",
+    "state": "CA",
+    "postalCode": "95130-1628"
+  },
+  {
+    "slug": "los-angeles/amc-ontario-mills-30",
+    "name": "AMC Ontario Mills 30",
+    "address": "4549 Mills Circle",
+    "city": "ONTARIO",
+    "state": "CA",
+    "postalCode": "91764"
+  },
+  {
+    "slug": "los-angeles/amc-montclair-place-12",
+    "name": "AMC Montclair Place 12",
+    "address": "2200 Montclair Plaza Lane",
+    "city": "MONTCLAIR",
+    "state": "CA",
+    "postalCode": "91763"
+  },
+  {
+    "slug": "los-angeles/amc-orange-30",
+    "name": "AMC Orange 30",
+    "address": "20 City Blvd West",
+    "city": "ORANGE",
+    "state": "CA",
+    "postalCode": "92868-3130"
+  },
+  {
+    "slug": "los-angeles/amc-norwalk-20",
+    "name": "AMC Norwalk 20",
+    "address": "12300 E. Civic Center Drive",
+    "city": "NORWALK",
+    "state": "CA",
+    "postalCode": "90650-3171"
+  },
+  {
+    "slug": "los-angeles/amc-burbank-town-center-6",
+    "name": "AMC Burbank Town Center 6",
+    "address": "770 North 1st Street",
+    "city": "BURBANK",
+    "state": "CA",
+    "postalCode": "91501-0000"
+  },
+  {
+    "slug": "san-diego/amc-fashion-valley-18",
+    "name": "AMC Fashion Valley 18",
+    "address": "7037 Friars Road",
+    "city": "SAN DIEGO",
+    "state": "CA",
+    "postalCode": "92108"
+  },
+  {
+    "slug": "west-hills/amc-fallbrook-7",
+    "name": "AMC Fallbrook 7",
+    "address": "6731 Fallbrook Ave",
+    "city": "WEST HILLS",
+    "state": "CA",
+    "postalCode": "91307"
+  },
+  {
+    "slug": "los-angeles/amc-marina-marketplace-6",
+    "name": "AMC Marina Marketplace 6",
+    "address": "4335 Glencoe Ave",
+    "city": "MARINA DEL REY",
+    "state": "CA",
+    "postalCode": "90292"
+  },
+  {
+    "slug": "san-jose/amc-mercado-20",
+    "name": "AMC Mercado 20",
+    "address": "3111 Mission College Blvd.",
+    "city": "SANTA CLARA",
+    "state": "CA",
+    "postalCode": "95054-1832"
+  },
+  {
+    "slug": "los-angeles/amc-the-grove-14",
+    "name": "AMC The Grove 14",
+    "address": "189 The Grove Dr",
+    "city": "LOS ANGELES",
+    "state": "CA",
+    "postalCode": "90036"
+  },
+  {
+    "slug": "los-angeles/amc-the-americana-at-brand-18",
+    "name": "AMC The Americana at Brand 18",
+    "address": "322 Americana Way",
+    "city": "GLENDALE",
+    "state": "CA",
+    "postalCode": "91210"
+  },
+  {
+    "slug": "los-angeles/amc-northridge-10",
+    "name": "AMC Northridge 10",
+    "address": "9400 Shirley Ave",
+    "city": "NORTHRIDGE",
+    "state": "CA",
+    "postalCode": "91324"
+  },
+  {
+    "slug": "san-diego/amc-chula-vista-10",
+    "name": "AMC Chula Vista 10",
+    "address": "555 Broadway #2050",
+    "city": "CHULA VISTA",
+    "state": "CA",
+    "postalCode": "91910"
+  },
+  {
+    "slug": "san-diego/amc-utc-14",
+    "name": "AMC UTC 14",
+    "address": "4425 La Jolla Village Drive",
+    "city": "SAN DIEGO",
+    "state": "CA",
+    "postalCode": "92122"
+  },
+  {
+    "slug": "san-francisco/amc-newpark-12",
+    "name": "AMC NewPark 12",
+    "address": "400 Newpark Mall",
+    "city": "NEWARK",
+    "state": "CA",
+    "postalCode": "94560"
+  },
+  {
+    "slug": "little-rock-ar/amc-chenal-9",
+    "name": "AMC Chenal 9",
+    "address": "17825 Chenal Parkway",
+    "city": "LITTLE ROCK",
+    "state": "AR",
+    "postalCode": "72211"
+  },
+  {
+    "slug": "fayetteville/amc-fiesta-square-12",
+    "name": "AMC Fiesta Square 12",
+    "address": "3033 North College",
+    "city": "FAYETTEVILLE",
+    "state": "AR",
+    "postalCode": "72703"
+  },
+  {
+    "slug": "montgomery/amc-festival-plaza-16",
+    "name": "AMC Festival Plaza 16",
+    "address": "7925 Vaughn Road",
+    "city": "MONTGOMERY",
+    "state": "AL",
+    "postalCode": "36116"
+  },
+  {
+    "slug": "destin/amc-destin-commons-14",
+    "name": "AMC Destin Commons 14",
+    "address": "4000 Legendary Drive",
+    "city": "DESTIN",
+    "state": "FL",
+    "postalCode": "32541"
+  },
+  {
+    "slug": "baton-rouge/amc-baton-rouge-16",
+    "name": "AMC Baton Rouge 16",
+    "address": "16040 Hatteras Avenue",
+    "city": "BATON ROUGE",
+    "state": "LA",
+    "postalCode": "70816"
+  },
+  {
+    "slug": "baton-rouge/amc-mall-of-louisiana-15",
+    "name": "AMC Mall of Louisiana 15",
+    "address": "9168 Mall Of Louisiana Blvd",
+    "city": "BATON ROUGE",
+    "state": "LA",
+    "postalCode": "70836"
+  },
+  {
+    "slug": "raleigh-durham/amc-southpoint-17",
+    "name": "AMC Southpoint 17",
+    "address": "8030 Renaissance Parkway",
+    "city": "DURHAM",
+    "state": "NC",
+    "postalCode": "27713"
+  },
+  {
+    "slug": "columbus/amc-grove-city-14",
+    "name": "AMC Grove City 14",
+    "address": "4218 Buckeye Parkway",
+    "city": "GROVE CITY",
+    "state": "OH",
+    "postalCode": "43123"
+  },
+  {
+    "slug": "cincinnati/amc-west-chester-18",
+    "name": "AMC West Chester 18",
+    "address": "9415 Civic Center Blvd",
+    "city": "WEST CHESTER",
+    "state": "OH",
+    "postalCode": "45069"
+  },
+  {
+    "slug": "omaha/amc-westroads-14",
+    "name": "AMC Westroads 14",
+    "address": "10000 California St",
+    "city": "OMAHA",
+    "state": "NE",
+    "postalCode": "68114"
+  },
+  {
+    "slug": "oakland/amc-brentwood-14",
+    "name": "AMC Brentwood 14",
+    "address": "2525 Sand Creek Road",
+    "city": "BRENTWOOD",
+    "state": "CA",
+    "postalCode": "94513"
+  },
+  {
+    "slug": "las-vegas/amc-town-square-18",
+    "name": "AMC Town Square 18",
+    "address": "6587 Las Vegas Blvd South",
+    "city": "LAS VEGAS",
+    "state": "NV",
+    "postalCode": "89119"
+  },
+  {
+    "slug": "chicago/amc-south-barrington-24",
+    "name": "AMC South Barrington 24",
+    "address": "175 Studio Drive",
+    "city": "SOUTH BARRINGTON",
+    "state": "IL",
+    "postalCode": "60010"
+  },
+  {
+    "slug": "chicago/amc-evanston-12",
+    "name": "AMC Evanston 12",
+    "address": "1715 Maple Ave",
+    "city": "EVANSTON",
+    "state": "IL",
+    "postalCode": "60201"
+  },
+  {
+    "slug": "chicago/amc-oakbrook-center-4",
+    "name": "AMC Oakbrook Center 4",
+    "address": "300 Oakbrook Center",
+    "city": "OAK BROOK",
+    "state": "IL",
+    "postalCode": "60523"
+  },
+  {
+    "slug": "chicago/amc-oakbrook-center-12",
+    "name": "AMC Oakbrook Center 12",
+    "address": "600 Oakbrook Center",
+    "city": "OAK BROOK",
+    "state": "IL",
+    "postalCode": "60523"
+  },
+  {
+    "slug": "chicago/amc-newcity-14",
+    "name": "AMC NEWCITY 14",
+    "address": "1500 North Clybourn",
+    "city": "CHICAGO",
+    "state": "IL",
+    "postalCode": "60610"
+  },
+  {
+    "slug": "chicago/amc-roosevelt-collection-16",
+    "name": "AMC Roosevelt Collection 16",
+    "address": "1011 S Delano Ct E",
+    "city": "CHICAGO",
+    "state": "IL",
+    "postalCode": "60605"
+  },
+  {
+    "slug": "new-orleans/amc-elmwood-palace-20",
+    "name": "AMC Elmwood Palace 20",
+    "address": "1200 Elmwood Park Blvd",
+    "city": "HARAHAN",
+    "state": "LA",
+    "postalCode": "70123-2313"
+  },
+  {
+    "slug": "new-orleans/amc-westbank-palace-16",
+    "name": "AMC Westbank Palace 16",
+    "address": "1151 Manhattan Blvd",
+    "city": "HARVEY",
+    "state": "LA",
+    "postalCode": "70058-4500"
+  },
+  {
+    "slug": "new-orleans/amc-dine-in-clearview-palace-12",
+    "name": "AMC DINE-IN Clearview Palace 12",
+    "address": "4486 VETERANS MEMORIAL BLVD",
+    "city": "METAIRIE",
+    "state": "LA",
+    "postalCode": "70006-5329"
+  },
+  {
+    "slug": "new-orleans/amc-hammond-palace-10",
+    "name": "AMC Hammond Palace 10",
+    "address": "801 C M Fagan Dr",
+    "city": "HAMMOND",
+    "state": "LA",
+    "postalCode": "70403-6050"
+  },
+  {
+    "slug": "new-orleans/amc-houma-palace-10",
+    "name": "AMC Houma Palace 10",
+    "address": "5737 W Park Ave",
+    "city": "HOUMA",
+    "state": "LA",
+    "postalCode": "70364-1400"
+  },
+  {
+    "slug": "boston/amc-causeway-13",
+    "name": "AMC Causeway 13",
+    "address": "60 Causeway St",
+    "city": "BOSTON",
+    "state": "MA",
+    "postalCode": "02114"
+  },
+  {
+    "slug": "boston/amc-assembly-row-12",
+    "name": "AMC Assembly Row 12",
+    "address": "395 Artisan Way",
+    "city": "SOMERVILLE",
+    "state": "MA",
+    "postalCode": "02145"
+  },
+  {
+    "slug": "boston/amc-south-bay-center-12",
+    "name": "AMC South Bay Center 12",
+    "address": "25 District Avenue",
+    "city": "DORCHESTER",
+    "state": "MA",
+    "postalCode": "02125"
+  },
+  {
+    "slug": "detroit/amc-livonia-20",
+    "name": "AMC Livonia 20",
+    "address": "19500 Haggerty Road",
+    "city": "LIVONIA",
+    "state": "MI",
+    "postalCode": "48152"
+  },
+  {
+    "slug": "detroit/amc-forum-30",
+    "name": "AMC Forum 30",
+    "address": "44681 Mound Road",
+    "city": "STERLING HEIGHTS",
+    "state": "MI",
+    "postalCode": "48314-1321"
+  },
+  {
+    "slug": "new-york-city/amc-glen-cove-6",
+    "name": "AMC Glen Cove 6",
+    "address": "5 School St",
+    "city": "GLEN COVE",
+    "state": "NY",
+    "postalCode": "11542"
+  },
+  {
+    "slug": "new-york-city/amc-empire-25",
+    "name": "AMC Empire 25",
+    "address": "234 West 42nd Street",
+    "city": "NEW YORK",
+    "state": "NY",
+    "postalCode": "10036"
+  },
+  {
+    "slug": "buffalo/amc-maple-ridge-8",
+    "name": "AMC Maple Ridge 8",
+    "address": "4276 Maple Road",
+    "city": "AMHERST",
+    "state": "NY",
+    "postalCode": "14226-0000"
+  },
+  {
+    "slug": "new-york-city/amc-huntington-square-12",
+    "name": "AMC Huntington Square 12",
+    "address": "4000 Jericho Turnpike",
+    "city": "EAST NORTHPORT",
+    "state": "NY",
+    "postalCode": "11731"
+  },
+  {
+    "slug": "hackensack/amc-dine-in-shops-at-riverside-9",
+    "name": "AMC DINE-IN Shops at Riverside 9",
+    "address": "390 Hackensack Ave.",
+    "city": "HACKENSACK",
+    "state": "NJ",
+    "postalCode": "07601"
+  },
+  {
+    "slug": "new-york-city/amc-staten-island-11",
+    "name": "AMC Staten Island 11",
+    "address": "2655 Richmond Avenue",
+    "city": "STATEN ISLAND",
+    "state": "NY",
+    "postalCode": "10314"
+  },
+  {
+    "slug": "philadelphia/amc-woodhaven-10",
+    "name": "AMC Woodhaven 10",
+    "address": "1336 Bristol Pike",
+    "city": "BENSALEM",
+    "state": "PA",
+    "postalCode": "19020-0000"
+  },
+  {
+    "slug": "orlando-daytona-beach/amc-dine-in-disney-springs-24",
+    "name": "AMC DINE-IN Disney Springs 24",
+    "address": "1500 E Buena Vista Dr",
+    "city": "LAKE BUENA VISTA",
+    "state": "FL",
+    "postalCode": "32830-8422"
+  },
+  {
+    "slug": "miami-ft-lauderdale/amc-weston-8",
+    "name": "AMC Weston 8",
+    "address": "1338 Sw 160th Avenue",
+    "city": "SUNRISE",
+    "state": "FL",
+    "postalCode": "33326"
+  },
+  {
+    "slug": "tallahassee/amc-tallahassee-20",
+    "name": "AMC Tallahassee 20",
+    "address": "2415 N. Monroe Street",
+    "city": "TALLAHASSEE",
+    "state": "FL",
+    "postalCode": "32303-0000"
+  },
+  {
+    "slug": "orlando-daytona-beach/amc-west-oaks-14",
+    "name": "AMC West Oaks 14",
+    "address": "9415 West Colonial Drive",
+    "city": "OCOEE",
+    "state": "FL",
+    "postalCode": "34761-0000"
+  },
+  {
+    "slug": "miami-ft-lauderdale/amc-sunrise-8",
+    "name": "AMC Sunrise 8",
+    "address": "4321 Nw 88th Avenue",
+    "city": "SUNRISE",
+    "state": "FL",
+    "postalCode": "33351"
+  },
+  {
+    "slug": "vero-beach/amc-classic-indian-river-24",
+    "name": "AMC CLASSIC Indian River 24",
+    "address": "6200 20th Street  Room 600",
+    "city": "VERO BEACH",
+    "state": "FL",
+    "postalCode": "32966"
+  },
+  {
+    "slug": "jacksonville/amc-orange-park-24",
+    "name": "AMC Orange Park 24",
+    "address": "1910 Wells Road",
+    "city": "ORANGE PARK",
+    "state": "FL",
+    "postalCode": "32073"
+  },
+  {
+    "slug": "miami-ft-lauderdale/amc-aventura-24",
+    "name": "AMC Aventura 24",
+    "address": "19501 Biscayne Blvd #3001",
+    "city": "AVENTURA",
+    "state": "FL",
+    "postalCode": "33180-0000"
+  },
+  {
+    "slug": "miami-ft-lauderdale/amc-pembroke-lake-9",
+    "name": "AMC Pembroke Lakes 9",
+    "address": "12085 Pines Blvd",
+    "city": "PEMBROKE PINES",
+    "state": "FL",
+    "postalCode": "33026"
+  },
+  {
+    "slug": "allentown/amc-tilghman-square-8",
+    "name": "AMC Tilghman Square 8",
+    "address": "4608 Broadway",
+    "city": "ALLENTOWN",
+    "state": "PA",
+    "postalCode": "18104-0000"
+  },
+  {
+    "slug": "philadelphia/amc-dine-in-fashion-district-8",
+    "name": "AMC DINE-IN Fashion District 8",
+    "address": "1001 Market Street",
+    "city": "PHILADELPHIA",
+    "state": "PA",
+    "postalCode": "19107"
+  },
+  {
+    "slug": "philadelphia/amc-marple-10",
+    "name": "AMC Marple 10",
+    "address": "400 South State Road",
+    "city": "SPRINGFIELD",
+    "state": "PA",
+    "postalCode": "19064"
+  },
+  {
+    "slug": "philadelphia/amc-broadstreet-7",
+    "name": "AMC Broadstreet 7",
+    "address": "1600 N Broadstreet",
+    "city": "PHILADELPHIA",
+    "state": "PA",
+    "postalCode": "19121"
+  },
+  {
+    "slug": "philadelphia/amc-dine-in-painters-crossing-9",
+    "name": "AMC DINE-IN Painters Crossing 9",
+    "address": "112 Wilmington Pike",
+    "city": "WEST CHESTER",
+    "state": "PA",
+    "postalCode": "19382-8310"
+  },
+  {
+    "slug": "philadelphia/amc-dine-in-berkshire-8",
+    "name": "AMC DINE-IN Berkshire 8",
+    "address": "800 Berkshire Boulevard",
+    "city": "WYOMISSING",
+    "state": "PA",
+    "postalCode": "19610"
+  },
+  {
+    "slug": "spokane/amc-river-park-square-20",
+    "name": "AMC River Park Square 20",
+    "address": "808 West Main Avenue",
+    "city": "SPOKANE",
+    "state": "WA",
+    "postalCode": "99201-0000"
+  },
+  {
+    "slug": "seattle-tacoma/amc-kent-station-14",
+    "name": "AMC Kent Station 14",
+    "address": "426 Ramsay Way",
+    "city": "KENT",
+    "state": "WA",
+    "postalCode": "98032"
+  },
+  {
+    "slug": "seattle-tacoma/amc-southcenter-16",
+    "name": "AMC Southcenter 16",
+    "address": "3600 Southcenter Mall",
+    "city": "TUKWILA",
+    "state": "WA",
+    "postalCode": "98188"
+  },
+  {
+    "slug": "kansas-city/amc-studio-28",
+    "name": "AMC Studio 28",
+    "address": "12075 So Strang Line Road",
+    "city": "OLATHE",
+    "state": "KS",
+    "postalCode": "66062-5256"
+  },
+  {
+    "slug": "kansas-city/amc-prairiefire-17",
+    "name": "AMC Prairiefire 17",
+    "address": "5724 W 136th Terrace",
+    "city": "OVERLAND PARK",
+    "state": "KS",
+    "postalCode": "66223"
+  },
+  {
+    "slug": "seattle-tacoma/amc-progress-ridge-13",
+    "name": "AMC Progress Ridge 13",
+    "address": "12345 Sw Horizon Blvd",
+    "city": "BEAVERTON",
+    "state": "OR",
+    "postalCode": "97007"
+  },
+  {
+    "slug": "seattle-tacoma/amc-vancouver-mall-23",
+    "name": "AMC Vancouver Mall 23",
+    "address": "8700 Northeast Vancouver Mall Drive",
+    "city": "VANCOUVER",
+    "state": "WA",
+    "postalCode": "98662"
+  },
+  {
+    "slug": "seattle-tacoma/amc-classic-mill-plain-8",
+    "name": "AMC CLASSIC Mill Plain 8",
+    "address": "11700 Se 7th St",
+    "city": "VANCOUVER",
+    "state": "WA",
+    "postalCode": "98683"
+  },
+  {
+    "slug": "saratoga-springs/amc-saratoga-springs-11",
+    "name": "AMC Saratoga Springs 11",
+    "address": "19 Railroad Pl",
+    "city": "SARATOGA SPRINGS",
+    "state": "NY",
+    "postalCode": "12866"
+  },
+  {
+    "slug": "new-york-city/amc-marquis-16",
+    "name": "AMC Marquis 16",
+    "address": "100 Quarry Rd",
+    "city": "TRUMBULL",
+    "state": "CT",
+    "postalCode": "06611"
+  },
+  {
+    "slug": "new-york-city/amc-royale-6",
+    "name": "AMC Royale 6",
+    "address": "542 Westport Ave",
+    "city": "NORWALK",
+    "state": "CT",
+    "postalCode": "06851"
+  },
+  {
+    "slug": "new-york-city/amc-sono-8",
+    "name": "AMC SoNo8",
+    "address": "64 N Main St",
+    "city": "NORWALK",
+    "state": "CT",
+    "postalCode": "06854"
+  },
+  {
+    "slug": "new-york-city/amc-majestic-6",
+    "name": "AMC Majestic 6",
+    "address": "118 Summer St",
+    "city": "STAMFORD",
+    "state": "CT",
+    "postalCode": "06901"
+  },
+  {
+    "slug": "new-york-city/amc-landmark-8",
+    "name": "AMC Landmark 8",
+    "address": "5 Landmark Square",
+    "city": "STAMFORD",
+    "state": "CT",
+    "postalCode": "06905"
+  },
+  {
+    "slug": "baltimore/amc-annapolis-mall-11",
+    "name": "AMC Annapolis Mall 11",
+    "address": "1020 Annapolis Mall Rd",
+    "city": "ANNAPOLIS",
+    "state": "MD",
+    "postalCode": "21401"
+  },
+  {
+    "slug": "minneapolis-st-paul/amc-eden-prairie-mall-18",
+    "name": "AMC Eden Prairie Mall 18",
+    "address": "8251 Flying Cloud Drive",
+    "city": "EDEN PRAIRIE",
+    "state": "MN",
+    "postalCode": "55344"
+  },
+  {
+    "slug": "minneapolis-st-paul/amc-rosedale-14",
+    "name": "AMC Rosedale 14",
+    "address": "1595 Highway 36 W",
+    "city": "ROSEVILLE",
+    "state": "MN",
+    "postalCode": "55113"
+  },
+  {
+    "slug": "cincinnati/amc-newport-on-the-levee-20",
+    "name": "AMC Newport On The Levee 20",
+    "address": "One Levee Way",
+    "city": "NEWPORT",
+    "state": "KY",
+    "postalCode": "41071"
+  },
+  {
+    "slug": "philadelphia/amc-309-cinema-9",
+    "name": "AMC 309 Cinema 9",
+    "address": "1461 Bethlehem Pike",
+    "city": "NORTH WALES",
+    "state": "PA",
+    "postalCode": "19454-1337"
+  },
+  {
+    "slug": "charlotte/amc-northlake-14",
+    "name": "AMC Northlake 14",
+    "address": "7325 Northlake Mall Drive",
+    "city": "CHARLOTTE",
+    "state": "NC",
+    "postalCode": "28216-0000"
+  },
+  {
+    "slug": "charlotte/amc-carolina-pavilion-22",
+    "name": "AMC Carolina Pavilion 22",
+    "address": "9541 South Boulevard",
+    "city": "CHARLOTTE",
+    "state": "NC",
+    "postalCode": "28273-0000"
+  },
+  {
+    "slug": "charlotte/amc-concord-mills-24",
+    "name": "AMC Concord Mills 24",
+    "address": "8421 Concord Mills Blvd.",
+    "city": "CONCORD",
+    "state": "NC",
+    "postalCode": "28027-6461"
+  },
+  {
+    "slug": "charlotte/amc-park-terrace-6",
+    "name": "AMC Park Terrace 6",
+    "address": "4289 Park Rd",
+    "city": "CHARLOTTE",
+    "state": "NC",
+    "postalCode": "28209"
+  },
+  {
+    "slug": "tampa-st-petersburg/amc-woodlands-square-20",
+    "name": "AMC Woodlands Square 20",
+    "address": "3128 Tampa Road",
+    "city": "OLDSMAR",
+    "state": "FL",
+    "postalCode": "34677-0000"
+  },
+  {
+    "slug": "tampa-st-petersburg/amc-west-shore-14",
+    "name": "AMC West Shore 14",
+    "address": "210 Westshore Plaza",
+    "city": "TAMPA",
+    "state": "FL",
+    "postalCode": "33609-0000"
+  },
+  {
+    "slug": "minneapolis-st-paul/amc-southdale-16",
+    "name": "AMC Southdale 16",
+    "address": "400 Southdale Ctr",
+    "city": "EDINA",
+    "state": "MN",
+    "postalCode": "55435-7020"
+  },
+  {
+    "slug": "plainville/amc-southington-12",
+    "name": "AMC Southington 12",
+    "address": "1821 Meriden-Waterbury Turnpike",
+    "city": "SOUTHINGTON",
+    "state": "CT",
+    "postalCode": "06489"
+  },
+  {
+    "slug": "bloomington-il/amc-classic-normal-14",
+    "name": "AMC CLASSIC Normal 14",
+    "address": "201 McKnight Street",
+    "city": "NORMAL",
+    "state": "IL",
+    "postalCode": "61761"
+  },
+  {
+    "slug": "springfield-mo/amc-springfield-11",
+    "name": "AMC Springfield 11",
+    "address": "3200 E  Montclair",
+    "city": "SPRINGFIELD",
+    "state": "MO",
+    "postalCode": "65804"
+  },
+  {
+    "slug": "east-brunswick/amc-brunswick-square-13",
+    "name": "AMC Brunswick Square 13",
+    "address": "755 NJ-18",
+    "city": "EAST BRUNSWICK",
+    "state": "NJ",
+    "postalCode": "08816"
+  },
+  {
+    "slug": "ridgefield-park/amc-ridgefield-park-12",
+    "name": "AMC Ridgefield Park 12",
+    "address": "75 Challenger Road",
+    "city": "RIDGEFIELD PARK",
+    "state": "NJ",
+    "postalCode": "07660"
+  },
+  {
+    "slug": "columbus/amc-columbus-10",
+    "name": "AMC Columbus 10",
+    "address": "5275 Westpointe Plaza Drive",
+    "city": "COLUMBUS",
+    "state": "OH",
+    "postalCode": "43228"
+  },
+  {
+    "slug": "oklahoma-city/amc-west-end-pointe-8",
+    "name": "AMC West End Pointe 8",
+    "address": "12825 NW 10th Street",
+    "city": "YUKON",
+    "state": "OK",
+    "postalCode": "73099"
+  },
+  {
+    "slug": "tulsa/amc-classic-owasso-12",
+    "name": "AMC CLASSIC Owasso 12",
+    "address": "12601 E 86th North",
+    "city": "OWASSO",
+    "state": "OK",
+    "postalCode": "74055"
+  },
+  {
+    "slug": "corpus-christi/amc-classic-corpus-christi-16",
+    "name": "AMC CLASSIC Corpus Christi 16",
+    "address": "5218 Silverberry",
+    "city": "CORPUS CHRISTI",
+    "state": "TX",
+    "postalCode": "78417"
+  },
+  {
+    "slug": "dallas-ft-worth/amc-classic-forney-12",
+    "name": "AMC CLASSIC Forney 12",
+    "address": "600 N FM 548",
+    "city": "FORNEY",
+    "state": "TX",
+    "postalCode": "75126"
+  },
+  {
+    "slug": "dallas-ft-worth/amc-hulen-10",
+    "name": "AMC Hulen 10",
+    "address": "6330 Hulen Bend Blvd",
+    "city": "FORT WORTH",
+    "state": "TX",
+    "postalCode": "76132"
+  },
+  {
+    "slug": "dallas-ft-worth/amc-lake-worth-14",
+    "name": "AMC Lake Worth 14",
+    "address": "6600 NW Loop 820",
+    "city": "FORT WORTH",
+    "state": "TX",
+    "postalCode": "76135"
+  },
+  {
+    "slug": "brownsville/amc-classic-rio-grande-10",
+    "name": "AMC CLASSIC Rio Grande 10",
+    "address": "4586 E US Hwy 83",
+    "city": "RIO GRANDE CITY",
+    "state": "TX",
+    "postalCode": "78582"
+  },
+  {
+    "slug": "houston/amc-classic-brazos-mall-14",
+    "name": "AMC CLASSIC Brazos Mall 14",
+    "address": "100 Highway 332 West",
+    "city": "LAKE JACKSON",
+    "state": "TX",
+    "postalCode": "77566"
+  },
+  {
+    "slug": "san-antonio/amc-boerne-11",
+    "name": "AMC Boerne 11",
+    "address": "205 Old San Antonio Road",
+    "city": "BOERNE",
+    "state": "TX",
+    "postalCode": "78006"
+  },
+  {
+    "slug": "waco/amc-galaxy-16",
+    "name": "AMC Galaxy 16",
+    "address": "333 South Valley Mills Dr",
+    "city": "WACO",
+    "state": "TX",
+    "postalCode": "76710"
+  },
+  {
+    "slug": "washington-d-c/amc-loudoun-station-11",
+    "name": "AMC Loudoun Station 11",
+    "address": "43751 Central Station Drive",
+    "city": "ASHBURN",
+    "state": "VA",
+    "postalCode": "20147"
+  },
+  {
+    "slug": "bakersfield/amc-bakersfield-6",
+    "name": "AMC Bakersfield 6",
+    "address": "4200 California Ave",
+    "city": "BAKERSFIELD",
+    "state": "CA",
+    "postalCode": "93309"
+  },
+  {
+    "slug": "los-angeles/amc-la-mirada-7",
+    "name": "AMC La Mirada 7",
+    "address": "15296 Rosecrans Avenue",
+    "city": "LA MIRADA",
+    "state": "CA",
+    "postalCode": "90638"
+  },
+  {
+    "slug": "los-angeles/amc-woodbridge-5",
+    "name": "AMC Woodbridge 5",
+    "address": "4626 Barranca Parkway",
+    "city": "IRVINE",
+    "state": "CA",
+    "postalCode": "92604"
+  },
+  {
+    "slug": "atlanta/amc-parkway-pointe-15",
+    "name": "AMC Parkway Pointe 15",
+    "address": "3101 Cobb Pkwy",
+    "city": "ATLANTA",
+    "state": "GA",
+    "postalCode": "30339-3497"
+  },
+  {
+    "slug": "austin/amc-barton-creek-square-14",
+    "name": "AMC Barton Creek Square 14",
+    "address": "2901 Capital Of Texas Hwy",
+    "city": "AUSTIN",
+    "state": "TX",
+    "postalCode": "78746-0000"
+  },
+  {
+    "slug": "baltimore/amc-owings-mills-17",
+    "name": "AMC Owings Mills 17",
+    "address": "10100 Mill Run Circle",
+    "city": "OWINGS MILLS",
+    "state": "MD",
+    "postalCode": "21117-4228"
+  },
+  {
+    "slug": "baltimore/amc-security-square-8",
+    "name": "AMC Security Square 8",
+    "address": "1717 N ROLLING RD",
+    "city": "BALTIMORE",
+    "state": "MD",
+    "postalCode": "21244-2409"
+  },
+  {
+    "slug": "boston/amc-framingham-16",
+    "name": "AMC Framingham 16",
+    "address": "22 Flutie Pass",
+    "city": "FRAMINGHAM",
+    "state": "MA",
+    "postalCode": "01701"
+  },
+  {
+    "slug": "boston/amc-tyngsboro-12",
+    "name": "AMC Tyngsboro 12",
+    "address": "440 Middlesex Road",
+    "city": "TYNGSBORO",
+    "state": "MA",
+    "postalCode": "01879-1070"
+  },
+  {
+    "slug": "boston/amc-braintree-10",
+    "name": "AMC Braintree 10",
+    "address": "121 Grandview Road",
+    "city": "BRAINTREE",
+    "state": "MA",
+    "postalCode": "02184"
+  },
+  {
+    "slug": "boston/amc-burlington-cinema-10",
+    "name": "AMC Burlington Cinema 10",
+    "address": "20 South Avenue",
+    "city": "BURLINGTON",
+    "state": "MA",
+    "postalCode": "01803-4904"
+  },
+  {
+    "slug": "chicago/amc-yorktown-18",
+    "name": "AMC Yorktown 18",
+    "address": "80 Yorktown Shopping Center",
+    "city": "LOMBARD",
+    "state": "IL",
+    "postalCode": "60148"
+  },
+  {
+    "slug": "chicago/amc-ford-city-14",
+    "name": "AMC Ford City 14",
+    "address": "7601 South Cicero Ave",
+    "city": "CHICAGO",
+    "state": "IL",
+    "postalCode": "60652"
+  },
+  {
+    "slug": "chicago/amc-northbrook-14",
+    "name": "AMC Northbrook 14",
+    "address": "1525 Lake Cook Road",
+    "city": "NORTHBROOK",
+    "state": "IL",
+    "postalCode": "60062-1441"
+  },
+  {
+    "slug": "cleveland/amc-ridge-park-square-8",
+    "name": "AMC Ridge Park Square 8",
+    "address": "4788 Ridge Road",
+    "city": "BROOKLYN",
+    "state": "OH",
+    "postalCode": "44144-3327"
+  },
+  {
+    "slug": "cleveland/amc-westwood-town-center-6",
+    "name": "AMC Westwood Town Center 6",
+    "address": "21653 Center Ridge Road",
+    "city": "ROCKY RIVER",
+    "state": "OH",
+    "postalCode": "44116-3917"
+  },
+  {
+    "slug": "dallas-ft-worth/amc-irving-mall-14",
+    "name": "AMC Irving Mall 14",
+    "address": "2433 Irving Mall",
+    "city": "IRVING",
+    "state": "TX",
+    "postalCode": "75062-5154"
+  },
+  {
+    "slug": "indianapolis/amc-castleton-square-14",
+    "name": "AMC Castleton Square 14",
+    "address": "6020 E. 82nd Street",
+    "city": "INDIANAPOLIS",
+    "state": "IN",
+    "postalCode": "46250"
+  },
+  {
+    "slug": "los-angeles/amc-south-bay-galleria-16",
+    "name": "AMC South Bay Galleria 16",
+    "address": "1815 Hawthorne Blvd",
+    "city": "REDONDO BEACH",
+    "state": "CA",
+    "postalCode": "90278-3420"
+  },
+  {
+    "slug": "milwaukee/amc-mayfair-mall-18",
+    "name": "AMC Mayfair Mall 18",
+    "address": "2500 N Mayfair Rd Ste M186",
+    "city": "WAUWATOSA",
+    "state": "WI",
+    "postalCode": "53226-1464"
+  },
+  {
+    "slug": "clifton/amc-clifton-commons-16",
+    "name": "AMC Clifton Commons 16",
+    "address": "405 Route 3",
+    "city": "CLIFTON",
+    "state": "NJ",
+    "postalCode": "07014-1911"
+  },
+  {
+    "slug": "new-york-city/amc-bay-plaza-cinema-13",
+    "name": "AMC Bay Plaza Cinema 13",
+    "address": "2210 Bartow Avenue",
+    "city": "BRONX",
+    "state": "NY",
+    "postalCode": "10475-4618"
+  },
+  {
+    "slug": "west-orange/amc-dine-in-essex-green-9",
+    "name": "AMC DINE-IN Essex Green 9",
+    "address": "495 Prospect Avenue",
+    "city": "WEST ORANGE",
+    "state": "NJ",
+    "postalCode": "07052"
+  },
+  {
+    "slug": "bridgewater/amc-dine-in-bridgewater-7",
+    "name": "AMC DINE-IN Bridgewater 7",
+    "address": "400 Commons Way Ste 380",
+    "city": "BRIDGEWATER",
+    "state": "NJ",
+    "postalCode": "08807-2840"
+  },
+  {
+    "slug": "philadelphia/amc-plymouth-meeting-mall-12",
+    "name": "AMC Plymouth Meeting Mall 12",
+    "address": "494 W Germantown Pike",
+    "city": "PLYMOUTH MEETING",
+    "state": "PA",
+    "postalCode": "19462-1322"
+  },
+  {
+    "slug": "boston/amc-dartmouth-mall-11",
+    "name": "AMC Dartmouth Mall 11",
+    "address": "140 North Dartmouth Mall",
+    "city": "NORTH DARTMOUTH",
+    "state": "MA",
+    "postalCode": "02747-4257"
+  },
+  {
+    "slug": "seattle-tacoma/amc-pacific-place-11",
+    "name": "AMC Pacific Place 11",
+    "address": "600 Pine Street",
+    "city": "SEATTLE",
+    "state": "WA",
+    "postalCode": "98101-3709"
+  },
+  {
+    "slug": "seattle-tacoma/amc-kitsap-8",
+    "name": "AMC Kitsap 8",
+    "address": "10055 Kitsap Mall Blvd Nw",
+    "city": "SILVERDALE",
+    "state": "WA",
+    "postalCode": "98383"
+  },
+  {
+    "slug": "new-york-city/amc-84th-street-6",
+    "name": "AMC 84th Street 6",
+    "address": "2310 Broadway",
+    "city": "NEW YORK",
+    "state": "NY",
+    "postalCode": "10024"
+  },
+  {
+    "slug": "new-york-city/amc-orpheum-7",
+    "name": "AMC Orpheum 7",
+    "address": "1538 Third Ave (86th St.)",
+    "city": "NEW YORK",
+    "state": "NY",
+    "postalCode": "10028"
+  },
+  {
+    "slug": "new-york-city/amc-village-7",
+    "name": "AMC Village 7",
+    "address": "66 Third Ave (11th St.)",
+    "city": "NEW YORK",
+    "state": "NY",
+    "postalCode": "10003"
+  },
+  {
+    "slug": "new-york-city/amc-19th-st-east-6",
+    "name": "AMC 19th St. East 6",
+    "address": "890 Broadway",
+    "city": "NEW YORK",
+    "state": "NY",
+    "postalCode": "10003"
+  },
+  {
+    "slug": "new-york-city/amc-lincoln-square-13",
+    "name": "AMC Lincoln Square 13",
+    "address": "1998 Broadway",
+    "city": "NEW YORK",
+    "state": "NY",
+    "postalCode": "10023"
+  },
+  {
+    "slug": "new-york-city/amc-34th-street-14",
+    "name": "AMC 34th Street 14",
+    "address": "312 West 34th Street",
+    "city": "NEW YORK",
+    "state": "NY",
+    "postalCode": "10001"
+  },
+  {
+    "slug": "new-york-city/amc-bay-terrace-6",
+    "name": "AMC Bay Terrace 6",
+    "address": "211-01 26th Ave",
+    "city": "BAYSIDE",
+    "state": "NY",
+    "postalCode": "11360"
+  },
+  {
+    "slug": "new-york-city/amc-stony-brook-17",
+    "name": "AMC Stony Brook 17",
+    "address": "2196 Nesconset Highway",
+    "city": "STONY BROOK",
+    "state": "NY",
+    "postalCode": "11790"
+  },
+  {
+    "slug": "new-york-city/amc-levittown-10",
+    "name": "AMC Levittown 10",
+    "address": "3585 Hempstead Turnpike",
+    "city": "LEVITTOWN",
+    "state": "NY",
+    "postalCode": "11756"
+  },
+  {
+    "slug": "new-york-city/amc-roosevelt-field-8",
+    "name": "AMC Roosevelt Field 8",
+    "address": "630 Old Country Road",
+    "city": "GARDEN CITY",
+    "state": "NY",
+    "postalCode": "11530"
+  },
+  {
+    "slug": "new-york-city/amc-raceway-10",
+    "name": "AMC Raceway 10",
+    "address": "1025 Corporate Drive",
+    "city": "WESTBURY",
+    "state": "NY",
+    "postalCode": "11590"
+  },
+  {
+    "slug": "new-york-city/amc-fresh-meadows-7",
+    "name": "AMC Fresh Meadows 7",
+    "address": "190-02 Horace Harding Blvd.",
+    "city": "FRESH MEADOWS",
+    "state": "NY",
+    "postalCode": "11365"
+  },
+  {
+    "slug": "new-york-city/amc-fantasy-5",
+    "name": "AMC Fantasy 5",
+    "address": "18 North Park Avenue",
+    "city": "ROCKVILLE CTR.",
+    "state": "NY",
+    "postalCode": "11570"
+  },
+  {
+    "slug": "new-york-city/amc-shore-8",
+    "name": "AMC Shore 8",
+    "address": "37 Wall Street",
+    "city": "HUNTINGTON",
+    "state": "NY",
+    "postalCode": "11743"
+  },
+  {
+    "slug": "wayne/amc-wayne-14",
+    "name": "AMC Wayne 14",
+    "address": "67 Willowbrook Blvd",
+    "city": "WAYNE",
+    "state": "NJ",
+    "postalCode": "07470"
+  },
+  {
+    "slug": "east-hanover/amc-east-hanover-12",
+    "name": "AMC East Hanover 12",
+    "address": "145 NJ-10",
+    "city": "EAST HANOVER",
+    "state": "NJ",
+    "postalCode": "07936"
+  },
+  {
+    "slug": "mountainside/amc-mountainside-10",
+    "name": "AMC Mountainside 10",
+    "address": "1021 Route 22",
+    "city": "MOUNTAINSIDE",
+    "state": "NJ",
+    "postalCode": "07092-2806"
+  },
+  {
+    "slug": "jersey-city/amc-newport-centre-11",
+    "name": "AMC Newport Centre 11",
+    "address": "30-300 Mall Drive West",
+    "city": "JERSEY CITY",
+    "state": "NJ",
+    "postalCode": "07310"
+  },
+  {
+    "slug": "philadelphia/amc-cherry-hill-24",
+    "name": "AMC Cherry Hill 24",
+    "address": "2121 Route 38",
+    "city": "CHERRY HILL",
+    "state": "NJ",
+    "postalCode": "08002"
+  },
+  {
+    "slug": "new-york-city/amc-kips-bay-15",
+    "name": "AMC Kips Bay 15",
+    "address": "570 Second Avenue",
+    "city": "NEW YORK",
+    "state": "NY",
+    "postalCode": "10016"
+  },
+  {
+    "slug": "elizabeth/amc-jersey-gardens-20",
+    "name": "AMC Jersey Gardens 20",
+    "address": "651 Kapkowski Road",
+    "city": "ELIZABETH",
+    "state": "NJ",
+    "postalCode": "07201"
+  },
+  {
+    "slug": "brick/amc-brick-plaza-10",
+    "name": "AMC Brick Plaza 10",
+    "address": "3 Brick Plaza",
+    "city": "BRICK",
+    "state": "NJ",
+    "postalCode": "08723"
+  },
+  {
+    "slug": "new-brunswick/amc-new-brunswick-18",
+    "name": "AMC New Brunswick 18",
+    "address": "17 US-1",
+    "city": "NEW BRUNSWICK",
+    "state": "NJ",
+    "postalCode": "08901"
+  },
+  {
+    "slug": "freehold/amc-freehold-14",
+    "name": "AMC Freehold 14",
+    "address": "101 Trotters Way",
+    "city": "FREEHOLD",
+    "state": "NJ",
+    "postalCode": "07728"
+  },
+  {
+    "slug": "eatontown/amc-monmouth-mall-15",
+    "name": "AMC Monmouth Mall 15",
+    "address": "180 Rt 35",
+    "city": "EATONTOWN",
+    "state": "NJ",
+    "postalCode": "07724"
+  },
+  {
+    "slug": "edison/amc-dine-in-menlo-park-12",
+    "name": "AMC DINE-IN Menlo Park 12",
+    "address": "55 Parsonage Rd",
+    "city": "EDISON",
+    "state": "NJ",
+    "postalCode": "08837"
+  },
+  {
+    "slug": "salt-lake-city/amc-layton-hills-9",
+    "name": "AMC Layton Hills 9",
+    "address": "728 West 1425 North",
+    "city": "LAYTON HILLS",
+    "state": "UT",
+    "postalCode": "84041"
+  },
+  {
+    "slug": "rockaway/amc-rockaway-16",
+    "name": "AMC Rockaway 16",
+    "address": "363 Mt. Hope Avenue",
+    "city": "ROCKAWAY",
+    "state": "NJ",
+    "postalCode": "07866"
+  },
+  {
+    "slug": "linden/amc-aviation-12",
+    "name": "AMC Aviation 12",
+    "address": "1200 South Stiles Street",
+    "city": "LINDEN",
+    "state": "NJ",
+    "postalCode": "07036-4724"
+  },
+  {
+    "slug": "paramus/amc-garden-state-plaza-16",
+    "name": "AMC Garden State Plaza 16",
+    "address": "4000 Garden State Plaza",
+    "city": "PARAMUS",
+    "state": "NJ",
+    "postalCode": "07652"
+  },
+  {
+    "slug": "new-york-city/amc-magic-johnson-harlem-9",
+    "name": "AMC Magic Johnson Harlem 9",
+    "address": "2309 Frederick Douglass Blvd.",
+    "city": "NEW YORK",
+    "state": "NY",
+    "postalCode": "10027"
+  },
+  {
+    "slug": "washington-d-c/amc-magic-johnson-capital-center-12",
+    "name": "AMC Magic Johnson Capital Center 12",
+    "address": "800 Shoppers Way",
+    "city": "LARGO",
+    "state": "MD",
+    "postalCode": "20774"
+  },
+  {
+    "slug": "san-francisco/amc-metreon-16",
+    "name": "AMC Metreon 16",
+    "address": "135 Fourth St",
+    "city": "SAN FRANCISCO",
+    "state": "CA",
+    "postalCode": "94103"
+  },
+  {
+    "slug": "los-angeles/amc-atlantic-times-square-14",
+    "name": "AMC Atlantic Times Square 14",
+    "address": "450 N Atlantic Blvd",
+    "city": "MONTEREY PARK",
+    "state": "CA",
+    "postalCode": "91754"
+  },
+  {
+    "slug": "los-angeles/universal-cinema-an-amc-theatre",
+    "name": "Universal Cinema - an AMC Theatre",
+    "address": "100 Universal City Plaza",
+    "city": "UNIVERSAL CITY",
+    "state": "CA",
+    "postalCode": "91608"
+  },
+  {
+    "slug": "los-angeles/amc-dine-in-marina-6",
+    "name": "AMC DINE-IN Marina 6",
+    "address": "13455 Maxella Ave",
+    "city": "MARINA DEL REY",
+    "state": "CA",
+    "postalCode": "90292"
+  },
+  {
+    "slug": "houston/amc-spring-10",
+    "name": "AMC Spring 10",
+    "address": "20115 Holzwarth Road",
+    "city": "SPRING",
+    "state": "TX",
+    "postalCode": "77388"
+  },
+  {
+    "slug": "houston/amc-fountains-18",
+    "name": "AMC Fountains 18",
+    "address": "11225 Fountain Lake Drive",
+    "city": "STAFFORD",
+    "state": "TX",
+    "postalCode": "77477"
+  },
+  {
+    "slug": "seattle-tacoma/amc-factoria-8",
+    "name": "AMC Factoria 8",
+    "address": "3505 Factoria Blvd Se",
+    "city": "BELLEVUE",
+    "state": "WA",
+    "postalCode": "98006"
+  },
+  {
+    "slug": "seattle-tacoma/amc-oak-tree-6",
+    "name": "AMC Oak Tree 6",
+    "address": "10006 Aurora Avenue N.",
+    "city": "SEATTLE",
+    "state": "WA",
+    "postalCode": "98133"
+  },
+  {
+    "slug": "seattle-tacoma/amc-lakewood-mall-12",
+    "name": "AMC Lakewood Mall 12",
+    "address": "5721 Main St Sw",
+    "city": "LAKEWOOD",
+    "state": "WA",
+    "postalCode": "98499"
+  },
+  {
+    "slug": "seattle-tacoma/amc-classic-cascade-mall-14",
+    "name": "AMC CLASSIC Cascade Mall 14",
+    "address": "200 Cascade Mall Dr.",
+    "city": "BURLINGTON",
+    "state": "WA",
+    "postalCode": "98233"
+  },
+  {
+    "slug": "seattle-tacoma/amc-woodinville-12",
+    "name": "AMC Woodinville 12",
+    "address": "17640 Garden Wy. Ne",
+    "city": "WOODINVILLE",
+    "state": "WA",
+    "postalCode": "98072"
+  },
+  {
+    "slug": "rochester/amc-webster-12",
+    "name": "AMC Webster 12",
+    "address": "2190 Empire Blvd.",
+    "city": "WEBSTER",
+    "state": "NY",
+    "postalCode": "14580"
+  },
+  {
+    "slug": "chicago/amc-crestwood-18",
+    "name": "AMC Crestwood 18",
+    "address": "13221 Rivercrest Drive",
+    "city": "CRESTWOOD",
+    "state": "IL",
+    "postalCode": "60418"
+  },
+  {
+    "slug": "chicago/amc-chicago-ridge-6",
+    "name": "AMC Chicago Ridge 6",
+    "address": "500 Chicago Ridge Mall",
+    "city": "CHICAGO RIDGE",
+    "state": "IL",
+    "postalCode": "60415"
+  },
+  {
+    "slug": "chicago/amc-600-north-michigan-9",
+    "name": "AMC 600 North Michigan 9",
+    "address": "600 North Michigan",
+    "city": "CHICAGO",
+    "state": "IL",
+    "postalCode": "60611-0000"
+  },
+  {
+    "slug": "chicago/amc-quarry-cinemas-14",
+    "name": "AMC Quarry Cinemas 14",
+    "address": "9201 63rd Street",
+    "city": "HODGKINS",
+    "state": "IL",
+    "postalCode": "60525"
+  },
+  {
+    "slug": "pittsburgh/amc-waterfront-22",
+    "name": "AMC Waterfront 22",
+    "address": "300 West Waterfront Dr.",
+    "city": "WEST HOMESTEAD",
+    "state": "PA",
+    "postalCode": "15120"
+  },
+  {
+    "slug": "chicago/amc-streets-of-woodfield-20",
+    "name": "AMC Streets of Woodfield 20",
+    "address": "601 N. Martingale Rd",
+    "city": "SCHAUMBURG",
+    "state": "IL",
+    "postalCode": "60173"
+  },
+  {
+    "slug": "danbury/amc-danbury-16",
+    "name": "AMC Danbury 16",
+    "address": "61 Eagle Rd.",
+    "city": "DANBURY",
+    "state": "CT",
+    "postalCode": "06810"
+  },
+  {
+    "slug": "plainville/amc-plainville-20",
+    "name": "AMC Plainville 20",
+    "address": "220 New Britain Avenue",
+    "city": "PLAINVILLE",
+    "state": "CT",
+    "postalCode": "06062"
+  },
+  {
+    "slug": "seattle-tacoma/amc-alderwood-mall-16",
+    "name": "AMC Alderwood Mall 16",
+    "address": "18733-33rd Ave. West",
+    "city": "LYNNWOOD",
+    "state": "WA",
+    "postalCode": "98037"
+  },
+  {
+    "slug": "washington-d-c/amc-georgetown-14",
+    "name": "AMC Georgetown 14",
+    "address": "3111 K Street, Nw",
+    "city": "WASHINGTON",
+    "state": "DC",
+    "postalCode": "20007"
+  },
+  {
+    "slug": "boston/amc-boston-common-19",
+    "name": "AMC Boston Common 19",
+    "address": "175 Tremont St",
+    "city": "BOSTON",
+    "state": "MA",
+    "postalCode": "02111"
+  },
+  {
+    "slug": "boston/amc-methuen-20",
+    "name": "AMC Methuen 20",
+    "address": "90 Pleasant Valley Street",
+    "city": "METHUEN",
+    "state": "MA",
+    "postalCode": "01844"
+  },
+  {
+    "slug": "phoenix/amc-westgate-20",
+    "name": "AMC Westgate 20",
+    "address": "9400 West Hanna Lane",
+    "city": "GLENDALE",
+    "state": "AZ",
+    "postalCode": "85305-3137"
+  },
+  {
+    "slug": "port-chester/amc-port-chester-14",
+    "name": "AMC Port Chester 14",
+    "address": "40 Westchester Avenue",
+    "city": "PORT CHESTER",
+    "state": "NY",
+    "postalCode": "10573"
+  },
+  {
+    "slug": "tucson/amc-foothills-15",
+    "name": "AMC Foothills 15",
+    "address": "7401 N LA CHOLLA BLVD",
+    "city": "TUCSON",
+    "state": "AZ",
+    "postalCode": "85741-2329"
+  },
+  {
+    "slug": "binghamton/amc-vestal-town-square-9",
+    "name": "AMC Vestal Town Square 9",
+    "address": "2425 Vestal Parkway",
+    "city": "VESTAL",
+    "state": "NY",
+    "postalCode": "13850"
+  },
+  {
+    "slug": "west-nyack/amc-palisades-21",
+    "name": "AMC Palisades 21",
+    "address": "4403 Palisades Ctr. Drive",
+    "city": "WEST NYACK",
+    "state": "NY",
+    "postalCode": "10994"
+  },
+  {
+    "slug": "middletown/amc-crystal-run-16",
+    "name": "AMC Crystal Run 16",
+    "address": "1 Galleria Drive",
+    "city": "MIDDLETOWN",
+    "state": "NY",
+    "postalCode": "10940"
+  },
+  {
+    "slug": "washington-d-c/amc-rio-cinemas-18",
+    "name": "AMC Rio Cinemas 18",
+    "address": "9811 Washingtonian Ctr..",
+    "city": "GAITHERSBURG",
+    "state": "MD",
+    "postalCode": "20878"
+  },
+  {
+    "slug": "boston/amc-liberty-tree-mall-20",
+    "name": "AMC Liberty Tree Mall 20",
+    "address": "100 Independence Way",
+    "city": "DANVERS",
+    "state": "MA",
+    "postalCode": "01923"
+  },
+  {
+    "slug": "washington-d-c/amc-st-charles-town-center-9",
+    "name": "AMC St. Charles Town Ctr 9",
+    "address": "11115 Mall Circle",
+    "city": "WALDORF",
+    "state": "MD",
+    "postalCode": "20603"
+  },
+  {
+    "slug": "washington-d-c/amc-shirlington-7",
+    "name": "AMC Shirlington 7",
+    "address": "2772 South Randolph St",
+    "city": "ARLINGTON",
+    "state": "VA",
+    "postalCode": "22206"
+  },
+  {
+    "slug": "washington-d-c/amc-center-park-8",
+    "name": "AMC Center Park 8",
+    "address": "4001 Powder Mill Road",
+    "city": "BELTSVILLE",
+    "state": "MD",
+    "postalCode": "20705"
+  },
+  {
+    "slug": "baltimore/amc-white-marsh-16",
+    "name": "AMC White Marsh 16",
+    "address": "8141 Honeygo Blvd.",
+    "city": "BALTIMORE",
+    "state": "MD",
+    "postalCode": "21236"
+  },
+  {
+    "slug": "detroit/amc-john-r-15",
+    "name": "AMC John R 15",
+    "address": "32289 John R Road",
+    "city": "MADISON HEIGHTS",
+    "state": "MI",
+    "postalCode": "48071"
+  },
+  {
+    "slug": "detroit/amc-star-gratiot-15",
+    "name": "AMC Star Gratiot 15",
+    "address": "35705 South Gratiot Ave.",
+    "city": "CLINTON TWP",
+    "state": "MI",
+    "postalCode": "48035"
+  },
+  {
+    "slug": "grand-rapids/amc-holland-8",
+    "name": "AMC Holland 8",
+    "address": "12270 James St",
+    "city": "HOLLAND",
+    "state": "MI",
+    "postalCode": "49424"
+  },
+  {
+    "slug": "grand-rapids/amc-grand-rapids-18",
+    "name": "AMC Grand Rapids 18",
+    "address": "3000 Alpine Ave Nw",
+    "city": "WALKER",
+    "state": "MI",
+    "postalCode": "49544-8213"
+  },
+  {
+    "slug": "detroit/amc-star-great-lakes-25",
+    "name": "AMC Star Great Lakes 25",
+    "address": "4300 Baldwin Rd",
+    "city": "AUBURN HILLS",
+    "state": "MI",
+    "postalCode": "48326"
+  },
+  {
+    "slug": "birmingham-al/amc-summit-16",
+    "name": "AMC Summit 16",
+    "address": "321 Summit Blvd",
+    "city": "BIRMINGHAM",
+    "state": "AL",
+    "postalCode": "35243"
+  },
+  {
+    "slug": "birmingham-al/amc-patton-creek-15",
+    "name": "AMC Patton Creek 15",
+    "address": "4450 Creekside Road",
+    "city": "BIRMINGHAM",
+    "state": "AL",
+    "postalCode": "35244"
+  },
+  {
+    "slug": "birmingham-al/amc-dine-in-vestavia-hills-10",
+    "name": "AMC DINE-IN Vestavia Hills 10",
+    "address": "1911 Kentucky Ave",
+    "city": "VESTAVIA HILLS",
+    "state": "AL",
+    "postalCode": "35216"
+  },
+  {
+    "slug": "birmingham-al/amc-classic-marktplatz-10",
+    "name": "AMC CLASSIC Marktplatz 10",
+    "address": "1950 Marketplatz Center Southwest",
+    "city": "CULLMAN",
+    "state": "AL",
+    "postalCode": "35055"
+  },
+  {
+    "slug": "pensacola-mobile/amc-classic-jubilee-square-12",
+    "name": "AMC CLASSIC Jubilee Square 12",
+    "address": "6898 Us 90",
+    "city": "DAPHNE",
+    "state": "AL",
+    "postalCode": "36526"
+  },
+  {
+    "slug": "huntsville-al/amc-decatur-12",
+    "name": "AMC Decatur 12",
+    "address": "1801 Beltline Rd. Sw",
+    "city": "DECATUR",
+    "state": "AL",
+    "postalCode": "35601"
+  },
+  {
+    "slug": "dothan-al/amc-classic-dothan-pavilion-12",
+    "name": "AMC CLASSIC Dothan Pavilion 12",
+    "address": "4883 Montgomery Highway",
+    "city": "DOTHAN",
+    "state": "AL",
+    "postalCode": "36303"
+  },
+  {
+    "slug": "dothan-al/amc-classic-dothan-6",
+    "name": "AMC CLASSIC Dothan 6",
+    "address": "209 Executive Park Drive",
+    "city": "DOTHAN",
+    "state": "AL",
+    "postalCode": "36303-5936"
+  },
+  {
+    "slug": "huntsville-al/amc-classic-florence-12",
+    "name": "AMC CLASSIC Florence 12",
+    "address": "2621 Hough Rd",
+    "city": "FLORENCE",
+    "state": "AL",
+    "postalCode": "35630"
+  },
+  {
+    "slug": "huntsville-al/amc-valley-bend-18",
+    "name": "AMC Valley Bend 18",
+    "address": "1485 Four Mile Road South East",
+    "city": "HUNTSVILLE",
+    "state": "AL",
+    "postalCode": "35802"
+  },
+  {
+    "slug": "pensacola-mobile/amc-mobile-16",
+    "name": "AMC Mobile 16",
+    "address": "785 Schillinger Rd S",
+    "city": "MOBILE",
+    "state": "AL",
+    "postalCode": "36695"
+  },
+  {
+    "slug": "montgomery/amc-chantilly-13",
+    "name": "AMC Chantilly 13",
+    "address": "10477 Chantilly Parkway",
+    "city": "MONTGOMERY",
+    "state": "AL",
+    "postalCode": "36117"
+  },
+  {
+    "slug": "columbus-ga/amc-tiger-13",
+    "name": "AMC Tiger 13",
+    "address": "1900 Capps Landing",
+    "city": "OPELIKA",
+    "state": "AL",
+    "postalCode": "36804"
+  },
+  {
+    "slug": "pensacola-mobile/amc-classic-wharf-15",
+    "name": "AMC CLASSIC Wharf 15",
+    "address": "23101 Canal Road",
+    "city": "ORANGE BEACH",
+    "state": "AL",
+    "postalCode": "36561"
+  },
+  {
+    "slug": "montgomery/amc-classic-prattville-12",
+    "name": "AMC CLASSIC Prattville 12",
+    "address": "2399 Cobbs Ford Rd",
+    "city": "PRATTVILLE",
+    "state": "AL",
+    "postalCode": "36066-7705"
+  },
+  {
+    "slug": "phoenix/amc-surprise-pointe-14",
+    "name": "AMC Surprise Pointe 14",
+    "address": "13649 North Litchfield Road",
+    "city": "SURPRISE",
+    "state": "AZ",
+    "postalCode": "85379-4267"
+  },
+  {
+    "slug": "san-diego/amc-poway-10",
+    "name": "AMC Poway 10",
+    "address": "13475 Poway Rd",
+    "city": "POWAY",
+    "state": "CA",
+    "postalCode": "92064-4713"
+  },
+  {
+    "slug": "san-francisco/amc-kabuki-8",
+    "name": "AMC Kabuki 8",
+    "address": "1881 Post St",
+    "city": "SAN FRANCISCO",
+    "state": "CA",
+    "postalCode": "94115-3607"
+  },
+  {
+    "slug": "los-angeles/amc-temecula-10",
+    "name": "AMC Temecula 10",
+    "address": "27531 Ynez Rd",
+    "city": "TEMECULA",
+    "state": "CA",
+    "postalCode": "92591-4631"
+  },
+  {
+    "slug": "los-angeles/amc-thousand-oaks-14",
+    "name": "AMC Thousand Oaks 14",
+    "address": "166 W. Hillcrest Drive",
+    "city": "THOUSAND OAKS",
+    "state": "CA",
+    "postalCode": "91360"
+  },
+  {
+    "slug": "colorado-springs-co/amc-chapel-hills-13",
+    "name": "AMC Chapel Hills 13",
+    "address": "1710 Briargate Blvd",
+    "city": "COLORADO SPRINGS",
+    "state": "CO",
+    "postalCode": "80920"
+  },
+  {
+    "slug": "denver/amc-fort-collins-10",
+    "name": "AMC Fort Collins 10",
+    "address": "3636 Manhattan Ave",
+    "city": "FORT COLLINS",
+    "state": "CO",
+    "postalCode": "80526-3273"
+  },
+  {
+    "slug": "hartford-new-haven/amc-classic-lisbon-12",
+    "name": "AMC CLASSIC Lisbon 12",
+    "address": "162 River Rd",
+    "city": "LISBON",
+    "state": "CT",
+    "postalCode": "06351"
+  },
+  {
+    "slug": "tampa-st-petersburg/amc-bradenton-20",
+    "name": "AMC Bradenton 20",
+    "address": "2507 53rd Ave E",
+    "city": "BRADENTON",
+    "state": "FL",
+    "postalCode": "34203"
+  },
+  {
+    "slug": "jacksonville/amc-fleming-island-12",
+    "name": "AMC Fleming Island 12",
+    "address": "1820 Town Center Blvd",
+    "city": "FLEMING ISLAND",
+    "state": "FL",
+    "postalCode": "32003"
+  },
+  {
+    "slug": "miami-ft-lauderdale/amc-hialeah-12",
+    "name": "AMC Hialeah 12",
+    "address": "780 W 49th St",
+    "city": "HIALEAH",
+    "state": "FL",
+    "postalCode": "33012-3609"
+  },
+  {
+    "slug": "orlando-daytona-beach/amc-avenue-16",
+    "name": "AMC Avenue 16",
+    "address": "2241 Town Center Ave",
+    "city": "MELBOURNE",
+    "state": "FL",
+    "postalCode": "32940"
+  },
+  {
+    "slug": "orlando-daytona-beach/amc-classic-new-smyrna-12",
+    "name": "AMC CLASSIC New Smyrna 12",
+    "address": "1401 S Dixie Fwy",
+    "city": "NEW SMYRNA BEACH",
+    "state": "FL",
+    "postalCode": "32168-7604"
+  },
+  {
+    "slug": "tampa-st-petersburg/amc-classic-palm-harbor-10",
+    "name": "AMC CLASSIC Palm Harbor 10",
+    "address": "37912 Us Highway 19 N",
+    "city": "PALM HARBOR",
+    "state": "FL",
+    "postalCode": "34684-1025"
+  },
+  {
+    "slug": "pensacola-mobile/amc-classic-pensacola-18",
+    "name": "AMC CLASSIC Pensacola 18",
+    "address": "6595 North W St",
+    "city": "PENSACOLA",
+    "state": "FL",
+    "postalCode": "32505"
+  },
+  {
+    "slug": "pensacola-mobile/amc-bayou-15",
+    "name": "AMC Bayou 15",
+    "address": "5149 Bayou Boulevard",
+    "city": "PENSACOLA",
+    "state": "FL",
+    "postalCode": "32503"
+  },
+  {
+    "slug": "miami-ft-lauderdale/amc-pompano-beach-18",
+    "name": "AMC Pompano Beach 18",
+    "address": "2315 N Federal Hwy",
+    "city": "POMPANO BEACH",
+    "state": "FL",
+    "postalCode": "33062-1010"
+  },
+  {
+    "slug": "west-palm-beach/amc-port-st-lucie-14",
+    "name": "AMC Port St Lucie 14",
+    "address": "1900 Nw Courtyard Cir",
+    "city": "PORT ST LUCIE",
+    "state": "FL",
+    "postalCode": "34986-2514"
+  },
+  {
+    "slug": "miramar-beach-fl/amc-boulevard-10",
+    "name": "AMC Boulevard 10",
+    "address": "465 Grand Boulevard",
+    "city": "MIRAMAR BEACH",
+    "state": "FL",
+    "postalCode": "32550"
+  },
+  {
+    "slug": "tampa-st-petersburg/amc-lakeshore-8",
+    "name": "AMC Lakeshore 8",
+    "address": "901 Us 27",
+    "city": "SEBRING",
+    "state": "FL",
+    "postalCode": "33870"
+  },
+  {
+    "slug": "tampa-st-petersburg/amc-sundial-12",
+    "name": "AMC Sundial 12",
+    "address": "151 2nd Ave North",
+    "city": "SAINT PETERSBURG",
+    "state": "FL",
+    "postalCode": "33701-3319"
+  },
+  {
+    "slug": "tampa-st-petersburg/amc-highwoods-20",
+    "name": "AMC Highwoods 20",
+    "address": "18002 Highwoods Preserve Parkway",
+    "city": "TAMPA",
+    "state": "FL",
+    "postalCode": "33647"
+  },
+  {
+    "slug": "orlando-daytona-beach/amc-west-melbourne-12",
+    "name": "AMC West Melbourne 12",
+    "address": "4255 Norfolk Parkway",
+    "city": "WEST MELBOURNE",
+    "state": "FL",
+    "postalCode": "32904"
+  },
+  {
+    "slug": "jacksonville/amc-yulee-10",
+    "name": "AMC Yulee 10",
+    "address": "96012 Lofton Square Court",
+    "city": "YULEE",
+    "state": "FL",
+    "postalCode": "32097"
+  },
+  {
+    "slug": "albany-ga/amc-classic-albany-16",
+    "name": "AMC CLASSIC Albany 16",
+    "address": "2823 Nottingham Way",
+    "city": "ALBANY",
+    "state": "GA",
+    "postalCode": "31707-4010"
+  },
+  {
+    "slug": "atlanta/amc-camp-creek-14",
+    "name": "AMC Camp Creek 14",
+    "address": "3760 Princeton Lakes Pkwy.",
+    "city": "ATLANTA",
+    "state": "GA",
+    "postalCode": "30331"
+  },
+  {
+    "slug": "atlanta/amc-classic-riverstone-15",
+    "name": "AMC CLASSIC Riverstone 15",
+    "address": "5 Reinhardt College Pkwy",
+    "city": "CANTON",
+    "state": "GA",
+    "postalCode": "30114"
+  },
+  {
+    "slug": "atlanta/amc-classic-cartersville-12",
+    "name": "AMC CLASSIC Cartersville 12",
+    "address": "1129 North Tennessee St.",
+    "city": "CARTERSVILLE",
+    "state": "GA",
+    "postalCode": "30120"
+  },
+  {
+    "slug": "columbus-ga/amc-columbus-park-15",
+    "name": "AMC Columbus Park 15",
+    "address": "5556 Whittlesey Blvd",
+    "city": "COLUMBUS",
+    "state": "GA",
+    "postalCode": "31909"
+  },
+  {
+    "slug": "columbus-ga/amc-ritz-13",
+    "name": "AMC Ritz 13",
+    "address": "1683 Whittlesey Rd",
+    "city": "COLUMBUS",
+    "state": "GA",
+    "postalCode": "31904"
+  },
+  {
+    "slug": "atlanta/amc-conyers-crossing-16",
+    "name": "AMC Conyers Crossing 16",
+    "address": "1536 Dogwood Dr Se",
+    "city": "CONYERS",
+    "state": "GA",
+    "postalCode": "30013-5041"
+  },
+  {
+    "slug": "chattanooga-tn/amc-classic-walnut-square-12",
+    "name": "AMC CLASSIC Walnut Square 12",
+    "address": "875 Walnut Square Boulevard",
+    "city": "DALTON",
+    "state": "GA",
+    "postalCode": "30721"
+  },
+  {
+    "slug": "chattanooga-tn/amc-classic-battlefield-10",
+    "name": "AMC CLASSIC Battlefield 10",
+    "address": "1100 Battlefield Pkwy",
+    "city": "FORT OGLETHORPE",
+    "state": "GA",
+    "postalCode": "30742"
+  },
+  {
+    "slug": "atlanta/amc-hiram-14",
+    "name": "AMC Hiram 14",
+    "address": "185 Metromont Rd",
+    "city": "HIRAM",
+    "state": "GA",
+    "postalCode": "30141"
+  },
+  {
+    "slug": "atlanta/amc-classic-lagrange-10-georgia",
+    "name": "AMC CLASSIC LaGrange 10 - Georgia",
+    "address": "201 Main St.",
+    "city": "LAGRANGE",
+    "state": "GA",
+    "postalCode": "30240"
+  },
+  {
+    "slug": "savannah-ga/amc-classic-savannah-11",
+    "name": "AMC CLASSIC Savannah 11",
+    "address": "1150 Shawnee St",
+    "city": "SAVANNAH",
+    "state": "GA",
+    "postalCode": "31420"
+  },
+  {
+    "slug": "savannah-ga/amc-classic-statesboro-12",
+    "name": "AMC CLASSIC Statesboro 12",
+    "address": "610 Brannen St",
+    "city": "STATESBORO",
+    "state": "GA",
+    "postalCode": "30458"
+  },
+  {
+    "slug": "atlanta/amc-bethlehem-12",
+    "name": "AMC Bethlehem 12",
+    "address": "416 Exchange Blvd",
+    "city": "BETHLEHEM",
+    "state": "GA",
+    "postalCode": "30620"
+  },
+  {
+    "slug": "atlanta/amc-dine-in-webb-gin-11",
+    "name": "AMC DINE-IN Webb Gin 11",
+    "address": "1210 Scenic Highway",
+    "city": "LAWRENCEVILLE",
+    "state": "GA",
+    "postalCode": "30045"
+  },
+  {
+    "slug": "sioux-city-ia/amc-southern-hills-12",
+    "name": "AMC Southern Hills 12",
+    "address": "4400 Sergeant Rd",
+    "city": "SIOUX CITY",
+    "state": "IA",
+    "postalCode": "51106"
+  },
+  {
+    "slug": "idaho-falls-id/amc-classic-pine-ridge-11",
+    "name": "AMC CLASSIC Pine Ridge 11",
+    "address": "4355 Yellowstone Ave",
+    "city": "CHUBBUCK",
+    "state": "ID",
+    "postalCode": "83202"
+  },
+  {
+    "slug": "springfield-il/amc-champaign-13",
+    "name": "AMC Champaign 13",
+    "address": "910 Meijer Dr",
+    "city": "CHAMPAIGN",
+    "state": "IL",
+    "postalCode": "61822"
+  },
+  {
+    "slug": "springfield-il/amc-classic-decatur-10",
+    "name": "AMC CLASSIC Decatur 10",
+    "address": "2360 S Mount Zion Rd",
+    "city": "DECATUR",
+    "state": "IL",
+    "postalCode": "62521-9719"
+  },
+  {
+    "slug": "chicago/amc-market-square-10",
+    "name": "AMC Market Square 10",
+    "address": "2160 Sycamore Rd",
+    "city": "DEKALB",
+    "state": "IL",
+    "postalCode": "60115-2045"
+  },
+  {
+    "slug": "peoria/amc-grand-prairie-18",
+    "name": "AMC Grand Prairie 18",
+    "address": "5311 West American Praire Drive",
+    "city": "PEORIA",
+    "state": "IL",
+    "postalCode": "61615"
+  },
+  {
+    "slug": "chicago/amc-peru-mall-8",
+    "name": "AMC Peru Mall 8",
+    "address": "3940 State Route 51",
+    "city": "PERU",
+    "state": "IL",
+    "postalCode": "61354-1054"
+  },
+  {
+    "slug": "chicago/amc-dine-in-rosemont-12",
+    "name": "AMC DINE-IN Rosemont 12",
+    "address": "9701 Bryn Mawr Ave",
+    "city": "ROSEMONT",
+    "state": "IL",
+    "postalCode": "60018"
+  },
+  {
+    "slug": "rockford/amc-classic-sauk-valley-8",
+    "name": "AMC CLASSIC Sauk Valley 8",
+    "address": "4110 30th St",
+    "city": "STERLING",
+    "state": "IL",
+    "postalCode": "61081-9798"
+  },
+  {
+    "slug": "peoria/amc-classic-sunnyland-10",
+    "name": "AMC CLASSIC Sunnyland 10",
+    "address": "40 Sunnyland Plz",
+    "city": "WASHINGTON",
+    "state": "IL",
+    "postalCode": "61571-1943"
+  },
+  {
+    "slug": "indianapolis/amc-classic-crawfordsville-8",
+    "name": "AMC CLASSIC Crawfordsville 8",
+    "address": "205 Dry Branch Dr",
+    "city": "CRAWFORDSVILLE",
+    "state": "IN",
+    "postalCode": "47933-3817"
+  },
+  {
+    "slug": "ft-wayne-in/amc-jefferson-point-18",
+    "name": "AMC Jefferson Point 18",
+    "address": "4250 W Jefferson Blvd",
+    "city": "FORT WAYNE",
+    "state": "IN",
+    "postalCode": "46804-6818"
+  },
+  {
+    "slug": "indianapolis/amc-perry-crossing-18",
+    "name": "AMC Perry Crossing 18",
+    "address": "380 Cinema Boulevard",
+    "city": "PLAINFIELD",
+    "state": "IN",
+    "postalCode": "46168"
+  },
+  {
+    "slug": "topeka-ks/amc-manhattan-13",
+    "name": "AMC Manhattan 13",
+    "address": "103 Manhattan Town Center",
+    "city": "MANHATTAN",
+    "state": "KS",
+    "postalCode": "66502"
+  },
+  {
+    "slug": "louisville-ky/amc-stonybrook-20",
+    "name": "AMC Stonybrook 20",
+    "address": "2745 S Hurstbourne Pkwy",
+    "city": "LOUISVILLE",
+    "state": "KY",
+    "postalCode": "40220"
+  },
+  {
+    "slug": "detroit/amc-birchwood-10",
+    "name": "AMC Birchwood 10",
+    "address": "4350 24th Ave",
+    "city": "FORT GRATIOT",
+    "state": "MI",
+    "postalCode": "48059-3851"
+  },
+  {
+    "slug": "traverse-city-mi/amc-classic-ludington-8",
+    "name": "AMC CLASSIC Ludington 8",
+    "address": "3857 W Us 10-31",
+    "city": "LUDINGTON",
+    "state": "MI",
+    "postalCode": "49431"
+  },
+  {
+    "slug": "traverse-city-mi/amc-cherry-blossom-14",
+    "name": "AMC Cherry Blossom 14",
+    "address": "3825 Marketplace Cir",
+    "city": "TRAVERSE CITY",
+    "state": "MI",
+    "postalCode": "49684"
+  },
+  {
+    "slug": "minneapolis-st-paul/amc-classic-mounds-view-15",
+    "name": "AMC CLASSIC Mounds View 15",
+    "address": "2430 Co Hwy 10",
+    "city": "MOUNDS VIEW",
+    "state": "MN",
+    "postalCode": "55112"
+  },
+  {
+    "slug": "billings-mt/amc-shiloh-14",
+    "name": "AMC Shiloh 14",
+    "address": "1001 Shiloh Crossing Blvd.",
+    "city": "BILLINGS",
+    "state": "MT",
+    "postalCode": "59102"
+  },
+  {
+    "slug": "billings-mt/amc-classic-billings-10",
+    "name": "AMC CLASSIC Billings 10",
+    "address": "2456 Central Ave",
+    "city": "BILLINGS",
+    "state": "MT",
+    "postalCode": "59102"
+  },
+  {
+    "slug": "great-falls-mt/amc-classic-great-falls-10",
+    "name": "AMC CLASSIC Great Falls 10",
+    "address": "1601 Marketplace Dr",
+    "city": "GREAT FALLS",
+    "state": "MT",
+    "postalCode": "59404"
+  },
+  {
+    "slug": "missoula-mt/amc-missoula-12",
+    "name": "AMC Missoula 12",
+    "address": "3640 Mullan Rd",
+    "city": "MISSOULA",
+    "state": "MT",
+    "postalCode": "59802"
+  },
+  {
+    "slug": "missoula-mt/amc-dine-in-southgate-9",
+    "name": "AMC DINE-IN SOUTHGATE 9",
+    "address": "2901 Brooks Street",
+    "city": "MISSOULA",
+    "state": "MT",
+    "postalCode": "59801"
+  },
+  {
+    "slug": "greenville-nc/amc-river-hills-10",
+    "name": "AMC River Hills 10",
+    "address": "121 River Hills Rd",
+    "city": "ASHEVILLE",
+    "state": "NC",
+    "postalCode": "28805"
+  },
+  {
+    "slug": "raleigh-durham/amc-market-fair-15",
+    "name": "AMC Market Fair 15",
+    "address": "1916 Skibo Rd",
+    "city": "FAYETTEVILLE",
+    "state": "NC",
+    "postalCode": "28314"
+  },
+  {
+    "slug": "raleigh-durham/amc-fayetteville-14",
+    "name": "AMC Fayetteville 14",
+    "address": "4761 Lake Valley Dr",
+    "city": "FAYETTEVILLE",
+    "state": "NC",
+    "postalCode": "28303"
+  },
+  {
+    "slug": "greenville-nc/amc-fire-tower-12",
+    "name": "AMC Fire Tower 12",
+    "address": "1685 E Firetower Road",
+    "city": "GREENVILLE",
+    "state": "NC",
+    "postalCode": "27834"
+  },
+  {
+    "slug": "greenville-nc/amc-classic-havelock-6",
+    "name": "AMC CLASSIC Havelock 6",
+    "address": "500 Mccotter Blvd",
+    "city": "HAVELOCK",
+    "state": "NC",
+    "postalCode": "28532"
+  },
+  {
+    "slug": "charlotte/amc-hickory-15",
+    "name": "AMC Hickory 15",
+    "address": "2000 Catawba Valley Blvd Se",
+    "city": "HICKORY",
+    "state": "NC",
+    "postalCode": "28602-4149"
+  },
+  {
+    "slug": "greensboro-nc/amc-high-point-8",
+    "name": "AMC High Point 8",
+    "address": "2705 N Main St",
+    "city": "HIGH POINT",
+    "state": "NC",
+    "postalCode": "27265"
+  },
+  {
+    "slug": "greenville-nc/amc-classic-jacksonville-16",
+    "name": "AMC CLASSIC Jacksonville 16",
+    "address": "350 Western Blvd",
+    "city": "JACKSONVILLE",
+    "state": "NC",
+    "postalCode": "28546"
+  },
+  {
+    "slug": "greenville-nc/amc-kalli-12",
+    "name": "AMC Kalli 12",
+    "address": "1000 Kalli Drive",
+    "city": "JACKSONVILLE",
+    "state": "NC",
+    "postalCode": "28546"
+  },
+  {
+    "slug": "raleigh-durham/amc-park-place-16",
+    "name": "AMC Park Place 16",
+    "address": "9525 Chapel Hill Rd",
+    "city": "MORRISVILLE",
+    "state": "NC",
+    "postalCode": "27560"
+  },
+  {
+    "slug": "charlotte/amc-classic-shelby-10",
+    "name": "AMC CLASSIC Shelby 10",
+    "address": "2002 E Dixon Blvd",
+    "city": "SHELBY",
+    "state": "NC",
+    "postalCode": "28152"
+  },
+  {
+    "slug": "greensboro-nc/amc-hanes-12",
+    "name": "AMC Hanes 12",
+    "address": "1501 Sw Hanes Mall Blvd",
+    "city": "WINSTON-SALEM",
+    "state": "NC",
+    "postalCode": "27103"
+  },
+  {
+    "slug": "raleigh-durham/amc-dine-in-holly-springs-9",
+    "name": "AMC DINE-IN Holly Springs 9",
+    "address": "320 Grand Hill Pl",
+    "city": "HOLLY SPRINGS",
+    "state": "NC",
+    "postalCode": "27540"
+  },
+  {
+    "slug": "minot-nd/amc-dakota-square-9",
+    "name": "AMC Dakota Square 9",
+    "address": "2400 10th Street Sw Dakota Sq Mall",
+    "city": "MINOT",
+    "state": "ND",
+    "postalCode": "58701"
+  },
+  {
+    "slug": "philadelphia/amc-voorhees-16",
+    "name": "AMC Voorhees 16",
+    "address": "900 Haddonfield Berlin Rd",
+    "city": "VOORHEES",
+    "state": "NJ",
+    "postalCode": "08043-3598"
+  },
+  {
+    "slug": "albuquerque-nm/amc-albuquerque-12",
+    "name": "AMC Albuquerque 12",
+    "address": "3810 Las Estancias Way SW",
+    "city": "ALBUQUERQUE",
+    "state": "NM",
+    "postalCode": "87121"
+  },
+  {
+    "slug": "buffalo/amc-allegany-8",
+    "name": "AMC Allegany 8",
+    "address": "1875 Cinema Dr",
+    "city": "ALLEGANY",
+    "state": "NY",
+    "postalCode": "14760"
+  },
+  {
+    "slug": "toledo-oh/amc-classic-findlay-12",
+    "name": "AMC CLASSIC Findlay 12",
+    "address": "906 Interstate Dr.",
+    "city": "FINDLAY",
+    "state": "OH",
+    "postalCode": "45840"
+  },
+  {
+    "slug": "cincinnati/amc-anderson-towne-center-9",
+    "name": "AMC Anderson Towne Center 9",
+    "address": "7490 Beechmont Ave",
+    "city": "ANDERSON TOWNSHIP",
+    "state": "OH",
+    "postalCode": "45255"
+  },
+  {
+    "slug": "sherman-tx/amc-classic-ardmore-8",
+    "name": "AMC CLASSIC Ardmore 8",
+    "address": "2401 12th Avenue Nw #106",
+    "city": "ARDMORE",
+    "state": "OK",
+    "postalCode": "73401"
+  },
+  {
+    "slug": "wichita-falls-tx/amc-patriot-13",
+    "name": "AMC Patriot 13",
+    "address": "2803 NW 67th Street",
+    "city": "LAWTON",
+    "state": "OK",
+    "postalCode": "73505"
+  },
+  {
+    "slug": "oklahoma-city/amc-stillwater-10",
+    "name": "AMC Stillwater 10",
+    "address": "1909 N Perkins Rd",
+    "city": "STILLWATER",
+    "state": "OK",
+    "postalCode": "74074"
+  },
+  {
+    "slug": "oklahoma-city/cinema-centre-8",
+    "name": "Cinema Centre 8",
+    "address": "3031 N Harrison",
+    "city": "SHAWNEE",
+    "state": "OK",
+    "postalCode": "74804"
+  },
+  {
+    "slug": "tulsa/amc-tulsa-hills-12",
+    "name": "AMC Tulsa Hills 12",
+    "address": "8307 South Olympia Ave",
+    "city": "TULSA",
+    "state": "OK",
+    "postalCode": "74132"
+  },
+  {
+    "slug": "eugene-or/amc-classic-corvallis-12",
+    "name": "AMC CLASSIC Corvallis 12",
+    "address": "750 Ne Circle Blvd",
+    "city": "CORVALLIS",
+    "state": "OR",
+    "postalCode": "97330"
+  },
+  {
+    "slug": "philadelphia/amc-center-valley-16",
+    "name": "AMC Center Valley 16",
+    "address": "2805 Center Valley Parkway",
+    "city": "CENTER VALLEY",
+    "state": "PA",
+    "postalCode": "18034"
+  },
+  {
+    "slug": "altoona-pa/amc-altoona-12",
+    "name": "AMC Altoona 12",
+    "address": "234 Convention Center Drive",
+    "city": "DUNCANSVILLE",
+    "state": "PA",
+    "postalCode": "16635"
+  },
+  {
+    "slug": "wilkes-barre-pa/amc-classic-bloomsburg-11",
+    "name": "AMC CLASSIC Bloomsburg 11",
+    "address": "1879 Columbia Blvd",
+    "city": "BLOOMSBURG",
+    "state": "PA",
+    "postalCode": "17815"
+  },
+  {
+    "slug": "harrisburg-pa/amc-camp-hill-12",
+    "name": "AMC Camp Hill 12",
+    "address": "3432 Simpson Ferry Rd",
+    "city": "CAMP HILL",
+    "state": "PA",
+    "postalCode": "17011"
+  },
+  {
+    "slug": "pittsburgh/amc-westmoreland-15",
+    "name": "AMC Westmoreland 15",
+    "address": "5280 Old Rte 30",
+    "city": "GREENSBURG",
+    "state": "PA",
+    "postalCode": "15601"
+  },
+  {
+    "slug": "harrisburg-pa/amc-classic-hampden-8",
+    "name": "AMC CLASSIC Hampden 8",
+    "address": "4950 Carlisle Pike",
+    "city": "MECHANICSBURG",
+    "state": "PA",
+    "postalCode": "17050"
+  },
+  {
+    "slug": "pittsburgh/amc-classic-south-hills-village-10",
+    "name": "AMC CLASSIC South Hills Village 10",
+    "address": "700 Ft. Couch Rd S. Hills",
+    "city": "PITTSBURGH",
+    "state": "PA",
+    "postalCode": "15241"
+  },
+  {
+    "slug": "pittsburgh/amc-classic-mount-lebanon-6",
+    "name": "AMC CLASSIC Mount Lebanon 6",
+    "address": "1500 Washington Rd",
+    "city": "MOUNT LEBANON",
+    "state": "PA",
+    "postalCode": "15228"
+  },
+  {
+    "slug": "philadelphia/amc-pottsgrove-12",
+    "name": "AMC Pottsgrove 12",
+    "address": "110 Upland Square Dr.",
+    "city": "POTTSGROVE",
+    "state": "PA",
+    "postalCode": "19464"
+  },
+  {
+    "slug": "philadelphia/amc-fairgrounds-10",
+    "name": "AMC Fairgrounds 10",
+    "address": "3050 North 5th Street Highway",
+    "city": "READING",
+    "state": "PA",
+    "postalCode": "19605-2473"
+  },
+  {
+    "slug": "wilkes-barre-pa/amc-classic-selinsgrove-12",
+    "name": "AMC CLASSIC Selinsgrove 12",
+    "address": "1 Susquehanna Valley Mall Drive",
+    "city": "SELINSGROVE",
+    "state": "PA",
+    "postalCode": "17870"
+  },
+  {
+    "slug": "wilkes-barre-pa/amc-classic-williamsport-11",
+    "name": "AMC CLASSIC Williamsport 11",
+    "address": "300 W. Fourth St.",
+    "city": "WILLIAMSPORT",
+    "state": "PA",
+    "postalCode": "17701"
+  },
+  {
+    "slug": "columbia/amc-harbison-14",
+    "name": "AMC Harbison 14",
+    "address": "122 Afton Ct",
+    "city": "COLUMBIA",
+    "state": "SC",
+    "postalCode": "29212"
+  },
+  {
+    "slug": "myrtle-beach-sc/amc-classic-myrtle-beach-12",
+    "name": "AMC CLASSIC Myrtle Beach 12",
+    "address": "10177 North Kings Highway",
+    "city": "MYRTLE BEACH",
+    "state": "SC",
+    "postalCode": "29572"
+  },
+  {
+    "slug": "rapid-city-sd/amc-classic-rapid-city-10",
+    "name": "AMC CLASSIC Rapid City 10",
+    "address": "230 Knollwood Dr",
+    "city": "RAPID CITY",
+    "state": "SD",
+    "postalCode": "57701"
+  },
+  {
+    "slug": "chattanooga-tn/amc-chattanooga-18",
+    "name": "AMC Chattanooga 18",
+    "address": "5080 South Ter",
+    "city": "CHATTANOOGA",
+    "state": "TN",
+    "postalCode": "37412"
+  },
+  {
+    "slug": "chattanooga-tn/amc-majestic-12",
+    "name": "AMC Majestic 12",
+    "address": "311 Broad St",
+    "city": "CHATTANOOGA",
+    "state": "TN",
+    "postalCode": "37402"
+  },
+  {
+    "slug": "chattanooga-tn/amc-bradley-square-12",
+    "name": "AMC Bradley Square 12",
+    "address": "200 Paul Huff Park",
+    "city": "CLEVELAND",
+    "state": "TN",
+    "postalCode": "37312"
+  },
+  {
+    "slug": "nashville-tn/amc-highland-12",
+    "name": "AMC Highland 12",
+    "address": "1181 S Jefferson Ave",
+    "city": "COOKEVILLE",
+    "state": "TN",
+    "postalCode": "38506-4220"
+  },
+  {
+    "slug": "nashville-tn/amc-thoroughbred-20",
+    "name": "AMC Thoroughbred 20",
+    "address": "633 Frazier Drive",
+    "city": "FRANKLIN",
+    "state": "TN",
+    "postalCode": "37067"
+  },
+  {
+    "slug": "chattanooga-tn/amc-northgate-14",
+    "name": "AMC Northgate 14",
+    "address": "310 Northgate Mall Drive",
+    "city": "HIXSON",
+    "state": "TN",
+    "postalCode": "37343"
+  },
+  {
+    "slug": "tri-cities-tn/amc-johnson-city-14",
+    "name": "AMC Johnson City 14",
+    "address": "1805 N Roan St",
+    "city": "JOHNSON CITY",
+    "state": "TN",
+    "postalCode": "37601"
+  },
+  {
+    "slug": "knoxville-tn/amc-foothills-12",
+    "name": "AMC Foothills 12",
+    "address": "134 Foothills Mall Dr",
+    "city": "MARYVILLE",
+    "state": "TN",
+    "postalCode": "37801"
+  },
+  {
+    "slug": "knoxville-tn/amc-classic-college-square-12",
+    "name": "AMC CLASSIC College Square 12",
+    "address": "2550 E Morris Blvd",
+    "city": "MORRISTOWN",
+    "state": "TN",
+    "postalCode": "37813"
+  },
+  {
+    "slug": "nashville-tn/amc-classic-murfreesboro-16",
+    "name": "AMC CLASSIC Murfreesboro 16",
+    "address": "2626 Cason Square Blvd.",
+    "city": "MURFREESBORO",
+    "state": "TN",
+    "postalCode": "37128"
+  },
+  {
+    "slug": "nashville-tn/amc-antioch-8",
+    "name": "AMC Antioch 8",
+    "address": "901 Bell Rd",
+    "city": "ANTIOCH",
+    "state": "TN",
+    "postalCode": "37013"
+  },
+  {
+    "slug": "nashville-tn/amc-spring-hill-12",
+    "name": "AMC Spring Hill 12",
+    "address": "2068 Crossing Circle",
+    "city": "SPRINGHILL",
+    "state": "TN",
+    "postalCode": "37174"
+  },
+  {
+    "slug": "nashville-tn/amc-bellevue-12",
+    "name": "AMC Bellevue 12",
+    "address": "8125 Sawyer Brown Road",
+    "city": "NASHVILLE",
+    "state": "TN",
+    "postalCode": "37221"
+  },
+  {
+    "slug": "nashville-tn/amc-stones-river-9",
+    "name": "AMC Stones River 9",
+    "address": "1706 Old Fort Parkway",
+    "city": "MURFREESBORO",
+    "state": "TN",
+    "postalCode": "37129"
+  },
+  {
+    "slug": "brownsville/amc-edinburg-18",
+    "name": "AMC Edinburg 18",
+    "address": "3003 Us 281 Bus",
+    "city": "EDINBURG",
+    "state": "TX",
+    "postalCode": "78539"
+  },
+  {
+    "slug": "el-paso/amc-el-paso-16",
+    "name": "AMC El Paso 16",
+    "address": "9840 Gateway Blvd N",
+    "city": "EL PASO",
+    "state": "TX",
+    "postalCode": "79924"
+  },
+  {
+    "slug": "houston/amc-houston-8",
+    "name": "AMC Houston 8",
+    "address": "510 Texas St.",
+    "city": "HOUSTON",
+    "state": "TX",
+    "postalCode": "77002"
+  },
+  {
+    "slug": "tyler-tx/amc-longview-10",
+    "name": "AMC Longview 10",
+    "address": "201 Tall Pines Ave",
+    "city": "LONGVIEW",
+    "state": "TX",
+    "postalCode": "75605"
+  },
+  {
+    "slug": "tyler-tx/amc-lufkin-9",
+    "name": "AMC Lufkin 9",
+    "address": "4600 S. Medford",
+    "city": "LUFKIN",
+    "state": "TX",
+    "postalCode": "75901"
+  },
+  {
+    "slug": "tyler-tx/amc-tyler-14",
+    "name": "AMC Tyler 14",
+    "address": "7415 S Broadway Ave",
+    "city": "TYLER",
+    "state": "TX",
+    "postalCode": "75703"
+  },
+  {
+    "slug": "wichita-falls-tx/amc-sikes-senter-10",
+    "name": "AMC Sikes Senter 10",
+    "address": "3111 Midwestern Pkwy",
+    "city": "WICHITA FALLS",
+    "state": "TX",
+    "postalCode": "76308"
+  },
+  {
+    "slug": "salt-lake-city/amc-provo-8",
+    "name": "AMC Provo 8",
+    "address": "4925 N Edgewood Dr",
+    "city": "PROVO",
+    "state": "UT",
+    "postalCode": "84604"
+  },
+  {
+    "slug": "richmond-va/amc-dine-in-midlothian-10",
+    "name": "AMC DINE-IN Midlothian 10",
+    "address": "1100 Alverser Dr",
+    "city": "MIDLOTHIAN",
+    "state": "VA",
+    "postalCode": "23113"
+  },
+  {
+    "slug": "roanoke-va/amc-classic-roanoke-10",
+    "name": "AMC CLASSIC Roanoke 10",
+    "address": "4494 Electric Rd Sw",
+    "city": "ROANOKE",
+    "state": "VA",
+    "postalCode": "24018-0722"
+  },
+  {
+    "slug": "washington-d-c/amc-apple-blossom-12",
+    "name": "AMC Apple Blossom 12",
+    "address": "1850 Apple Blossom Dr",
+    "city": "WINCHESTER",
+    "state": "VA",
+    "postalCode": "22601"
+  },
+  {
+    "slug": "yakima-wa/amc-classic-kennewick-12",
+    "name": "AMC CLASSIC Kennewick 12",
+    "address": "1380 North Louisiana St",
+    "city": "KENNEWICK",
+    "state": "WA",
+    "postalCode": "99336"
+  },
+  {
+    "slug": "green-bay-wi/amc-classic-manitowoc-10",
+    "name": "AMC CLASSIC Manitowoc 10",
+    "address": "2555 S 44th St",
+    "city": "MANITOWOC",
+    "state": "WI",
+    "postalCode": "54220"
+  },
+  {
+    "slug": "pittsburgh/amc-morgantown-12",
+    "name": "AMC Morgantown 12",
+    "address": "9540 Mall Rd",
+    "city": "MORGANTOWN",
+    "state": "WV",
+    "postalCode": "26501"
+  },
+  {
+    "slug": "denver/amc-southlands-16",
+    "name": "AMC Southlands 16",
+    "address": "23955 E Plaza Ave",
+    "city": "AURORA",
+    "state": "CO",
+    "postalCode": "80016"
+  },
+  {
+    "slug": "denver/amc-arapahoe-crossing-16",
+    "name": "AMC Arapahoe Crossing 16",
+    "address": "6696 S Parker Rd",
+    "city": "AURORA",
+    "state": "CO",
+    "postalCode": "80016"
+  },
+  {
+    "slug": "bloomington-in/amc-classic-bloomington-12",
+    "name": "AMC CLASSIC Bloomington 12",
+    "address": "2929 W 3rd St",
+    "city": "BLOOMINGTON",
+    "state": "IN",
+    "postalCode": "47404"
+  },
+  {
+    "slug": "denver/amc-brighton-12",
+    "name": "AMC Brighton 12",
+    "address": "250 Pavilions Place",
+    "city": "BRIGHTON",
+    "state": "CO",
+    "postalCode": "80601"
+  },
+  {
+    "slug": "carbondale/amc-university-place-8",
+    "name": "AMC University Place 8",
+    "address": "1370 E Main St",
+    "city": "CARBONDALE",
+    "state": "IL",
+    "postalCode": "62901"
+  },
+  {
+    "slug": "denver/amc-castle-rock-12",
+    "name": "AMC Castle Rock 12",
+    "address": "3960 Limelight Ave",
+    "city": "CASTLE ROCK",
+    "state": "CO",
+    "postalCode": "80109"
+  },
+  {
+    "slug": "chicago/amc-galewood-crossings-14",
+    "name": "AMC Galewood Crossings 14",
+    "address": "5530 W Homer St",
+    "city": "CHICAGO",
+    "state": "IL",
+    "postalCode": "60639"
+  },
+  {
+    "slug": "chicago/amc-cicero-14",
+    "name": "AMC Cicero 14",
+    "address": "4779 W Cermak Rd",
+    "city": "CICERO",
+    "state": "IL",
+    "postalCode": "60804"
+  },
+  {
+    "slug": "minneapolis-st-paul/amc-coon-rapids-16",
+    "name": "AMC Coon Rapids 16",
+    "address": "10051 Woodcrest Dr Nw",
+    "city": "COON RAPIDS",
+    "state": "MN",
+    "postalCode": "55433"
+  },
+  {
+    "slug": "omaha/amc-council-bluffs-17",
+    "name": "AMC Council Bluffs 17",
+    "address": "3220 23rd Ave",
+    "city": "COUNCIL BLUFFS",
+    "state": "IA",
+    "postalCode": "51501"
+  },
+  {
+    "slug": "denver/amc-dine-in-cherry-creek-8",
+    "name": "AMC DINE-IN Cherry Creek 8",
+    "address": "3000 E 1st Ave",
+    "city": "DENVER",
+    "state": "CO",
+    "postalCode": "80206"
+  },
+  {
+    "slug": "dubuque/amc-classic-dubuque-14",
+    "name": "AMC CLASSIC Dubuque 14",
+    "address": "2835 Nw Arterial",
+    "city": "DUBUQUE",
+    "state": "IA",
+    "postalCode": "52002"
+  },
+  {
+    "slug": "st-louis/amc-edwardsville-12",
+    "name": "AMC Edwardsville 12",
+    "address": "6633 Center Grove Rd",
+    "city": "EDWARDSVILLE",
+    "state": "IL",
+    "postalCode": "62025"
+  },
+  {
+    "slug": "evansville/amc-evansville-16",
+    "name": "AMC Evansville 16",
+    "address": "5600 Pearl Dr",
+    "city": "EVANSVILLE",
+    "state": "IN",
+    "postalCode": "47712"
+  },
+  {
+    "slug": "madison/amc-fitchburg-18",
+    "name": "AMC Fitchburg 18",
+    "address": "6091 Mckee Rd",
+    "city": "FITCHBURG",
+    "state": "WI",
+    "postalCode": "53719"
+  },
+  {
+    "slug": "galesburg/amc-classic-galesburg-8",
+    "name": "AMC CLASSIC Galesburg 8",
+    "address": "1401 W Carl Sandburg Dr",
+    "city": "GALESBURG",
+    "state": "IL",
+    "postalCode": "61401"
+  },
+  {
+    "slug": "cincinnati/amc-classic-hamilton-8",
+    "name": "AMC CLASSIC Hamilton 8",
+    "address": "1453 Main St",
+    "city": "HAMILTON",
+    "state": "OH",
+    "postalCode": "45013"
+  },
+  {
+    "slug": "gary/amc-classic-hobart-12",
+    "name": "AMC CLASSIC Hobart 12",
+    "address": "2590 Southlake Mall Dr",
+    "city": "MERRILLVILLE",
+    "state": "IN",
+    "postalCode": "46410"
+  },
+  {
+    "slug": "indianapolis/amc-indianapolis-17",
+    "name": "AMC Indianapolis 17",
+    "address": "4325 S Meridian St",
+    "city": "INDIANAPOLIS",
+    "state": "IN",
+    "postalCode": "46217"
+  },
+  {
+    "slug": "indianapolis/amc-washington-square-12",
+    "name": "AMC Washington Square 12",
+    "address": "10280 E Washington St",
+    "city": "INDIANAPOLIS",
+    "state": "IN",
+    "postalCode": "46229"
+  },
+  {
+    "slug": "indianapolis/amc-traders-point-12",
+    "name": "AMC Traders Point 12",
+    "address": "5920 W 86th St",
+    "city": "INDIANAPOLIS",
+    "state": "IN",
+    "postalCode": "46278"
+  },
+  {
+    "slug": "minneapolis-st-paul/amc-inver-grove-16",
+    "name": "AMC Inver Grove 16",
+    "address": "5567 Bishop Ave",
+    "city": "INVER GROVE HEIGHTS",
+    "state": "MN",
+    "postalCode": "55076"
+  },
+  {
+    "slug": "madison/amc-classic-johnson-creek-12",
+    "name": "AMC CLASSIC Johnson Creek 12",
+    "address": "420 Village Walk Ln",
+    "city": "JOHNSON CREEK",
+    "state": "WI",
+    "postalCode": "53038"
+  },
+  {
+    "slug": "kokomo/amc-classic-kokomo-12",
+    "name": "AMC CLASSIC Kokomo 12",
+    "address": "1530 E Boulevard",
+    "city": "KOKOMO",
+    "state": "IN",
+    "postalCode": "46902"
+  },
+  {
+    "slug": "lake-delton/amc-classic-desert-star-15",
+    "name": "AMC CLASSIC Desert Star 15",
+    "address": "1301 Kalahari Dr",
+    "city": "BARABOO",
+    "state": "WI",
+    "postalCode": "53913"
+  },
+  {
+    "slug": "chicago/amc-lake-in-the-hills-12",
+    "name": "AMC Lake In The Hills 12",
+    "address": "311 N Randall Rd",
+    "city": "LAKE IN THE HILLS",
+    "state": "IL",
+    "postalCode": "60156"
+  },
+  {
+    "slug": "denver/amc-bowles-crossing-12",
+    "name": "AMC Bowles Crossing 12",
+    "address": "8035 W Bowles Ave",
+    "city": "LITTLETON",
+    "state": "CO",
+    "postalCode": "80123"
+  },
+  {
+    "slug": "san-francisco/amc-manteca-16",
+    "name": "AMC Manteca 16",
+    "address": "848 Lifestyle St",
+    "city": "MANTECA",
+    "state": "CA",
+    "postalCode": "95337"
+  },
+  {
+    "slug": "gary/amc-classic-michigan-city-14",
+    "name": "AMC CLASSIC Michigan City 14",
+    "address": "100 Meijer Dr",
+    "city": "MICHIGAN CITY",
+    "state": "IN",
+    "postalCode": "46360"
+  },
+  {
+    "slug": "mount-vernon/amc-classic-mount-vernon-8",
+    "name": "AMC CLASSIC Mount Vernon 8",
+    "address": "400 Potomac Blvd",
+    "city": "MOUNT VERNON",
+    "state": "IL",
+    "postalCode": "62864"
+  },
+  {
+    "slug": "muncie-richmond/amc-muncie-12",
+    "name": "AMC Muncie 12",
+    "address": "860 E Princeton Ave",
+    "city": "MUNCIE",
+    "state": "IN",
+    "postalCode": "47303"
+  },
+  {
+    "slug": "chicago/amc-naperville-16",
+    "name": "AMC Naperville 16",
+    "address": "2815 Show Place Dr",
+    "city": "NAPERVILLE",
+    "state": "IL",
+    "postalCode": "60564"
+  },
+  {
+    "slug": "chicago/amc-new-lenox-14",
+    "name": "AMC New Lenox 14",
+    "address": "1320 W Maple St",
+    "city": "NEW LENOX",
+    "state": "IL",
+    "postalCode": "60451"
+  },
+  {
+    "slug": "chicago/amc-niles-12",
+    "name": "AMC Niles 12",
+    "address": "301 Golf Mill Ctr",
+    "city": "NILES",
+    "state": "IL",
+    "postalCode": "60714"
+  },
+  {
+    "slug": "poplar-bluff/amc-classic-poplar-bluff-8",
+    "name": "AMC CLASSIC Poplar Bluff 8",
+    "address": "3525 S Westwood Blvd",
+    "city": "POPLAR BLUFF",
+    "state": "MO",
+    "postalCode": "63901"
+  },
+  {
+    "slug": "quincy/amc-classic-quincy-6",
+    "name": "AMC CLASSIC Quincy 6",
+    "address": "300 N 33rd St",
+    "city": "QUINCY",
+    "state": "IL",
+    "postalCode": "62301"
+  },
+  {
+    "slug": "muncie-richmond/amc-classic-richmond-11",
+    "name": "AMC CLASSIC Richmond 11",
+    "address": "4713 National Rd E",
+    "city": "RICHMOND",
+    "state": "IN",
+    "postalCode": "47374"
+  },
+  {
+    "slug": "rockford/amc-rockford-16",
+    "name": "AMC Rockford 16",
+    "address": "8301 E State St",
+    "city": "ROCKFORD",
+    "state": "IL",
+    "postalCode": "61108"
+  },
+  {
+    "slug": "rockford/amc-machesney-park-14",
+    "name": "AMC Machesney Park 14",
+    "address": "1860 Anjali Way",
+    "city": "MACHESNEY PARK",
+    "state": "IL",
+    "postalCode": "61115"
+  },
+  {
+    "slug": "gary/amc-schererville-16",
+    "name": "AMC Schererville 16",
+    "address": "875 Deer Creek Dr",
+    "city": "SCHERERVILLE",
+    "state": "IN",
+    "postalCode": "46375"
+  },
+  {
+    "slug": "gary/amc-schererville-12",
+    "name": "AMC Schererville 12",
+    "address": "1400 Eagle Ridge Dr",
+    "city": "SCHERERVILLE",
+    "state": "IN",
+    "postalCode": "46375"
+  },
+  {
+    "slug": "chicago/amc-village-crossing-18",
+    "name": "AMC Village Crossing 18",
+    "address": "7000 Carpenter Rd",
+    "city": "SKOKIE",
+    "state": "IL",
+    "postalCode": "60077"
+  },
+  {
+    "slug": "south-bend/amc-classic-south-bend-16",
+    "name": "AMC CLASSIC South Bend 16",
+    "address": "450 W Chippewa Ave",
+    "city": "SOUTH BEND",
+    "state": "IN",
+    "postalCode": "46614"
+  },
+  {
+    "slug": "springfield-il/amc-springfield-12",
+    "name": "AMC Springfield 12",
+    "address": "3141 Mercantile Dr",
+    "city": "SPRINGFIELD",
+    "state": "IL",
+    "postalCode": "62711"
+  },
+  {
+    "slug": "springfield-il/amc-springfield-8",
+    "name": "AMC Springfield 8",
+    "address": "2945 S Dirksen Pkwy",
+    "city": "SPRINGFIELD",
+    "state": "IL",
+    "postalCode": "62703"
+  },
+  {
+    "slug": "terre-haute/amc-classic-terre-haute-12",
+    "name": "AMC CLASSIC Terre Haute 12",
+    "address": "3153 S 3rd Pl",
+    "city": "TERRE HAUTE",
+    "state": "IN",
+    "postalCode": "47802"
+  },
+  {
+    "slug": "evansville/amc-classic-vincennes-8",
+    "name": "AMC CLASSIC Vincennes 8",
+    "address": "1496 S Hart Street Rd",
+    "city": "VINCENNES",
+    "state": "IN",
+    "postalCode": "47591"
+  }
+]

@@ -10,6 +10,10 @@ The `seatwatch` CLI does all the real work. Never scrape ticketing sites by hand
 ## Commands
 
 ```bash
+# Resolve theatre names/cities to an AMC URL slug or Alamo market.
+npx -y seatwatch theatres brooklyn
+# → tab-separated: chain  slug-or-market  display name  location
+
 # AMC: list showtimes for a theatre/date, optional movie regex.
 # Theatre slug is the amctheatres.com URL path segment.
 npx -y seatwatch discover new-york-city/amc-lincoln-square-13 2026-07-17 odyssey
@@ -49,7 +53,7 @@ JSON array, one object per showtime:
 
 ## Typical workflows
 
-**"Any seats for X?"** — discover to find the showtime id, check it, report `openCount` and the top few `bestOpen` seats in plain language.
+**"Any seats for X?"** — if the AMC slug or Alamo market is unknown, run `theatres <name-or-city>` first. Then discover to find the showtime id, check it, and report `openCount` and the top few `bestOpen` seats in plain language.
 
 **"Watch this showtime for cancellations"** — run one check now to seed state, then set up a recurring run (cron or your agent platform's automation) of the same `check` command. Sensible cadence: every 10 minutes baseline, every 2 minutes in the final 2 hours before showtime — half of all cancellations land in the last 12 hours and ~1 in 9 in the final hour. Keep polling modest (never faster than once a minute): this reads a public seat map the same way a human would, and staying polite keeps it working.
 

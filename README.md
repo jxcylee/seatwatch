@@ -7,6 +7,10 @@ Single-shot, JSON-out, exit-coded — built to be driven by agents and cron, not
 ## Quick start
 
 ```bash
+# Find the AMC slug or Alamo market first
+npx -y seatwatch theatres lincoln square
+npx -y seatwatch theatres brooklyn
+
 # any open seats for the 70mm Odyssey at Lincoln Square on opening day?
 npx -y seatwatch discover new-york-city/amc-lincoln-square-13 2026-07-17 odyssey
 npx -y seatwatch check 134717192
@@ -15,6 +19,8 @@ npx -y seatwatch check 134717192
 npx -y seatwatch alamo-discover nyc odyssey 2026-07-17
 npx -y seatwatch alamo-check 2103/93423
 ```
+
+`theatres <query>` searches theatre names, cities, states, and Alamo market names case-insensitively. Output is tab-separated: `chain`, `slug-or-market`, `display name`, `location`. AMC data comes from its theatre sitemap (with a bundled snapshot as a rate-limit fallback); Alamo markets and cinemas come from its open `s/mother` API. Fetched indexes are cached at `~/.seatwatch/theatres-cache.json` for 30 days.
 
 `check` output per showtime: `total`, `openCount`, `open` (all open seat ids), `bestOpen` (top 10 ranked by geometry — ~60% back, centered), and `newlyOpen` (diff vs the last run, persisted in `~/.seatwatch/state.json`). On macOS, newly opened seats fire a native notification.
 
