@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
-import { conditionalHeaders, effectiveIntervalMinutes, extractSeatingLayout, main, monitorStatusName, parseRetryAfter, rankTogether } from "../cli.js";
+import { conditionalHeaders, effectiveIntervalMinutes, extractSeatingLayout, main, monitorStatusName, parseRetryAfter, rankTogether, transformCrontab } from "../cli.js";
 
 const headersFrom = (obj) => ({ headers: { get: (name) => obj[name.toLowerCase()] ?? null } });
 
@@ -83,6 +83,29 @@ test("conditionalHeaders only sets validators it actually has", () => {
     conditionalHeaders({ etag: '"abc"', lastModified: "Wed, 21 Oct 2026 07:28:00 GMT" }),
     { "If-None-Match": '"abc"', "If-Modified-Since": "Wed, 21 Oct 2026 07:28:00 GMT" },
   );
+});
+
+test("installs a cron entry into an empty crontab", () => {
+  const entry = "*/2 * * * * /node /cli monitor tick # seatwatch-monitor";
+  assert.equal(transformCrontab("", entry), `${entry}\n`);
+});
+
+test("installing cron preserves unrelated lines", () => {
+  const entry = "*/2 * * * * /node /cli monitor tick # seatwatch-monitor";
+  assert.equal(transformCrontab("MAILTO=user@example.com\n0 4 * * * backup\n", entry), `MAILTO=user@example.com\n0 4 * * * backup\n${entry}\n`);
+});
+
+test("installing cron replaces the tagged entry without duplicating it", () => {
+  const oldEntry = "*/5 * * * * old monitor tick # seatwatch-monitor";
+  const newEntry = "*/2 * * * * new monitor tick # seatwatch-monitor";
+  const result = transformCrontab(`${oldEntry}\n15 3 * * * cleanup\n`, newEntry);
+  assert.equal(result, `15 3 * * * cleanup\n${newEntry}\n`);
+  assert.equal(result.match(/# seatwatch-monitor/g).length, 1);
+});
+
+test("uninstalling cron removes only the tagged line", () => {
+  const existing = "# seatwatch-monitor is documentation\n*/2 * * * * tick # seatwatch-monitor\n0 0 * * * keep # another-marker\n";
+  assert.equal(transformCrontab(existing), "# seatwatch-monitor is documentation\n0 0 * * * keep # another-marker\n");
 });
 
 test("rejects together ranking for monitors instead of silently ignoring it", async () => {

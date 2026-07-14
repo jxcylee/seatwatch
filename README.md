@@ -18,6 +18,8 @@ seatwatch monitor remove <watchId>
 seatwatch monitor clear
 seatwatch monitor tick
 seatwatch monitor status [watchId]
+seatwatch monitor install-cron [--every <minutes>]
+seatwatch monitor uninstall-cron
 seatwatch install-skill [--dev]
 ```
 
@@ -68,18 +70,20 @@ seatwatch monitor remove <watchId>
 seatwatch monitor clear
 seatwatch monitor tick
 seatwatch monitor status [watchId]
+seatwatch monitor install-cron [--every <minutes>]
+seatwatch monitor uninstall-cron
 ```
 
 AMC targets are showtime IDs; Alamo targets are `cinemaId/sessionId`. The default interval is 10 minutes. During the final two hours before `--until`, the effective interval automatically becomes the smaller of the configured interval and 2 minutes. A tick marks watches expired after `--until`, skips them, and cheaply skips every active watch that is not due.
 
 Monitors support `--want` with the same alert-filter semantics as the two plain check commands. They do not support `--together`; use `check` or `alamo-check` when adjacent-group ranking is needed. The first successful monitor tick seeds its independent SQLite seat state and does not alert. Plain checks keep their independent history in `~/.seatwatch/state.json`, so the two subsystems never overwrite each other's state.
 
-Run `monitor tick` every 1–2 minutes from a single cron entry or agent automation. It prints one JSON summary and exits 0 normally or 3 when one or more newly opened seat matches trigger alerts. `monitor status` never accesses the network: it returns each watch's last result and recent newly-open events directly from SQLite, making it the right command for answering “anything open yet?”
+Run `monitor install-cron` once to install a 2-minute cron entry (`--every <minutes>` changes it); `monitor uninstall-cron` removes it. The installed entry uses absolute Node and CLI paths and logs to `~/.seatwatch/tick.log`. `monitor tick` prints one JSON summary and exits 0 normally or 3 when one or more newly opened seat matches trigger alerts. `monitor status` never accesses the network: it returns each watch's last result and recent newly-open events directly from SQLite, making it the right command for answering “anything open yet?”
 
-Example cron entry:
+Example installed cron entry (the command writes the actual absolute paths):
 
 ```cron
-*/2 * * * * /usr/local/bin/seatwatch monitor tick
+*/2 * * * * '/absolute/path/to/node' '/absolute/path/to/cli.js' monitor tick >> ~/.seatwatch/tick.log 2>&1 # seatwatch-monitor
 ```
 
 ## Claude skill
