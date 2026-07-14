@@ -12,17 +12,21 @@
 //   seatwatch check <showtimeId...> [--want <seat-regex>]
 //   seatwatch alamo-discover [market=nyc] [movie-regex] [date]
 //   seatwatch alamo-check <cinemaId/sessionId...> [--want <seat-regex>]
+//   seatwatch monitor <add|list|remove|clear|tick|status> ...
 //   seatwatch install-skill [--dev]
 
-import { mkdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync, existsSync, realpathSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { homedir } from "node:os";
-import { join, dirname } from "node:path";
+import { join, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+
+let DatabaseSync;
 
 const CDP_HTTP = process.env.SEATWATCH_CDP || "http://127.0.0.1:9222";
 const STATE_DIR = join(homedir(), ".seatwatch");
 const STATE_FILE = join(STATE_DIR, "state.json");
+const MONITOR_DB = join(STATE_DIR, "seatwatch.db");
 const UA =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36";
 const HTML_HEADERS = {
@@ -80,6 +84,77 @@ function diffAndReport({ state, key, allSeats, want }) {
   state[key] = { open, total: allSeats.length, checkedAt: new Date().toISOString() };
   state[key + ":initialized"] = true;
   return { open, newlyOpen, bestOpen, total: allSeats.length, shouldNotify: newlyOpen.length > 0 && initialized };
+}
+
+// ---------- monitor database ----------
+function openMonitorDb() {
+  mkdirSync(STATE_DIR, { recursive: true });
+  const db = new DatabaseSync(MONITOR_DB);
+  db.exec(`
+    PRAGMA foreign_keys = ON;
+    PRAGMA busy_timeout = 5000;
+    CREATE TABLE IF NOT EXISTS watches (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      chain TEXT NOT NULL CHECK (chain IN ('amc', 'alamo')),
+      target TEXT NOT NULL,
+      label TEXT,
+      want TEXT,
+      intervalMinutes INTEGER NOT NULL DEFAULT 10 CHECK (intervalMinutes >= 1),
+      until TEXT,
+      createdAt TEXT NOT NULL,
+      lastChecked TEXT,
+      lastOpenCount INTEGER,
+      lastResult TEXT,
+      seatState TEXT,
+      initialized INTEGER NOT NULL DEFAULT 0,
+      active INTEGER NOT NULL DEFAULT 1
+    );
+    CREATE TABLE IF NOT EXISTS checks (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      watchId INTEGER NOT NULL REFERENCES watches(id) ON DELETE CASCADE,
+      ts TEXT NOT NULL,
+      openCount INTEGER,
+      newlyOpen TEXT NOT NULL DEFAULT '[]',
+      result TEXT
+    );
+    CREATE INDEX IF NOT EXISTS checks_watch_ts ON checks(watchId, ts DESC);
+  `);
+  return db;
+}
+
+function monitorState(watch) {
+  const key = `${watch.chain}:${watch.target}`;
+  let open = [];
+  try { open = JSON.parse(watch.seatState || "[]"); } catch {}
+  return { key, state: { [key]: { open }, [`${key}:initialized`]: !!watch.initialized } };
+}
+
+function monitorStatusName(watch, now = Date.now()) {
+  if (!watch.active) return "expired";
+  return watch.until && Date.parse(watch.until) <= now ? "expired" : "active";
+}
+
+function effectiveIntervalMinutes(watch, now = Date.now()) {
+  const remaining = watch.until ? Date.parse(watch.until) - now : Infinity;
+  return remaining > 0 && remaining <= 2 * 60 * 60 * 1000
+    ? Math.min(watch.intervalMinutes, 2)
+    : watch.intervalMinutes;
+}
+
+function publicWatch(watch, now = Date.now()) {
+  return {
+    id: watch.id,
+    chain: watch.chain,
+    target: watch.target,
+    label: watch.label,
+    want: watch.want,
+    interval: watch.intervalMinutes,
+    effectiveInterval: effectiveIntervalMinutes(watch, now),
+    until: watch.until,
+    lastChecked: watch.lastChecked,
+    lastOpenCount: watch.lastOpenCount,
+    status: monitorStatusName(watch, now),
+  };
 }
 
 // ---------- AMC via plain HTTP ----------
@@ -322,6 +397,213 @@ async function cmdAlamoCheck(pairs, wantRe) {
   console.log(JSON.stringify(report, null, 2));
 }
 
+// ---------- monitor commands ----------
+function optionValue(args, name) {
+  const index = args.indexOf(name);
+  if (index < 0) return null;
+  if (!args[index + 1] || args[index + 1].startsWith("--")) throw new Error(`${name} requires a value`);
+  return args[index + 1];
+}
+
+function cmdMonitorAdd(args) {
+  const [chain, target] = args;
+  if (!["amc", "alamo"].includes(chain)) throw new Error("monitor add chain must be amc or alamo");
+  if (!target) throw new Error("monitor add target required");
+  if (chain === "amc" && !/^\d+$/.test(target)) throw new Error("AMC target must be a showtimeId");
+  if (chain === "alamo" && !/^\d+\/\d+$/.test(target)) throw new Error("Alamo target must be cinemaId/sessionId");
+
+  const want = optionValue(args, "--want");
+  if (want) {
+    try { new RegExp(want, "i"); } catch (e) { throw new Error(`invalid --want regex: ${e.message}`); }
+  }
+  const intervalRaw = optionValue(args, "--interval") || "10";
+  const intervalMinutes = Number(intervalRaw);
+  if (!Number.isInteger(intervalMinutes) || intervalMinutes < 1) throw new Error("--interval must be a positive whole number of minutes");
+  const untilRaw = optionValue(args, "--until");
+  let until = null;
+  if (untilRaw) {
+    const parsed = Date.parse(untilRaw);
+    if (!/^\d{4}-\d{2}-\d{2}T/.test(untilRaw) || !Number.isFinite(parsed)) throw new Error("--until must be an ISO datetime");
+    until = new Date(parsed).toISOString();
+  }
+
+  const db = openMonitorDb();
+  try {
+    const createdAt = new Date().toISOString();
+    const result = db.prepare(`
+      INSERT INTO watches (chain, target, label, want, intervalMinutes, until, createdAt)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `).run(chain, target, optionValue(args, "--label"), want, intervalMinutes, until, createdAt);
+    const watch = db.prepare("SELECT * FROM watches WHERE id = ?").get(result.lastInsertRowid);
+    console.log(JSON.stringify(publicWatch(watch), null, 2));
+  } finally {
+    db.close();
+  }
+}
+
+function cmdMonitorList() {
+  const db = openMonitorDb();
+  try {
+    const now = Date.now();
+    const watches = db.prepare("SELECT * FROM watches ORDER BY id").all().map((watch) => publicWatch(watch, now));
+    console.log(JSON.stringify(watches, null, 2));
+  } finally {
+    db.close();
+  }
+}
+
+function cmdMonitorRemove(watchId) {
+  if (!/^\d+$/.test(watchId || "")) throw new Error("monitor remove requires a numeric watchId");
+  const db = openMonitorDb();
+  try {
+    const result = db.prepare("DELETE FROM watches WHERE id = ?").run(Number(watchId));
+    if (!result.changes) throw new Error(`watch ${watchId} not found`);
+    console.log(JSON.stringify({ removed: Number(watchId) }));
+  } finally {
+    db.close();
+  }
+}
+
+function cmdMonitorClear() {
+  const db = openMonitorDb();
+  try {
+    const result = db.prepare("DELETE FROM watches").run();
+    console.log(JSON.stringify({ cleared: Number(result.changes) }));
+  } finally {
+    db.close();
+  }
+}
+
+async function fetchMonitorSeats(watch) {
+  if (watch.chain === "alamo") return alamoFetchSeats(watch.target);
+  let result = await amcFetchSeatsHttp(watch.target);
+  if (result.blocked) {
+    process.stderr.write(`HTTP blocked (${result.blocked}) for ${watch.target}; trying Chrome CDP fallback...\n`);
+    result = await amcFetchSeatsCdp(watch.target).catch((e) => ({ error: e.message }));
+  }
+  if (result.blocked) return { error: `rate limited (${result.blocked}) on both paths — back off 30+ minutes` };
+  return result;
+}
+
+async function cmdMonitorTick() {
+  const db = openMonitorDb();
+  const now = Date.now();
+  const checkedAt = new Date(now).toISOString();
+  const summary = { checkedAt, checked: 0, skipped: 0, expired: 0, alerts: 0, results: [] };
+  try {
+    const watches = db.prepare("SELECT * FROM watches WHERE active = 1 ORDER BY id").all();
+    const updateSuccess = db.prepare(`
+      UPDATE watches SET lastChecked = ?, lastOpenCount = ?, lastResult = ?, seatState = ?, initialized = 1 WHERE id = ?
+    `);
+    const updateError = db.prepare("UPDATE watches SET lastChecked = ?, lastResult = ? WHERE id = ?");
+    const insertCheck = db.prepare("INSERT INTO checks (watchId, ts, openCount, newlyOpen, result) VALUES (?, ?, ?, ?, ?)");
+
+    for (const watch of watches) {
+      if (watch.until && Date.parse(watch.until) <= now) {
+        db.prepare("UPDATE watches SET active = 0 WHERE id = ?").run(watch.id);
+        summary.expired++;
+        summary.results.push({ watchId: watch.id, chain: watch.chain, target: watch.target, status: "expired" });
+        continue;
+      }
+      const effectiveInterval = effectiveIntervalMinutes(watch, now);
+      const elapsed = watch.lastChecked ? now - Date.parse(watch.lastChecked) : Infinity;
+      if (elapsed < effectiveInterval * 60 * 1000) {
+        summary.skipped++;
+        summary.results.push({ watchId: watch.id, chain: watch.chain, target: watch.target, status: "not-due", effectiveInterval });
+        continue;
+      }
+
+      summary.checked++;
+      const fetched = await fetchMonitorSeats(watch);
+      if (fetched.error) {
+        const result = { watchId: watch.id, chain: watch.chain, target: watch.target, status: "error", error: fetched.error };
+        const resultJson = JSON.stringify(result);
+        db.exec("BEGIN");
+        try {
+          updateError.run(checkedAt, resultJson, watch.id);
+          insertCheck.run(watch.id, checkedAt, null, "[]", resultJson);
+          db.exec("COMMIT");
+        } catch (e) {
+          db.exec("ROLLBACK");
+          throw e;
+        }
+        summary.results.push(result);
+        continue;
+      }
+
+      const { key, state } = monitorState(watch);
+      const want = watch.want ? new RegExp(watch.want, "i") : null;
+      const diff = diffAndReport({ state, key, allSeats: fetched.seats, want });
+      const newlyOpen = diff.shouldNotify ? diff.newlyOpen : [];
+      const result = {
+        watchId: watch.id,
+        chain: watch.chain,
+        target: watch.target,
+        status: "checked",
+        effectiveInterval,
+        total: diff.total,
+        openCount: diff.open.length,
+        open: diff.open,
+        bestOpen: diff.bestOpen,
+        newlyOpen,
+      };
+      const resultJson = JSON.stringify(result);
+      db.exec("BEGIN");
+      try {
+        updateSuccess.run(checkedAt, diff.open.length, resultJson, JSON.stringify(diff.open), watch.id);
+        insertCheck.run(watch.id, checkedAt, diff.open.length, JSON.stringify(newlyOpen), resultJson);
+        db.exec("COMMIT");
+      } catch (e) {
+        db.exec("ROLLBACK");
+        throw e;
+      }
+      if (newlyOpen.length) {
+        summary.alerts++;
+        const title = watch.chain === "alamo" ? `Alamo seats opened: ${watch.target}` : `Seats opened: showtime ${watch.target}`;
+        notify(title, `${newlyOpen.join(", ")} now available (${diff.open.length} open total)`);
+      }
+      summary.results.push(result);
+    }
+    console.log(JSON.stringify(summary, null, 2));
+    return summary.alerts > 0;
+  } finally {
+    db.close();
+  }
+}
+
+function parseResult(value) {
+  if (!value) return null;
+  try { return JSON.parse(value); } catch { return null; }
+}
+
+function cmdMonitorStatus(watchId) {
+  if (watchId != null && !/^\d+$/.test(watchId)) throw new Error("monitor status watchId must be numeric");
+  const db = openMonitorDb();
+  try {
+    const now = Date.now();
+    const watches = watchId == null
+      ? db.prepare("SELECT * FROM watches ORDER BY id").all()
+      : [db.prepare("SELECT * FROM watches WHERE id = ?").get(Number(watchId))].filter(Boolean);
+    if (watchId != null && !watches.length) throw new Error(`watch ${watchId} not found`);
+    const recent = db.prepare(`
+      SELECT ts, openCount, newlyOpen FROM checks
+      WHERE watchId = ? AND newlyOpen != '[]' ORDER BY ts DESC LIMIT 10
+    `);
+    const output = watches.map((watch) => ({
+      ...publicWatch(watch, now),
+      lastResult: parseResult(watch.lastResult),
+      recentNewlyOpen: recent.all(watch.id).map((row) => ({
+        ts: row.ts,
+        openCount: row.openCount,
+        seats: parseResult(row.newlyOpen) || [],
+      })),
+    }));
+    console.log(JSON.stringify(watchId == null ? output : output[0], null, 2));
+  } finally {
+    db.close();
+  }
+}
+
 // ---------- skill installer ----------
 function cmdInstallSkill({ dev }) {
   const here = dirname(fileURLToPath(import.meta.url));
@@ -338,36 +620,59 @@ function cmdInstallSkill({ dev }) {
 }
 
 // ---------- main ----------
-const [cmd, ...rest] = process.argv.slice(2);
-const wantIdx = rest.indexOf("--want");
-const wantRe = wantIdx >= 0 ? rest[wantIdx + 1] : null;
-const args = rest.filter((a, i) => a !== "--want" && (wantIdx < 0 || i !== wantIdx + 1) && !a.startsWith("--"));
+async function main(argv = process.argv.slice(2)) {
+  const [cmd, ...rest] = argv;
+  const wantIdx = rest.indexOf("--want");
+  const wantRe = wantIdx >= 0 ? rest[wantIdx + 1] : null;
+  const args = rest.filter((a, i) => a !== "--want" && (wantIdx < 0 || i !== wantIdx + 1) && !a.startsWith("--"));
 
-try {
-  if (cmd === "discover") await cmdDiscover(args[0], args[1], args[2]);
-  else if (cmd === "check") {
-    if (!args.length) throw new Error("no showtime ids given");
-    await cmdCheck(args, wantRe);
-  } else if (cmd === "alamo-discover") {
-    const rows = await alamoDiscover(args[0] || "nyc", args[1], args[2]);
-    for (const r of rows) console.log(`${r.id}\t${r.movie}\t${r.time}\t${r.cinema}\t${r.status}`);
-    if (!rows.length) process.stderr.write("No sessions matched.\n");
-  } else if (cmd === "alamo-check") {
-    if (!args.length) throw new Error("no cinemaId/sessionId pairs given");
-    await cmdAlamoCheck(args, wantRe);
-  } else if (cmd === "install-skill") {
-    cmdInstallSkill({ dev: rest.includes("--dev") });
-  } else {
-    console.error(`usage:
+  try {
+    if (cmd === "discover") await cmdDiscover(args[0], args[1], args[2]);
+    else if (cmd === "check") {
+      if (!args.length) throw new Error("no showtime ids given");
+      await cmdCheck(args, wantRe);
+    } else if (cmd === "alamo-discover") {
+      const rows = await alamoDiscover(args[0] || "nyc", args[1], args[2]);
+      for (const r of rows) console.log(`${r.id}\t${r.movie}\t${r.time}\t${r.cinema}\t${r.status}`);
+      if (!rows.length) process.stderr.write("No sessions matched.\n");
+    } else if (cmd === "alamo-check") {
+      if (!args.length) throw new Error("no cinemaId/sessionId pairs given");
+      await cmdAlamoCheck(args, wantRe);
+    } else if (cmd === "monitor") {
+      ({ DatabaseSync } = await import("node:sqlite"));
+      const [subcommand, ...monitorArgs] = rest;
+      if (subcommand === "add") cmdMonitorAdd(monitorArgs);
+      else if (subcommand === "list") cmdMonitorList();
+      else if (subcommand === "remove") cmdMonitorRemove(monitorArgs[0]);
+      else if (subcommand === "clear") cmdMonitorClear();
+      else if (subcommand === "tick") return (await cmdMonitorTick()) ? 3 : 0;
+      else if (subcommand === "status") cmdMonitorStatus(monitorArgs[0]);
+      else throw new Error("monitor command must be add, list, remove, clear, tick, or status");
+    } else if (cmd === "install-skill") {
+      cmdInstallSkill({ dev: rest.includes("--dev") });
+    } else {
+      console.error(`usage:
   seatwatch discover <theatre-slug> [date] [movie-regex]      # AMC showtimes
   seatwatch check <showtimeId...> [--want <seat-regex>]       # AMC per-seat check
   seatwatch alamo-discover [market=nyc] [movie-regex] [date]  # Alamo sessions
   seatwatch alamo-check <cinemaId/sessionId...> [--want <re>] # Alamo per-seat check
+  seatwatch monitor add <amc|alamo> <id> [options]            # register a recurring watch
+  seatwatch monitor list                                      # list watches
+  seatwatch monitor remove <watchId> | monitor clear          # remove watches
+  seatwatch monitor tick                                      # check active watches that are due
+  seatwatch monitor status [watchId]                          # cached status; no network
   seatwatch install-skill [--dev]                             # install the Claude skill`);
-    process.exit(2);
+      return 2;
+    }
+    return 0;
+  } catch (e) {
+    console.error("seatwatch error:", e.message);
+    return 1;
   }
-  process.exit(0);
-} catch (e) {
-  console.error("seatwatch error:", e.message);
-  process.exit(1);
+}
+
+export { extractSeatingLayout, effectiveIntervalMinutes, monitorStatusName, main };
+
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(resolve(process.argv[1]))) {
+  process.exitCode = await main();
 }

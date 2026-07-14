@@ -24,6 +24,16 @@ npx -y seatwatch alamo-discover nyc odyssey 2026-07-17
 
 # Alamo: per-seat availability for cinemaId/sessionId pairs from discover.
 npx -y seatwatch alamo-check 2103/93423 --want '^7'
+
+# Register a recurring watch in SQLite with one command.
+npx -y seatwatch monitor add alamo 2103/93423 --want '^7' \
+  --label 'Odyssey 7pm' --until 2026-07-17T19:00:00-04:00 --interval 10
+
+# Cron/automation calls this every 1–2 minutes; it only checks watches that are due.
+npx -y seatwatch monitor tick
+
+# Cached answer with last results and recent openings; never makes a network request.
+npx -y seatwatch monitor status
 ```
 
 ## Output format (both `check` commands)
@@ -51,7 +61,20 @@ JSON array, one object per showtime:
 
 **"Any seats for X?"** — discover to find the showtime id, check it, report `openCount` and the top few `bestOpen` seats in plain language.
 
-**"Watch this showtime for cancellations"** — run one check now to seed state, then set up a recurring run (cron or your agent platform's automation) of the same `check` command. Sensible cadence: every 10 minutes baseline, every 2 minutes in the final 2 hours before showtime — half of all cancellations land in the last 12 hours and ~1 in 9 in the final hour. Keep polling modest (never faster than once a minute): this reads a public seat map the same way a human would, and staying polite keeps it working.
+**"Watch this showtime for cancellations"** — use `monitor add <amc|alamo> <id>` once, including `--until` whenever the showtime is known. Then arrange one shared cron/automation to run `monitor tick` every 1–2 minutes. Tick decides which watches are due: 10 minutes by default, automatically ramping to 2 minutes in the final 2 hours before `--until`, and expiring after it. Do not schedule a separate network check per watch.
+
+Monitor commands:
+
+```bash
+npx -y seatwatch monitor add <amc|alamo> <id> [--want <re>] [--label <text>] [--until <ISO-datetime>] [--interval <minutes>]
+npx -y seatwatch monitor list
+npx -y seatwatch monitor remove <watchId>
+npx -y seatwatch monitor clear
+npx -y seatwatch monitor tick
+npx -y seatwatch monitor status [watchId]
+```
+
+`monitor tick` prints JSON and exits 0 normally or 3 when alerts fire, which makes cron branching cheap. `monitor status` reads only `~/.seatwatch/seatwatch.db`—use it to answer “anything open yet?” without causing a network request. It includes the last result and recent newly-open events. Plain `check` commands continue using the legacy `~/.seatwatch/state.json` state.
 
 **Buying**: seatwatch never buys tickets. When seats open, tell the user immediately with the direct link — AMC: `https://www.amctheatres.com/showtimes/<id>/seats`, Alamo: the drafthouse.com session page — so they can grab it themselves.
 

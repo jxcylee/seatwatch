@@ -7,6 +7,9 @@
   "bin": {
     "seatwatch": "./cli.js"
   },
+  "scripts": {
+    "test": "node --test"
+  },
   "files": [
     "cli.js",
     "skill/SKILL.md",
