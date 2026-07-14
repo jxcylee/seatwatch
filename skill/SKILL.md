@@ -5,83 +5,135 @@ description: Check movie seat availability and watch for cancellation openings a
 
 # seatwatch — movie seat availability checker
 
-The `seatwatch` CLI does all the real work. Never scrape ticketing sites by hand — run it and interpret its JSON. All checks are plain HTTP (AMC falls back to a local Chrome on `--remote-debugging-port=9222` if HTTP is blocked or rate-limited), so no browser setup is normally needed.
+The `seatwatch` CLI does the real work. Never scrape ticketing sites by hand: run it and interpret its tab-separated discovery output or JSON check output. AMC uses plain HTTP and falls back to a local Chrome on `--remote-debugging-port=9222` if blocked; Alamo uses its open JSON API.
 
-## Commands
+## Numbered playbook
+
+Use the first matching workflow below. Replace example values with values returned by the preceding command; never invent a theatre slug, market, showtime ID, or session ID.
+
+### 1. “Are there seats for this movie on this night?”
+
+Resolve the theatre first unless the user supplied an exact AMC slug or exact Alamo market from seatwatch. A theatre name, neighborhood, city, or “near me” is **not** a slug/market. If location is missing, ask for it.
 
 ```bash
-# Resolve theatre names/cities to an AMC URL slug or Alamo market.
-npx -y seatwatch theatres brooklyn
-# → tab-separated: chain  slug-or-market  display name  location
+npx -y seatwatch theatres 'lincoln square'
+```
 
-# AMC: list showtimes for a theatre/date, optional movie regex.
-# Theatre slug is the amctheatres.com URL path segment.
-npx -y seatwatch discover new-york-city/amc-lincoln-square-13 2026-07-17 odyssey
-# → tab-separated: showtimeId  movie  time  status (AlmostFull, Sellable, ...)
+The output is tab-separated: `chain`, `slug-or-market`, `display name`, `location`. Choose the intended result; if several are plausible, ask the user which theatre.
 
-# AMC: per-seat availability; optionally rank adjacent groups.
-npx -y seatwatch check 134717192 145066519 --want '^(F|G|H)' --together 2
+For AMC, discover and then check every relevant returned ID in one invocation:
 
-# Alamo: list sessions for a market (nyc, austin, ...), optional movie regex and YYYY-MM-DD.
-npx -y seatwatch alamo-discover nyc odyssey 2026-07-17
-# → cinemaId/sessionId  movie-slug  showtime  cinema  status
+```bash
+npx -y seatwatch discover new-york-city/amc-lincoln-square-13 2026-07-17 'odyssey'
+npx -y seatwatch check 134717192 145066519
+```
 
-# Alamo: per-seat availability for cinemaId/sessionId pairs from discover.
-npx -y seatwatch alamo-check 2103/93423 --want '^7' --together 2
+For Alamo, discover and then check every relevant returned `cinemaId/sessionId` in one invocation:
 
-# Register a recurring watch in SQLite with one command.
-npx -y seatwatch monitor add alamo 2103/93423 --want '^7' \
-  --label 'Odyssey 7pm' --notify 'https://ntfy.sh/my-seat-alerts' \
+```bash
+npx -y seatwatch alamo-discover nyc 'odyssey' 2026-07-17
+npx -y seatwatch alamo-check 2103/93423 2103/93424
+```
+
+Tell the user the movie, theatre, date/time, and `openCount` for each relevant showtime. If seats are open, name the first few `bestOpen` seat IDs, best first. If `openCount` is 0, say it is currently sold out and offer the watch workflow in play 3. Do not describe a discovery status such as `AlmostFull` as a seat count; the check result is authoritative.
+
+### 2. “Can I get 2–3 seats together somewhere decent?”
+
+Follow play 1 through discovery, then add `--together N` to the single batched check:
+
+```bash
+# AMC
+npx -y seatwatch check 134717192 145066519 --together 3
+
+# Alamo
+npx -y seatwatch alamo-check 2103/93423 2103/93424 --together 3
+```
+
+Read `bestTogether`, not merely `openCount`. Recommend the first run and give its seat IDs and showtime; mention up to a few alternatives. An empty `bestTogether` means no qualifying contiguous group is currently open, even if individual seats are available. Seats must have consecutive column values in the same row; a column gap is an aisle. Monitors do not support `--together`, so use a fresh `check` or `alamo-check` when the user later asks whether a group is available.
+
+### 3. “It’s sold out — alert me the moment seats open”
+
+First resolve and discover as in play 1. Register each chosen showtime once, always including the known showtime datetime as `--until`. On a headless machine, also include `--notify`; a bare ntfy topic provides phone push after the user subscribes to that topic in the ntfy app.
+
+```bash
+# macOS: native notifications fire locally; --notify is optional
+npx -y seatwatch monitor add amc 134717192 \
+  --label 'Odyssey — Lincoln Square — Jul 17 7pm' \
   --until 2026-07-17T19:00:00-04:00 --interval 10
 
-# Cron/automation calls this every 1–2 minutes; it only checks watches that are due.
-npx -y seatwatch monitor tick
+# VPS/server: --notify is required for an external alert
+npx -y seatwatch monitor add alamo 2103/93423 \
+  --label 'Odyssey — Downtown Brooklyn — Jul 17 7pm' \
+  --notify 'https://ntfy.sh/choose-a-private-topic' \
+  --until 2026-07-17T19:00:00-04:00 --interval 10
 
-# Install or remove the shared cron entry (defaults to every 2 minutes).
-npx -y seatwatch monitor install-cron [--every <minutes>]
-npx -y seatwatch monitor uninstall-cron
-
-# Cached answer with last results and recent openings; never makes a network request.
-npx -y seatwatch monitor status
-
-# Install this agent skill; --dev rewrites commands to use the current checkout.
-npx -y seatwatch install-skill [--dev]
+# Run this ONCE per machine, after adding watches (not once per watch).
+npx -y seatwatch monitor install-cron
 ```
 
-## Output format (both `check` commands)
+`monitor install-cron` installs one shared 2-minute scheduler. `monitor tick` decides which watches are due: the configured interval defaults to 10 minutes and automatically becomes the smaller of that interval and 2 minutes during the final two hours. It expires a watch after `--until`. Do not create a separate cron entry or network check for each watch.
 
-JSON array, one object per showtime:
+The first successful tick seeds independent SQLite state and never alerts. Later matching openings trigger macOS `osascript` notifications automatically; headless systems have no `osascript` notification, so use `--notify` for ntfy, Discord, Slack, or another webhook. `--want <seat-regex>` may be added to restrict openings and alerts to preferred seat IDs.
 
-```json
-{
-  "id": "134717192",
-  "total": 480,          // seats in the auditorium
-  "openCount": 0,        // currently available
-  "open": ["A4", "..."], // all open seat ids
-  "bestOpen": [{"id": "D6", "score": 0.59}, ...],  // top 10 open seats, best first
-  "bestTogether": [{"seats": ["C5", "C6"], "score": 0.81}, ...],
-  "newlyOpen": ["D6"]    // opened since the last check (respects --want filter)
-}
-```
-
-- `bestOpen` scores 0–1: seats ~60% back from the screen and centered in their row score highest. Recommend seats in this order unless the user states a preference.
-- `--together N` adds `bestTogether`, the top five open runs of N physically adjacent seats, scored at each run's centroid with the same geometry. Adjacent seats have consecutive column values in one row; column gaps are aisles and break a run.
-- `newlyOpen` is the alert signal. State persists in `~/.seatwatch/state.json`; the **first check of a showtime seeds state** (no notification fires). Real alerts start from the second check.
-- On macOS a notification (with sound) fires automatically when seats newly open.
-- With `--together`, an alert fires only if an open run of N includes at least one `newlyOpen` seat, and the notification names the run.
-- `--want <regex>` limits `newlyOpen` and alerts to matching seat ids (e.g. `'^(C|D|E)'`). It does not filter `open`, `bestOpen`, or `bestTogether`.
-- An `error` field usually means the showtime expired or rate limiting hit — the message says which.
-
-## Typical workflows
-
-**"Any seats for X?"** — if the AMC slug or Alamo market is unknown, run `theatres <name-or-city>` first. Then discover to find the showtime id, check it, and report `openCount` and the top few `bestOpen` seats in plain language.
-
-**"Watch this showtime for cancellations"** — use `monitor add <amc|alamo> <id>` once, including `--until` whenever the showtime is known. Then arrange one shared cron/automation to run `monitor tick` every 1–2 minutes. Tick decides which watches are due: 10 minutes by default, automatically ramping to 2 minutes in the final 2 hours before `--until`, and expiring after it. Do not schedule a separate network check per watch.
-
-Monitor commands:
+For every later “anything open yet?” query, read cached monitor state—do **not** perform a new network check:
 
 ```bash
-npx -y seatwatch monitor add <amc|alamo> <id> [--want <re>] [--label <text>] [--notify <url>] [--until <ISO-datetime>] [--interval <minutes>]
+npx -y seatwatch monitor status
+# or one watch:
+npx -y seatwatch monitor status 1
+```
+
+Tell the user `status`, `lastChecked`, `lastOpenCount`, the best seats in `lastResult.bestOpen` when present, and any `recentNewlyOpen` events. If `lastResult` is null, say the watch is installed but has not completed its first check. If `cooldownUntil` is non-null, say polling is paused until then. When seats open, include the booking link: AMC `https://www.amctheatres.com/showtimes/<id>/seats`; for Alamo direct the user to drafthouse.com. seatwatch never buys or reserves tickets.
+
+### 4. “What’s the best seat left?”
+
+Resolve, discover, and check as in play 1:
+
+```bash
+npx -y seatwatch check 134717192
+# or
+npx -y seatwatch alamo-check 2103/93423
+```
+
+Recommend `bestOpen[0]`, naming its seat ID and score. Offer the next few entries in order if useful. `bestOpen` scores 0–1 and favors seats about 60% back and centered in their row. If `bestOpen` is empty, say no seats are currently open.
+
+### 5. “Where is this movie playing near me?”
+
+If the user has not provided a city, neighborhood, or theatre, ask for one. Resolve theatres **before** discovery:
+
+```bash
+npx -y seatwatch theatres 'brooklyn'
+```
+
+Run discovery for each plausible returned AMC slug or Alamo market, using the requested movie/date:
+
+```bash
+npx -y seatwatch discover new-york-city/amc-empire-25 2026-07-17 'odyssey'
+npx -y seatwatch alamo-discover nyc 'odyssey' 2026-07-17
+```
+
+Tell the user which matching theatres have sessions and list their times. `theatres` matches theatre names, cities, states, and Alamo market names; it does not itself prove that a movie is playing. If the user also asks about seats, continue to play 1 and check the returned IDs.
+
+### 6. “Which showtime this weekend has the most/best availability?”
+
+Resolve theatres first, run discovery for each requested date, collect the relevant IDs, then check all same-chain IDs in one command:
+
+```bash
+npx -y seatwatch check 134717192 134717193 134717194 145066519
+npx -y seatwatch alamo-check 2103/93423 2103/93424 2103/93425
+```
+
+Compare `openCount` across results. For quality, also compare the first `bestOpen` score; if the user needs a group, use `--together N` and compare the first `bestTogether` score instead. Tell the user the best showtime, its count and best seat/run, then summarize close alternatives. Keep IDs in one invocation rather than spawning one check per showtime.
+
+## Command reference
+
+```text
+npx -y seatwatch theatres <query>
+npx -y seatwatch discover <theatre-slug> [date] [movie-regex]
+npx -y seatwatch check <showtimeId...> [--want <seat-regex>] [--together N]
+npx -y seatwatch alamo-discover [market=nyc] [movie-regex] [date]
+npx -y seatwatch alamo-check <cinemaId/sessionId...> [--want <seat-regex>] [--together N]
+npx -y seatwatch monitor add <amc|alamo> <id> [--want <seat-regex>] [--label <text>] [--notify <url>] [--until <ISO-datetime>] [--interval <minutes>]
 npx -y seatwatch monitor list
 npx -y seatwatch monitor remove <watchId>
 npx -y seatwatch monitor clear
@@ -89,20 +141,42 @@ npx -y seatwatch monitor tick
 npx -y seatwatch monitor status [watchId]
 npx -y seatwatch monitor install-cron [--every <minutes>]
 npx -y seatwatch monitor uninstall-cron
+npx -y seatwatch install-skill [--dev]
 ```
 
-`monitor tick` prints JSON and exits 0 normally or 3 when alerts fire, which makes cron branching cheap. `monitor status` reads only `~/.seatwatch/seatwatch.db`—use it to answer “anything open yet?” without causing a network request. It includes the last result and recent newly-open events. Plain `check` commands continue using the legacy `~/.seatwatch/state.json` state.
+AMC `discover` output is tab-separated: `showtimeId`, `movie`, `time`, optional `status`. Alamo discovery output is: `cinemaId/sessionId`, `movie-slug`, `showtime`, `cinema`, `status`.
 
-For headless/VPS alerts, pass `--notify` a Discord, Slack, or generic webhook URL. A bare `https://ntfy.sh/<topic>` URL sends free phone push through ntfy.
+## Check output and alert semantics
 
-Monitor `--want` has the same alert-filter semantics as plain checks. Monitors do not support `--together`; run `check` or `alamo-check` for adjacent-group ranking. The first successful tick seeds the monitor's SQLite seat state without alerting, independently of the plain-check history in `state.json`.
+Both check commands print a JSON array with one object per showtime:
 
-Install this skill with `npx -y seatwatch install-skill`. When developing from a checkout, `npx -y seatwatch install-skill --dev` rewrites installed commands to invoke that checkout's `cli.js` directly.
+```json
+{
+  "id": "134717192",
+  "total": 480,
+  "openCount": 2,
+  "open": ["D6", "D7"],
+  "bestOpen": [{"id": "D6", "score": 0.59}],
+  "bestTogether": [{"seats": ["D6", "D7"], "score": 0.59}],
+  "newlyOpen": ["D6"]
+}
+```
 
-**Buying**: seatwatch never buys tickets. When seats open, tell the user immediately with the direct link — AMC: `https://www.amctheatres.com/showtimes/<id>/seats`, Alamo: the drafthouse.com session page — so they can grab it themselves.
+- `total` is the number of seats in the auditorium; `openCount` and `open` describe current availability.
+- `bestOpen` contains the top 10 currently open seats. `bestTogether` appears only with `--together N` and contains up to five groups.
+- `newlyOpen` is the diff since the last plain check. Plain-check state persists in `~/.seatwatch/state.json`; the first check seeds state, so no notification fires.
+- macOS automatically fires a native notification with sound for later newly-open seats. With `--together`, it fires only when a qualifying run includes at least one newly-open seat and names that run.
+- `--want <seat-regex>` filters only `newlyOpen` and alerts. It never filters `open`, `bestOpen`, or `bestTogether`.
+- An `error` field usually indicates an expired showtime, a page change, or rate limiting; follow its message.
 
-## Rate limiting & staying unblocked
+Monitor state and check history live separately in `~/.seatwatch/seatwatch.db`. `monitor tick` prints one JSON summary and exits 0 normally or 3 when alerts fire. `monitor status` never accesses the network and includes `lastResult` plus up to 10 recent newly-open events. `monitor list`, `remove`, `clear`, and `uninstall-cron` manage watches and the shared cron entry.
 
-AMC rate-limits bursts: too many page loads in a short window earns a temporary ban (HTTP 429, or Cloudflare "error 1015" on the browser path). Throttling is per-IP and self-contained — it only affects the machine doing the polling. The CLI already softens this automatically: it jitters each request by 0–1.5s, honors the origin's `Retry-After` on a block (a monitor watch reports `cooling-down` and is skipped until the cooldown passes, then resumes), and revalidates with `ETag`/`Last-Modified` when offered. A `check` result with an `error` like `rate limited (429) … back off ~N min` means you should stop and wait — do not keep retrying.
+Webhook alerts use `--notify <url>`. Discord webhook URLs receive `{"content": text}`, Slack webhook URLs receive `{"text": text}`, and other URLs receive plain text with an ntfy-compatible `Title` header.
 
-Guidance: prefer one invocation with many ids over many separate runs; keep monitor intervals ≥ 5–10 min (the final-2-hour ramp already caps at 2 min); and note that AMC from a datacenter/VPS IP is often challenged, so AMC watches are most reliable from a residential connection. Alamo's API has no such limits and is safe to run anywhere.
+Install this skill with `npx -y seatwatch install-skill`. During development, `npx -y seatwatch install-skill --dev` rewrites installed commands to invoke the checkout’s `cli.js` directly.
+
+## Rate limiting and where to run
+
+AMC rate-limits bursts per IP (HTTP 429/403 or Cloudflare error 1015). The CLI adds a random 0–1.5-second pre-request jitter, honors `Retry-After` (or uses a 30-minute default), places monitor watches in cooldown, and uses `ETag`/`Last-Modified` conditional requests when offered. If a plain check says to back off, stop and wait; do not retry repeatedly. Keep baseline monitor intervals at least 5–10 minutes—the final-two-hour ramp already caps at 2 minutes—and batch IDs in one invocation.
+
+AMC often challenges datacenter/VPS IPs. Its plain-HTTP path is validated from residential connections, while the Chrome fallback requires a locally reachable Chrome. Prefer a home machine for AMC or treat a VPS check as best-effort. Alamo’s API works from residential and datacenter hosts. `SEATWATCH_JITTER_MS=0` disables jitter, mainly for tests. seatwatch never reserves or buys seats.

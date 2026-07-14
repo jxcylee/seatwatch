@@ -657,7 +657,7 @@ async function cmdTheatres(query) {
   for (const t of matches) {
     console.log(`${t.chain}\t${t.slug || t.market}\t${t.name}\t${theatreLocation(t)}`);
   }
-  if (!matches.length) process.stderr.write("No theatres matched.\n");
+  if (!matches.length) process.stderr.write("No theatres matched; try a broader theatre, city, or state query.\n");
 }
 
 // ---------- commands ----------
@@ -692,7 +692,7 @@ async function cmdDiscover(slug, date, movieRe) {
     seen.add(row.id);
     console.log(`${row.id}\t${row.movie}\t${row.time}${row.status ? `\t${row.status}` : ""}`);
   }
-  if (!seen.size) process.stderr.write("No showtimes matched.\n");
+  if (!seen.size) process.stderr.write("No showtimes matched; verify the theatre slug, date, and movie regex.\n");
 }
 
 function backoffMessage(status, retryAfterMs) {
@@ -1045,16 +1045,16 @@ async function main(argv = process.argv.slice(2)) {
       if (positionals.length > 3) throw new Error("discover accepts at most a theatre slug, date, and movie regex");
       await cmdDiscover(positionals[0], positionals[1], positionals[2]);
     } else if (cmd === "check") {
-      const { targets, want, together } = parseCheckArgs(rest, "no showtime ids given");
+      const { targets, want, together } = parseCheckArgs(rest, "check requires at least one showtimeId from discover");
       await cmdCheck(targets, want, together);
     } else if (cmd === "alamo-discover") {
       const { positionals } = parseCommandArgs(rest);
       if (positionals.length > 3) throw new Error("alamo-discover accepts at most a market, movie regex, and date");
       const rows = await alamoDiscover(positionals[0] || "nyc", positionals[1], positionals[2]);
       for (const r of rows) console.log(`${r.id}\t${r.movie}\t${r.time}\t${r.cinema}\t${r.status}`);
-      if (!rows.length) process.stderr.write("No sessions matched.\n");
+      if (!rows.length) process.stderr.write("No sessions matched; verify the market, movie regex, and date.\n");
     } else if (cmd === "alamo-check") {
-      const { targets, want, together } = parseCheckArgs(rest, "no cinemaId/sessionId pairs given");
+      const { targets, want, together } = parseCheckArgs(rest, "alamo-check requires at least one cinemaId/sessionId from alamo-discover");
       await cmdAlamoCheck(targets, want, together);
     } else if (cmd === "monitor") {
       const [subcommand, ...monitorArgs] = rest;
@@ -1091,8 +1091,8 @@ async function main(argv = process.argv.slice(2)) {
   seatwatch discover <theatre-slug> [date] [movie-regex]      # AMC showtimes
   seatwatch check <showtimeId...> [--want <seat-regex>] [--together N]
   seatwatch alamo-discover [market=nyc] [movie-regex] [date]  # Alamo sessions
-  seatwatch alamo-check <cinemaId/sessionId...> [--want <re>] [--together N]
-  seatwatch monitor add <amc|alamo> <id> [--want <re>] [--label <text>] [--notify <url>] [--until <ISO-datetime>] [--interval <minutes>]
+  seatwatch alamo-check <cinemaId/sessionId...> [--want <seat-regex>] [--together N]
+  seatwatch monitor add <amc|alamo> <id> [--want <seat-regex>] [--label <text>] [--notify <url>] [--until <ISO-datetime>] [--interval <minutes>]
   seatwatch monitor list                                      # list watches
   seatwatch monitor remove <watchId>                          # remove one watch
   seatwatch monitor clear                                     # remove all watches
