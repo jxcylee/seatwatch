@@ -136,7 +136,7 @@ Use monitors for cancellation alerts. Their independent state and history live i
 
 ```bash
 seatwatch monitor add [chain] <id> \
-  [--want <seat-regex>] [--label <text>] [--notify <url>] \
+  [--want <seat-regex>] [--label <text>] [--notify <url>] [--notify-exec <command>] \
   [--until <ISO-datetime>] [--interval <minutes>]
 seatwatch monitor list
 seatwatch monitor remove <watchId>
@@ -191,7 +191,7 @@ seatwatch monitor status
 
 `npx -y seatwatch` is fine for interactive checks, but its executable can live in an ephemeral npx cache. If `install-cron` detects that path, it warns you to install globally and reinstall cron. The installed cron captures the current absolute Node and `cli.js` paths, preserves unrelated crontab lines, and replaces any previous line ending in `# seatwatch-monitor`.
 
-Headless machines do not have macOS `osascript` desktop notifications. Pass `--notify` for an external alert. For phone push, choose a hard-to-guess ntfy topic, subscribe to it in the ntfy app, and use its URL as shown above. Discord, Slack, and generic HTTP(S) webhooks are also supported.
+Headless machines do not have macOS `osascript` desktop notifications. Pass `--notify` for an external alert. For phone push, choose a hard-to-guess ntfy topic, subscribe to it in the ntfy app, and use its URL as shown above. Discord, Slack, and generic HTTP(S) webhooks are also supported — or use `--notify-exec` to route alerts through anything the box already has (a configured mailer, Telegram via curl, etc.).
 
 Alamo’s open API works from residential and datacenter hosts. AMC sits behind Cloudflare and often challenges datacenter/VPS IPs; its plain-HTTP path is validated from residential connections, and its fallback requires a locally reachable Chrome on `--remote-debugging-port=9222`. Run important AMC watches from a residential connection, or test your target server IP and treat it as best-effort.
 
