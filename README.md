@@ -66,7 +66,7 @@ The contract an agent can rely on:
 seatwatch theatres <query>
 seatwatch showtimes <theatre> [--movie <regex>] [--date <YYYY-MM-DD>]
 seatwatch check <id...> [--want <seat-regex>] [--together N]
-seatwatch monitor add [chain] <id> [--want <seat-regex>] [--label <text>] [--notify <url>] [--until <ISO-datetime>] [--interval <minutes>]
+seatwatch monitor add [chain] <id> [--want <seat-regex>] [--label <text>] [--notify <url>] [--notify-exec <command>] [--until <ISO-datetime>] [--interval <minutes>]
 seatwatch monitor list
 seatwatch monitor remove <watchId>
 seatwatch monitor clear
@@ -156,6 +156,21 @@ Run `monitor install-cron` once per machine, not once per watch. It installs or 
 `monitor tick` prints one JSON summary and exits 0 normally or 3 when alerts fire. `monitor status [watchId]` never accesses the network: it returns cached watch metadata, `lastResult`, and recent newly-open events from SQLite. Use status—not another check—to answer later “anything open yet?” questions.
 
 On macOS, alerts use `osascript`. `--notify <url>` additionally posts alerts: Discord webhooks receive `{"content": text}`, Slack webhooks receive `{"text": text}`, and other URLs receive plain text with an ntfy-compatible `Title` header. Booking links are included in webhook messages. seatwatch never reserves or buys seats.
+
+`--notify-exec '<command>'` is the bring-your-own-channel hook: on each alert the command runs via `/bin/sh` (10s timeout) with the details in env vars — `$SEATWATCH_TITLE`, `$SEATWATCH_MESSAGE` (includes the booking link), `$SEATWATCH_SEATS`, `$SEATWATCH_OPEN_COUNT`, `$SEATWATCH_LABEL`, `$SEATWATCH_LINK`, `$SEATWATCH_WATCH_ID`. Anything your machine can already do becomes a notification channel:
+
+```bash
+# iMessage yourself (macOS)
+--notify-exec 'osascript -e "tell application \"Messages\" to send (system attribute \"SEATWATCH_MESSAGE\") to buddy \"+15551234567\""'
+
+# email via a configured sendmail/mail
+--notify-exec 'printf "%s\n" "$SEATWATCH_MESSAGE" | mail -s "$SEATWATCH_TITLE" you@example.com'
+
+# telegram, twilio, home assistant... anything curl can reach
+--notify-exec 'curl -sf -d "text=$SEATWATCH_MESSAGE" "https://api.telegram.org/bot$TOKEN/sendMessage?chat_id=$CHAT"'
+```
+
+A non-zero exit is recorded as `notifyExecStatus: "failed"` in the tick result without blocking anything else. `--notify` and `--notify-exec` can be combined.
 
 ## Deploying headless (VPS / server)
 

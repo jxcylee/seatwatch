@@ -79,6 +79,11 @@ npx -y seatwatch monitor install-cron
 
 The first successful tick seeds independent SQLite state and never alerts. Later matching openings trigger macOS `osascript` notifications automatically; headless systems have no `osascript` notification, so use `--notify` for ntfy, Discord, Slack, or another webhook. `--want <seat-regex>` may be added to restrict openings and alerts to preferred seat IDs.
 
+**Choosing the alert channel** — ask what the user already has rather than pushing ntfy:
+- Discord or Slack webhook URL → `--notify <url>` directly.
+- ntfy app (or willing to install it) → `--notify https://ntfy.sh/<hard-to-guess-topic>` for phone push.
+- None of the above → use `--notify-exec '<command>'`, which runs on each alert with `$SEATWATCH_TITLE`, `$SEATWATCH_MESSAGE` (includes booking link), `$SEATWATCH_SEATS`, `$SEATWATCH_LINK` in the environment. Compose the command from whatever the machine has: on macOS, iMessage-to-self is excellent (`osascript -e "tell application \"Messages\" to send (system attribute \"SEATWATCH_MESSAGE\") to buddy \"+1XXXXXXXXXX\""` — ask the user for their number); a configured `mail`/`sendmail` gives email; `curl` reaches Telegram/Twilio/Home Assistant. Verify your command once by running it directly in the shell with the env vars set manually before registering it. A failing command is recorded as `notifyExecStatus: "failed"` in tick results — check there if alerts aren't arriving. There is no zero-credential email path (ntfy.sh blocks anonymous email), so email always requires an already-configured mailer or an API key.
+
 For every later “anything open yet?” query, read cached monitor state—do **not** perform a new network check:
 
 ```bash
@@ -135,7 +140,7 @@ Compare `openCount` across results. For quality, also compare the first `bestOpe
 npx -y seatwatch theatres <query>
 npx -y seatwatch showtimes <theatre> [--movie <regex>] [--date <YYYY-MM-DD>]
 npx -y seatwatch check <id...> [--want <seat-regex>] [--together N]
-npx -y seatwatch monitor add [chain] <id> [--want <seat-regex>] [--label <text>] [--notify <url>] [--until <ISO-datetime>] [--interval <minutes>]
+npx -y seatwatch monitor add [chain] <id> [--want <seat-regex>] [--label <text>] [--notify <url>] [--notify-exec <command>] [--until <ISO-datetime>] [--interval <minutes>]
 npx -y seatwatch monitor list
 npx -y seatwatch monitor remove <watchId>
 npx -y seatwatch monitor clear

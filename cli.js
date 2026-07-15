@@ -233,6 +233,27 @@ async function notifyWebhook(url, title, text) {
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
 }
 
+// Run a user-supplied alert command with the alert details in env vars.
+// This is the bring-your-own-channel hook: agents wire it to whatever the
+// machine already has (iMessage via osascript, `mail`, Shortcuts, curl...).
+function notifyExec(command, { title, text, seats, openCount, watchId, label, bookingUrl }) {
+  const res = spawnSync("/bin/sh", ["-c", command], {
+    timeout: 10000,
+    stdio: ["ignore", "ignore", "inherit"],
+    env: {
+      ...process.env,
+      SEATWATCH_TITLE: title,
+      SEATWATCH_MESSAGE: text,
+      SEATWATCH_SEATS: seats.join(","),
+      SEATWATCH_OPEN_COUNT: String(openCount),
+      SEATWATCH_WATCH_ID: String(watchId),
+      SEATWATCH_LABEL: label || "",
+      SEATWATCH_LINK: bookingUrl,
+    },
+  });
+  return res.status === 0 ? "sent" : "failed";
+}
+
 // Score 0..1: prefer rows ~60% back from the screen, seats centered in the row.
 function seatGeometry(seats) {
   const rows = [...new Set(seats.map((s) => s.row))].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
@@ -317,6 +338,7 @@ function openMonitorDb() {
       label TEXT,
       want TEXT,
       notifyUrl TEXT,
+      notifyExec TEXT,
       intervalMinutes INTEGER NOT NULL DEFAULT 10 CHECK (intervalMinutes >= 1),
       until TEXT,
       createdAt TEXT NOT NULL,
@@ -341,6 +363,7 @@ function openMonitorDb() {
   const columns = db.prepare("PRAGMA table_info(watches)").all().map((c) => c.name);
   if (!columns.includes("cooldownUntil")) db.exec("ALTER TABLE watches ADD COLUMN cooldownUntil TEXT");
   if (!columns.includes("notifyUrl")) db.exec("ALTER TABLE watches ADD COLUMN notifyUrl TEXT");
+  if (!columns.includes("notifyExec")) db.exec("ALTER TABLE watches ADD COLUMN notifyExec TEXT");
   return db;
 }
 
@@ -371,6 +394,7 @@ function publicWatch(watch, now = Date.now()) {
     label: watch.label,
     want: watch.want,
     notifyUrl: watch.notifyUrl,
+    notifyExec: watch.notifyExec,
     interval: watch.intervalMinutes,
     effectiveInterval: effectiveIntervalMinutes(watch, now),
     until: watch.until,
@@ -829,13 +853,14 @@ async function cmdAlamoCheck(pairs, want, together) {
 function cmdMonitorAdd(positionals, options) {
   const { chain, target } = resolveMonitorTarget(positionals);
 
-  const { want = null, label = null, notify: notifyUrl = null, until: untilRaw, interval: intervalRaw = "10" } = options;
+  const { want = null, label = null, notify: notifyUrl = null, "notify-exec": notifyExecCmd = null, until: untilRaw, interval: intervalRaw = "10" } = options;
   compileWant(want);
   if (notifyUrl) {
     let parsed;
     try { parsed = new URL(notifyUrl); } catch {}
     if (!parsed || !["http:", "https:"].includes(parsed.protocol)) throw new Error("--notify must be an http(s) URL");
   }
+  if (notifyExecCmd != null && !notifyExecCmd.trim()) throw new Error("--notify-exec requires a non-empty shell command");
   const intervalMinutes = Number(intervalRaw);
   if (!Number.isInteger(intervalMinutes) || intervalMinutes < 1) throw new Error("--interval must be a positive whole number of minutes");
   let until = null;
@@ -849,9 +874,9 @@ function cmdMonitorAdd(positionals, options) {
   try {
     const createdAt = new Date().toISOString();
     const result = db.prepare(`
-      INSERT INTO watches (chain, target, label, want, notifyUrl, intervalMinutes, until, createdAt)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    `).run(chain, target, label, want, notifyUrl, intervalMinutes, until, createdAt);
+      INSERT INTO watches (chain, target, label, want, notifyUrl, notifyExec, intervalMinutes, until, createdAt)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(chain, target, label, want, notifyUrl, notifyExecCmd, intervalMinutes, until, createdAt);
     const watch = db.prepare("SELECT * FROM watches WHERE id = ?").get(result.lastInsertRowid);
     console.log(JSON.stringify(publicWatch(watch), null, 2));
   } finally {
@@ -1026,18 +1051,32 @@ async function cmdMonitorTick() {
       if (alertSeats.length) {
         summary.alerts++;
         const title = watch.chain === "alamo" ? `Alamo seats opened: ${watch.target}` : `Seats opened: showtime ${watch.target}`;
+        const bookingUrl = watch.chain === "amc"
+          ? `https://www.amctheatres.com/showtimes/${watch.target}/seats`
+          : "https://drafthouse.com";
+        const text = `${watch.label || `${watch.chain}/${watch.target}`}: ${alertSeats.join(", ")} now available (${diff.open.length} open total) — ${bookingUrl}`;
         notify(title, `${alertSeats.join(", ")} now available (${diff.open.length} open total)`);
         if (watch.notifyUrl) {
-          const bookingUrl = watch.chain === "amc"
-            ? `https://www.amctheatres.com/showtimes/${watch.target}/seats`
-            : "https://drafthouse.com";
-          const text = `${watch.label || `${watch.chain}/${watch.target}`}: ${alertSeats.join(", ")} now available (${diff.open.length} open total) — ${bookingUrl}`;
           try {
             await notifyWebhook(watch.notifyUrl, title, text);
             result.notifyStatus = "sent";
           } catch (error) {
             result.notifyStatus = "failed";
             process.stderr.write(`Webhook notification failed for watch ${watch.id}: ${error.message}\n`);
+          }
+        }
+        if (watch.notifyExec) {
+          result.notifyExecStatus = notifyExec(watch.notifyExec, {
+            title,
+            text,
+            seats: alertSeats,
+            openCount: diff.open.length,
+            watchId: watch.id,
+            label: watch.label,
+            bookingUrl,
+          });
+          if (result.notifyExecStatus !== "sent") {
+            process.stderr.write(`notify-exec failed for watch ${watch.id}\n`);
           }
         }
       }
@@ -1147,7 +1186,7 @@ async function main(argv = process.argv.slice(2)) {
       const [subcommand, ...monitorArgs] = rest;
       let parsed;
       if (subcommand === "add") {
-        parsed = parseCommandArgs(monitorArgs, { want: STRING_OPTION, label: STRING_OPTION, notify: STRING_OPTION, until: STRING_OPTION, interval: STRING_OPTION });
+        parsed = parseCommandArgs(monitorArgs, { want: STRING_OPTION, label: STRING_OPTION, notify: STRING_OPTION, "notify-exec": STRING_OPTION, until: STRING_OPTION, interval: STRING_OPTION });
       } else if (subcommand === "install-cron") {
         parsed = parseCommandArgs(monitorArgs, { every: STRING_OPTION });
       } else if (["list", "remove", "clear", "tick", "status", "uninstall-cron"].includes(subcommand)) {
@@ -1177,7 +1216,7 @@ async function main(argv = process.argv.slice(2)) {
   seatwatch theatres <query>                                  # resolve AMC slugs / Alamo markets
   seatwatch showtimes <theatre> [--movie <regex>] [--date <YYYY-MM-DD>]
   seatwatch check <id...> [--want <seat-regex>] [--together N]
-  seatwatch monitor add [chain] <id> [--want <seat-regex>] [--label <text>] [--notify <url>] [--until <ISO-datetime>] [--interval <minutes>]
+  seatwatch monitor add [chain] <id> [--want <seat-regex>] [--label <text>] [--notify <url>] [--notify-exec <command>] [--until <ISO-datetime>] [--interval <minutes>]
   seatwatch monitor list                                      # list watches
   seatwatch monitor remove <watchId>                          # remove one watch
   seatwatch monitor clear                                     # remove all watches
@@ -1195,7 +1234,7 @@ async function main(argv = process.argv.slice(2)) {
   }
 }
 
-export { extractSeatingLayout, effectiveIntervalMinutes, inferIdChain, inferTheatreChain, monitorStatusName, normalizeCheckInvocation, normalizeDiscoveryInvocation, notifyWebhook, rankTogether, parseRetryAfter, conditionalHeaders, resolveMonitorTarget, transformCrontab, main };
+export { extractSeatingLayout, effectiveIntervalMinutes, inferIdChain, inferTheatreChain, monitorStatusName, normalizeCheckInvocation, normalizeDiscoveryInvocation, notifyExec, notifyWebhook, rankTogether, parseRetryAfter, conditionalHeaders, resolveMonitorTarget, transformCrontab, main };
 
 if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(resolve(process.argv[1]))) {
   process.exitCode = await main();

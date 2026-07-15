@@ -122,6 +122,39 @@ test("monitor add infers chain and rejects explicit mismatches", () => {
   assert.throws(() => resolveMonitorTarget(["amc", "2103/93423"]), /does not match alamo id/);
 });
 
+test("notifyExec passes alert details in env vars and reports failures", async (t) => {
+  const { mkdtempSync, readFileSync: readF, rmSync } = await import("node:fs");
+  const { tmpdir } = await import("node:os");
+  const dir = mkdtempSync(`${tmpdir()}/seatwatch-exec-`);
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  const details = {
+    title: "Seats opened: showtime 1",
+    text: "label: A1 now available (2 open total) — https://example.com",
+    seats: ["A1", "A2"],
+    openCount: 2,
+    watchId: 7,
+    label: "label",
+    bookingUrl: "https://example.com",
+  };
+  const ok = (await import("../cli.js")).notifyExec(
+    `printf '%s|%s|%s|%s' "$SEATWATCH_TITLE" "$SEATWATCH_SEATS" "$SEATWATCH_OPEN_COUNT" "$SEATWATCH_LINK" > "${dir}/out"`,
+    details,
+  );
+  assert.equal(ok, "sent");
+  assert.equal(readF(`${dir}/out`, "utf8"), "Seats opened: showtime 1|A1,A2|2|https://example.com");
+  assert.equal((await import("../cli.js")).notifyExec("exit 4", details), "failed");
+});
+
+test("monitor add rejects an empty notify-exec command", async () => {
+  const originalError = console.error;
+  console.error = () => {};
+  try {
+    assert.equal(await main(["monitor", "add", "1/2", "--notify-exec", "  "]), 1);
+  } finally {
+    console.error = originalError;
+  }
+});
+
 test("webhook payloads match Discord, Slack, and generic endpoints", async () => {
   const originalFetch = globalThis.fetch;
   const calls = [];
