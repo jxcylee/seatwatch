@@ -13,7 +13,7 @@ The movie you actually want to see — the 70mm IMAX event, opening night, the g
 
 Here's the thing the box office doesn't advertise: **sold out is rarely final**. Plans change, and refunds flow right up until showtime. Community tracking data says about *half* of all seat openings land in the final 12 hours, and roughly *1 in 9* happen in the last hour before the lights go down. Those seats reappear on the public seat map for a few minutes and then they're gone again — snapped up by whoever happened to be looking.
 
-`seatwatch` is the thing that happens to be looking. It reads the same seat map you'd see in your browser, remembers who was sitting where, and the moment a seat frees up it buzzes your phone (or your desktop, or your Discord) with the seat number and the booking link. You tap, you buy, you're in row F center on opening night.
+`seatwatch` is the thing that happens to be looking. It reads the same seat map you'd see in your browser, remembers who was sitting where, and the moment a seat frees up it pings you — through whatever you already use: a text, a Discord or Slack message, an email, a desktop notification — with the seat number and the booking link. You tap, you buy, you're in row F center on opening night.
 
 ```bash
 npm i -g seatwatch
@@ -21,10 +21,12 @@ npm i -g seatwatch
 # what's playing? (theatre by name — it resolves the rest)
 seatwatch showtimes 'lincoln square' --movie odyssey --date 2026-07-17
 
-# watch the sold-out 7pm, ping my phone when anything opens
+# watch the sold-out 7pm, ping me when anything opens —
+# point --notify at any webhook you already have (Discord, Slack, ntfy),
+# or use --notify-exec to text yourself, send an email, hit Telegram...
 seatwatch monitor add 134717192 \
   --label 'Odyssey 70mm — Fri 7pm' \
-  --notify 'https://ntfy.sh/my-secret-topic' \
+  --notify 'https://discord.com/api/webhooks/…' \
   --until 2026-07-17T19:00:00-04:00
 
 # install the (one) cron entry that does the checking. that's it.
@@ -181,7 +183,7 @@ npm i -g seatwatch
 
 seatwatch monitor add 2103/93423 \
   --label 'Odyssey — Downtown Brooklyn — Jul 17 7pm' \
-  --notify 'https://ntfy.sh/choose-a-private-topic' \
+  --notify 'https://discord.com/api/webhooks/…' \
   --until 2026-07-17T19:00:00-04:00 --interval 10
 
 # Install one shared cron entry after adding watches.
@@ -191,7 +193,11 @@ seatwatch monitor status
 
 `npx -y seatwatch` is fine for interactive checks, but its executable can live in an ephemeral npx cache. If `install-cron` detects that path, it warns you to install globally and reinstall cron. The installed cron captures the current absolute Node and `cli.js` paths, preserves unrelated crontab lines, and replaces any previous line ending in `# seatwatch-monitor`.
 
-Headless machines do not have macOS `osascript` desktop notifications. Pass `--notify` for an external alert. For phone push, choose a hard-to-guess ntfy topic, subscribe to it in the ntfy app, and use its URL as shown above. Discord, Slack, and generic HTTP(S) webhooks are also supported — or use `--notify-exec` to route alerts through anything the box already has (a configured mailer, Telegram via curl, etc.).
+Headless machines do not have macOS `osascript` desktop notifications, so give each watch an external channel — whichever you already have:
+
+- **Discord or Slack**: paste a webhook URL into `--notify` (two clicks to create in either app).
+- **Anything else**: `--notify-exec` runs your command on each alert — a configured mailer, `curl` to Telegram or Home Assistant, an SMS gateway.
+- **No accounts anywhere?** [ntfy](https://ntfy.sh) gives free phone push without a signup: pick a hard-to-guess topic, subscribe in the ntfy app, and pass `--notify https://ntfy.sh/<topic>`.
 
 Alamo’s open API works from residential and datacenter hosts. AMC sits behind Cloudflare and often challenges datacenter/VPS IPs; its plain-HTTP path is validated from residential connections, and its fallback requires a locally reachable Chrome on `--remote-debugging-port=9222`. Run important AMC watches from a residential connection, or test your target server IP and treat it as best-effort.
 
