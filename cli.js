@@ -700,13 +700,38 @@ function theatreLocation(t) {
     .join(", ");
 }
 
-async function cmdTheatres(query) {
-  if (!query) throw new Error("theatre query required, e.g. theatres lincoln square");
-  const index = await theatreIndex();
+function searchTheatres(index, query) {
   const needle = query.toLowerCase();
-  const matches = [...index.amc, ...index.alamo].filter((t) =>
+  return [...index.amc, ...index.alamo].filter((t) =>
     [t.name, t.city, t.state, t.marketName].filter(Boolean).join(" ").toLowerCase().includes(needle),
   );
+}
+
+// 'lincoln square' → new-york-city/amc-lincoln-square-13, when unambiguous.
+// Multiple Alamo cinemas share one market, so dedupe to chain-level targets first.
+async function resolveTheatreByName(name) {
+  const matches = searchTheatres(await theatreIndex(), name);
+  const unique = new Map();
+  for (const t of matches) {
+    const chain = t.chain.toLowerCase();
+    const theatre = t.slug || t.market;
+    if (!unique.has(`${chain}:${theatre}`)) unique.set(`${chain}:${theatre}`, { chain, theatre, name: t.name, location: theatreLocation(t) });
+  }
+  const list = [...unique.values()];
+  if (!list.length) throw new Error(`no theatre matched '${name}' — try 'seatwatch theatres <broader query>'`);
+  if (list.length > 1) {
+    const lines = list.slice(0, 8).map((t) => `  ${t.theatre}\t${t.name} — ${t.location}`).join("\n");
+    const error = new Error(`'${name}' matches ${list.length} theatres — rerun with one of:\n${lines}`);
+    error.code = "SEATWATCH_AMBIGUOUS";
+    throw error;
+  }
+  process.stderr.write(`Resolved '${name}' → ${list[0].theatre} (${list[0].name})\n`);
+  return list[0];
+}
+
+async function cmdTheatres(query) {
+  if (!query) throw new Error("theatre query required, e.g. theatres lincoln square");
+  const matches = searchTheatres(await theatreIndex(), query);
   for (const t of matches) {
     console.log(`${t.chain}\t${t.slug || t.market}\t${t.name}\t${theatreLocation(t)}`);
   }
@@ -1091,7 +1116,27 @@ async function main(argv = process.argv.slice(2)) {
       const { positionals } = parseCommandArgs(rest);
       await cmdTheatres(positionals.join(" "));
     } else if (["showtimes", "discover", "alamo-discover"].includes(cmd)) {
-      await cmdShowtimes(normalizeDiscoveryInvocation(cmd, rest));
+      let invocation;
+      try {
+        invocation = normalizeDiscoveryInvocation(cmd, rest);
+        // A bare token is only an Alamo market if it actually is one ('nyc' yes,
+        // 'brooklyn' no) — otherwise treat it as a theatre name to resolve.
+        if (cmd === "showtimes" && invocation.chain === "alamo") {
+          const index = await theatreIndex();
+          if (!index.alamo.some((t) => t.market === invocation.theatre)) {
+            const resolved = await resolveTheatreByName(invocation.theatre);
+            invocation = { ...invocation, chain: resolved.chain, theatre: resolved.theatre };
+          }
+        }
+      } catch (err) {
+        // 'showtimes lincoln square' — not a slug/market, so resolve it by name.
+        if (cmd !== "showtimes" || err.code === "SEATWATCH_AMBIGUOUS") throw err;
+        const { values, positionals } = parseCommandArgs(rest, { movie: STRING_OPTION, date: STRING_OPTION });
+        if (!positionals.length) throw err;
+        const resolved = await resolveTheatreByName(positionals.join(" "));
+        invocation = { chain: resolved.chain, theatre: resolved.theatre, movie: values.movie, date: values.date };
+      }
+      await cmdShowtimes(invocation);
     } else if (cmd === "check") {
       const { targets, want, together } = normalizeCheckInvocation(cmd, rest);
       await cmdCheck(targets, want, together);

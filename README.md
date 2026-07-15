@@ -18,11 +18,8 @@ Here's the thing the box office doesn't advertise: **sold out is rarely final**.
 ```bash
 npm i -g seatwatch
 
-# which theatre? (never guess — look it up)
-seatwatch theatres 'lincoln square'
-
-# what showtimes? (movie regex + date)
-seatwatch showtimes new-york-city/amc-lincoln-square-13 --movie odyssey --date 2026-07-17
+# what's playing? (theatre by name — it resolves the rest)
+seatwatch showtimes 'lincoln square' --movie odyssey --date 2026-07-17
 
 # watch the sold-out 7pm, ping my phone when anything opens
 seatwatch monitor add 134717192 \
@@ -105,7 +102,7 @@ npx -y seatwatch check 2103/93423 2103/93424 --together 2
 
 `theatres <query>` searches theatre names, cities, states, and Alamo market names case-insensitively. Its tab-separated output is `chain`, `slug-or-market`, `display name`, `location`. AMC data comes from its theatre sitemap, with a bundled snapshot as a rate-limit fallback; Alamo markets and cinemas come from its open `s/mother` API. Fetched indexes are cached at `~/.seatwatch/theatres-cache.json` for 30 days.
 
-`showtimes` infers AMC when `<theatre>` contains `/`; otherwise it treats the value as an Alamo market. `check` and `monitor add` infer numeric IDs as AMC and `cinemaId/sessionId` pairs as Alamo. A single `check` may mix both shapes, while `--want` and `--together` apply to every ID.
+`showtimes <theatre>` takes an AMC slug (contains `/`), an Alamo market (`nyc`), **or just a theatre name** — `showtimes 'lincoln square'` resolves through the theatre index when the name matches exactly one theatre, and lists the candidates when it's ambiguous (e.g. `brooklyn` matches an Alamo in NYC and an AMC in Brooklyn, Ohio). `check` and `monitor add` infer numeric IDs as AMC and `cinemaId/sessionId` pairs as Alamo. A single `check` may mix both shapes, while `--want` and `--together` apply to every ID.
 
 AMC `showtimes` output is `showtimeId`, `movie`, `time`, optional `status`. Alamo `showtimes` output is `cinemaId/sessionId`, `movie-slug`, `showtime`, `cinema`, `status`. Showtime status is not a substitute for checking the seat map.
 

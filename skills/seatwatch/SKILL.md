@@ -23,6 +23,8 @@ The output is tab-separated: `chain`, `slug-or-market`, `display name`, `locatio
 
 `showtimes` infers AMC when the theatre contains `/`; otherwise it treats the theatre as an Alamo market. `check` and `monitor add` infer all-digit IDs as AMC and `cinemaId/sessionId` pairs as Alamo. One `check` invocation may mix both ID shapes.
 
+Shortcut: `showtimes` also accepts a plain theatre name (`showtimes 'lincoln square' --movie odyssey`). A name matching exactly one theatre resolves automatically (stderr notes what it resolved to); an ambiguous name errors with the candidate slugs/markets — pick the right one or ask the user. The explicit `theatres` lookup remains the deterministic path when you want the full candidate list up front.
+
 For AMC, find showtimes and then check every relevant returned ID in one invocation:
 
 ```bash
