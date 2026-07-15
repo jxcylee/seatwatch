@@ -1,8 +1,16 @@
 {
   "name": "seatwatch",
   "version": "0.1.0",
-  "description": "Watch movie seat availability and cancellation openings at AMC and Alamo Drafthouse — per-seat status, best-seat ranking, diff-based alerts. Agent-friendly JSON CLI, plus a Claude skill installer.",
+  "description": "Sold-out movie? Watch the seat map and get pinged the moment a cancellation opens up — AMC & Alamo Drafthouse, per-seat status, best-seat ranking, seats-together search. Agent-friendly JSON CLI with a Claude skill installer.",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jshph/seatwatch.git"
+  },
+  "homepage": "https://github.com/jshph/seatwatch#readme",
+  "bugs": {
+    "url": "https://github.com/jshph/seatwatch/issues"
+  },
   "type": "module",
   "bin": {
     "seatwatch": "./cli.js"

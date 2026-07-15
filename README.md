@@ -1,8 +1,59 @@
-# seatwatch
+# 🎬 seatwatch
 
-Watch movie seat availability and cancellation openings at **AMC** and **Alamo Drafthouse**. It reports per-seat availability, center-weighted best seats, contiguous groups, and newly opened seats.
+[![npm](https://img.shields.io/npm/v/seatwatch)](https://www.npmjs.com/package/seatwatch)
+![node](https://img.shields.io/badge/node-%E2%89%A522-brightgreen)
+![dependencies](https://img.shields.io/badge/dependencies-0-blue)
+![license](https://img.shields.io/badge/license-MIT-lightgrey)
 
-JSON-out and exit-coded, seatwatch is built for agents and cron rather than a daemon.
+**Sold-out movie? Someone's going to cancel. Be there when they do.**
+
+## The story
+
+The movie you actually want to see — the 70mm IMAX event, opening night, the good screen — sold out eleven minutes after tickets dropped. Everyone tells you to "just keep checking." Nobody does that. It's miserable.
+
+Here's the thing the box office doesn't advertise: **sold out is rarely final**. Plans change, and refunds flow right up until showtime. Community tracking data says about *half* of all seat openings land in the final 12 hours, and roughly *1 in 9* happen in the last hour before the lights go down. Those seats reappear on the public seat map for a few minutes and then they're gone again — snapped up by whoever happened to be looking.
+
+`seatwatch` is the thing that happens to be looking. It reads the same seat map you'd see in your browser, remembers who was sitting where, and the moment a seat frees up it buzzes your phone (or your desktop, or your Discord) with the seat number and the booking link. You tap, you buy, you're in row F center on opening night.
+
+```bash
+npm i -g seatwatch
+
+# which theatre? (never guess — look it up)
+seatwatch theatres 'lincoln square'
+
+# what showtimes? (movie regex + date)
+seatwatch discover new-york-city/amc-lincoln-square-13 2026-07-17 odyssey
+
+# watch the sold-out 7pm, ping my phone when anything opens
+seatwatch monitor add amc 134717192 \
+  --label 'Odyssey 70mm — Fri 7pm' \
+  --notify 'https://ntfy.sh/my-secret-topic' \
+  --until 2026-07-17T19:00:00-04:00
+
+# install the (one) cron entry that does the checking. that's it.
+seatwatch monitor install-cron
+```
+
+From then on it checks politely in the background — every 10 minutes normally, tightening to every 2 minutes in the final two hours (where the cancellations actually live) — and stops by itself after showtime. It **never buys tickets for you**; it just makes sure you're the first to know.
+
+Works with **AMC** and **Alamo Drafthouse**. Knows which seats are good (center, ~60% back), can hunt for *N seats together* for group outings, and runs on a Mac, a Raspberry Pi, or a server.
+
+## 🤖 Built for agents
+
+seatwatch is designed to be *driven by an AI agent*, not just a human. Every command is single-shot, prints JSON (or clean TSV), and uses meaningful exit codes — no daemon, no interactive prompts, nothing to babysit. If you use Claude Code or a compatible agent harness:
+
+```bash
+npx -y seatwatch install-skill
+```
+
+That installs a **skill** (`~/.claude/skills/seatwatch`) containing a six-play playbook mapped to the questions people actually ask — *"are there seats for X Friday?"*, *"can I get 3 together?"*, *"it's sold out, watch it"*, *"best seat left?"*, *"where's it playing near me?"*, *"which showtime has the best availability?"* — each with the exact command sequence and how to interpret the output. Your agent picks it up in its next session and can answer all of the above, set up monitors, and read cached results (`monitor status`) without burning a network request.
+
+The contract an agent can rely on:
+
+- `check` / `alamo-check` → JSON array: `total`, `openCount`, `open`, `bestOpen` (ranked), `bestTogether` (with `--together N`), `newlyOpen` (the alert diff)
+- `monitor tick` → exit `0` quiet, exit `3` when seats opened (cheap cron/wrapper branching)
+- `monitor status` → answers "anything open yet?" from SQLite, zero network
+- errors are structured (`error` field with a plain-language reason, including rate-limit backoff timing)
 
 ## Command reference
 
@@ -145,6 +196,10 @@ This installs `skill/SKILL.md` into `~/.claude/skills/seatwatch` and `~/.bb/skil
 Throttling is per IP, so an aggressive poller blocks its own machine. seatwatch automatically adds a random 0–1.5-second pre-request delay, honors `Retry-After` on HTTP 429/403 (or defaults to 30 minutes), skips cooling-down monitors, and uses `ETag`/`Last-Modified` conditional requests when the origin offers them. `SEATWATCH_JITTER_MS=0` disables jitter, primarily for tests.
 
 Keep baseline monitor intervals at least 5–10 minutes; the final-two-hour ramp already caps at 2 minutes. Batch many showtime IDs into one check instead of launching separate processes. If a plain check reports `rate limited (...) — back off ~N min`, stop and wait.
+
+## Provenance
+
+This tool was researched, built, reviewed, and documented almost entirely by AI agents orchestrating each other (Claude + Codex working in parallel git clones, with adversarial review passes) — which is also why it's so deliberately agent-friendly: it was its own first user.
 
 ## License
 
