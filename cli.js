@@ -9,10 +9,8 @@
 //
 // Usage:
 //   seatwatch theatres <query>
-//   seatwatch discover <theatre-slug> [date YYYY-MM-DD] [movie-regex]
-//   seatwatch check <showtimeId...> [--want <seat-regex>] [--together N]
-//   seatwatch alamo-discover [market=nyc] [movie-regex] [date]
-//   seatwatch alamo-check <cinemaId/sessionId...> [--want <seat-regex>] [--together N]
+//   seatwatch showtimes <theatre> [--movie <regex>] [--date <YYYY-MM-DD>]
+//   seatwatch check <id...> [--want <seat-regex>] [--together N]
 //   seatwatch monitor <add|list|remove|clear|tick|status|install-cron|uninstall-cron> ...
 //   seatwatch install-skill [--dev]
 
@@ -115,6 +113,61 @@ function parseCheckArgs(args, missingTargetsMessage) {
   }
   if (!positionals.length) throw new Error(missingTargetsMessage);
   return { targets: positionals, want: compileWant(values.want), together };
+}
+
+function inferTheatreChain(theatre) {
+  if (!theatre || /\s/.test(theatre)) {
+    throw new Error("invalid theatre; run 'seatwatch theatres <query>' first to find an AMC slug or Alamo market");
+  }
+  if (theatre.includes("/")) {
+    if (!/^[^/]+\/[^/]+$/.test(theatre)) throw new Error("invalid AMC theatre slug; run 'seatwatch theatres <query>' first");
+    return "amc";
+  }
+  return "alamo";
+}
+
+function inferIdChain(id) {
+  if (/^\d+$/.test(id || "")) return "amc";
+  if (/^\d+\/\d+$/.test(id || "")) return "alamo";
+  throw new Error(`invalid showtime id '${id}'; expected an AMC numeric id or Alamo cinemaId/sessionId`);
+}
+
+function normalizeDiscoveryInvocation(command, args) {
+  if (command === "showtimes") {
+    const { values, positionals } = parseCommandArgs(args, { movie: STRING_OPTION, date: STRING_OPTION });
+    if (positionals.length !== 1) throw new Error("showtimes requires exactly one theatre slug or market");
+    const theatre = positionals[0];
+    return { chain: inferTheatreChain(theatre), theatre, movie: values.movie, date: values.date };
+  }
+  const { positionals } = parseCommandArgs(args);
+  if (positionals.length > 3) throw new Error(`${command} accepts at most three positional arguments`);
+  if (command === "discover") {
+    const [theatre, date, movie] = positionals;
+    return { chain: "amc", theatre, movie, date };
+  }
+  const [theatre = "nyc", movie, date] = positionals;
+  return { chain: "alamo", theatre, movie, date };
+}
+
+function normalizeCheckInvocation(command, args) {
+  const parsed = parseCheckArgs(args, command === "alamo-check"
+    ? "alamo-check requires at least one cinemaId/sessionId from alamo-discover"
+    : "check requires at least one id from showtimes");
+  if (command === "alamo-check") for (const target of parsed.targets) inferIdChain(target);
+  return parsed;
+}
+
+function resolveMonitorTarget(positionals) {
+  if (!positionals.length) throw new Error("monitor add target required");
+  if (positionals.length > 2) throw new Error("monitor add accepts an optional chain and one target");
+  const explicitChain = positionals.length === 2 ? positionals[0] : null;
+  const target = positionals.at(-1);
+  if (explicitChain && !["amc", "alamo"].includes(explicitChain)) throw new Error("monitor add chain must be amc or alamo");
+  const inferredChain = inferIdChain(target);
+  if (explicitChain && explicitChain !== inferredChain) {
+    throw new Error(`monitor add chain '${explicitChain}' does not match ${inferredChain} id '${target}'`);
+  }
+  return { chain: explicitChain || inferredChain, target };
 }
 
 function transformCrontab(existing, newEntry = null) {
@@ -695,30 +748,48 @@ async function cmdDiscover(slug, date, movieRe) {
   if (!seen.size) process.stderr.write("No showtimes matched; verify the theatre slug, date, and movie regex.\n");
 }
 
+async function cmdShowtimes({ chain, theatre, movie, date }) {
+  if (chain === "amc") return cmdDiscover(theatre, date, movie);
+  const rows = await alamoDiscover(theatre, movie, date);
+  for (const r of rows) console.log(`${r.id}\t${r.movie}\t${r.time}\t${r.cinema}\t${r.status}`);
+  if (!rows.length) process.stderr.write("No sessions matched; verify the market, movie regex, and date.\n");
+}
+
 function backoffMessage(status, retryAfterMs) {
   const mins = Math.max(1, Math.round((retryAfterMs ?? DEFAULT_COOLDOWN_MS) / 60000));
   return `rate limited (${status}) on both paths — back off ~${mins} min`;
 }
 
-async function cmdCheck(ids, want, together) {
+async function cmdCheck(ids, want, together, requiredChain = null) {
   const state = loadState();
   const report = [];
-  for (const id of ids) {
-    let r = await amcFetchSeatsHttp(id);
-    const retryAfterMs = r.retryAfterMs;
-    if (r.blocked) {
-      process.stderr.write(`HTTP blocked (${r.blocked}) for ${id}; trying Chrome CDP fallback...\n`);
-      r = await amcFetchSeatsCdp(id).catch((e) => ({ error: e.message }));
+  const routes = ids.map((id) => ({ id, chain: inferIdChain(id) }));
+  if (requiredChain) {
+    const mismatch = routes.find(({ chain }) => chain !== requiredChain);
+    if (mismatch) throw new Error(`${requiredChain} check received ${mismatch.chain} id '${mismatch.id}'`);
+  }
+  for (const { id, chain } of routes) {
+    let r;
+    let retryAfterMs;
+    if (chain === "amc") {
+      r = await amcFetchSeatsHttp(id);
+      retryAfterMs = r.retryAfterMs;
+      if (r.blocked) {
+        process.stderr.write(`HTTP blocked (${r.blocked}) for ${id}; trying Chrome CDP fallback...\n`);
+        r = await amcFetchSeatsCdp(id).catch((e) => ({ error: e.message }));
+      }
+    } else {
+      r = await alamoFetchSeats(id);
     }
     if (r.blocked) { report.push({ id, error: backoffMessage(r.blocked, r.retryAfterMs ?? retryAfterMs) }); continue; }
     if (r.error) { report.push({ id, error: r.error }); continue; }
-    const d = diffAndReport({ state, key: id, allSeats: r.seats, want, together });
+    const d = diffAndReport({ state, key: chain === "alamo" ? `alamo:${id}` : id, allSeats: r.seats, want, together });
     report.push({ id, total: d.total, openCount: d.open.length, open: d.open, bestOpen: d.bestOpen, ...(together && { bestTogether: d.bestTogether }), newlyOpen: d.newlyOpen });
     if (d.shouldNotify) {
       const body = together
         ? `${d.notifyTogether.seats.join(", ")} available together; newly opened: ${d.newlyOpen.join(", ")} (${d.open.length} open total)`
         : `${d.newlyOpen.join(", ")} now available (${d.open.length} open total)`;
-      notify(`Seats opened: showtime ${id}`, body);
+      notify(chain === "alamo" ? `Alamo seats opened: ${id}` : `Seats opened: showtime ${id}`, body);
     }
   }
   saveState(state);
@@ -726,33 +797,12 @@ async function cmdCheck(ids, want, together) {
 }
 
 async function cmdAlamoCheck(pairs, want, together) {
-  const state = loadState();
-  const report = [];
-  for (const pair of pairs) {
-    const r = await alamoFetchSeats(pair);
-    if (r.blocked) { report.push({ id: pair, error: backoffMessage(r.blocked, r.retryAfterMs) }); continue; }
-    if (r.error) { report.push({ id: pair, error: r.error }); continue; }
-    const d = diffAndReport({ state, key: `alamo:${pair}`, allSeats: r.seats, want, together });
-    report.push({ id: pair, total: d.total, openCount: d.open.length, open: d.open, bestOpen: d.bestOpen, ...(together && { bestTogether: d.bestTogether }), newlyOpen: d.newlyOpen });
-    if (d.shouldNotify) {
-      const body = together
-        ? `${d.notifyTogether.seats.join(", ")} available together; newly opened: ${d.newlyOpen.join(", ")} (${d.open.length} open total)`
-        : `${d.newlyOpen.join(", ")} now available (${d.open.length} open total)`;
-      notify(`Alamo seats opened: ${pair}`, body);
-    }
-  }
-  saveState(state);
-  console.log(JSON.stringify(report, null, 2));
+  return cmdCheck(pairs, want, together, "alamo");
 }
 
 // ---------- monitor commands ----------
 function cmdMonitorAdd(positionals, options) {
-  const [chain, target] = positionals;
-  if (!["amc", "alamo"].includes(chain)) throw new Error("monitor add chain must be amc or alamo");
-  if (!target) throw new Error("monitor add target required");
-  if (positionals.length > 2) throw new Error("monitor add accepts only a chain and target");
-  if (chain === "amc" && !/^\d+$/.test(target)) throw new Error("AMC target must be a showtimeId");
-  if (chain === "alamo" && !/^\d+\/\d+$/.test(target)) throw new Error("Alamo target must be cinemaId/sessionId");
+  const { chain, target } = resolveMonitorTarget(positionals);
 
   const { want = null, label = null, notify: notifyUrl = null, until: untilRaw, interval: intervalRaw = "10" } = options;
   compileWant(want);
@@ -1040,21 +1090,13 @@ async function main(argv = process.argv.slice(2)) {
     if (cmd === "theatres") {
       const { positionals } = parseCommandArgs(rest);
       await cmdTheatres(positionals.join(" "));
-    } else if (cmd === "discover") {
-      const { positionals } = parseCommandArgs(rest);
-      if (positionals.length > 3) throw new Error("discover accepts at most a theatre slug, date, and movie regex");
-      await cmdDiscover(positionals[0], positionals[1], positionals[2]);
+    } else if (["showtimes", "discover", "alamo-discover"].includes(cmd)) {
+      await cmdShowtimes(normalizeDiscoveryInvocation(cmd, rest));
     } else if (cmd === "check") {
-      const { targets, want, together } = parseCheckArgs(rest, "check requires at least one showtimeId from discover");
+      const { targets, want, together } = normalizeCheckInvocation(cmd, rest);
       await cmdCheck(targets, want, together);
-    } else if (cmd === "alamo-discover") {
-      const { positionals } = parseCommandArgs(rest);
-      if (positionals.length > 3) throw new Error("alamo-discover accepts at most a market, movie regex, and date");
-      const rows = await alamoDiscover(positionals[0] || "nyc", positionals[1], positionals[2]);
-      for (const r of rows) console.log(`${r.id}\t${r.movie}\t${r.time}\t${r.cinema}\t${r.status}`);
-      if (!rows.length) process.stderr.write("No sessions matched; verify the market, movie regex, and date.\n");
     } else if (cmd === "alamo-check") {
-      const { targets, want, together } = parseCheckArgs(rest, "alamo-check requires at least one cinemaId/sessionId from alamo-discover");
+      const { targets, want, together } = normalizeCheckInvocation(cmd, rest);
       await cmdAlamoCheck(targets, want, together);
     } else if (cmd === "monitor") {
       const [subcommand, ...monitorArgs] = rest;
@@ -1088,11 +1130,9 @@ async function main(argv = process.argv.slice(2)) {
     } else {
       console.error(`usage:
   seatwatch theatres <query>                                  # resolve AMC slugs / Alamo markets
-  seatwatch discover <theatre-slug> [date] [movie-regex]      # AMC showtimes
-  seatwatch check <showtimeId...> [--want <seat-regex>] [--together N]
-  seatwatch alamo-discover [market=nyc] [movie-regex] [date]  # Alamo sessions
-  seatwatch alamo-check <cinemaId/sessionId...> [--want <seat-regex>] [--together N]
-  seatwatch monitor add <amc|alamo> <id> [--want <seat-regex>] [--label <text>] [--notify <url>] [--until <ISO-datetime>] [--interval <minutes>]
+  seatwatch showtimes <theatre> [--movie <regex>] [--date <YYYY-MM-DD>]
+  seatwatch check <id...> [--want <seat-regex>] [--together N]
+  seatwatch monitor add [chain] <id> [--want <seat-regex>] [--label <text>] [--notify <url>] [--until <ISO-datetime>] [--interval <minutes>]
   seatwatch monitor list                                      # list watches
   seatwatch monitor remove <watchId>                          # remove one watch
   seatwatch monitor clear                                     # remove all watches
@@ -1110,7 +1150,7 @@ async function main(argv = process.argv.slice(2)) {
   }
 }
 
-export { extractSeatingLayout, effectiveIntervalMinutes, monitorStatusName, notifyWebhook, rankTogether, parseRetryAfter, conditionalHeaders, transformCrontab, main };
+export { extractSeatingLayout, effectiveIntervalMinutes, inferIdChain, inferTheatreChain, monitorStatusName, normalizeCheckInvocation, normalizeDiscoveryInvocation, notifyWebhook, rankTogether, parseRetryAfter, conditionalHeaders, resolveMonitorTarget, transformCrontab, main };
 
 if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(resolve(process.argv[1]))) {
   process.exitCode = await main();

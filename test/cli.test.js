@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
-import { conditionalHeaders, effectiveIntervalMinutes, extractSeatingLayout, main, monitorStatusName, notifyWebhook, parseRetryAfter, rankTogether, transformCrontab } from "../cli.js";
+import { conditionalHeaders, effectiveIntervalMinutes, extractSeatingLayout, inferIdChain, inferTheatreChain, main, monitorStatusName, normalizeCheckInvocation, normalizeDiscoveryInvocation, notifyWebhook, parseRetryAfter, rankTogether, resolveMonitorTarget, transformCrontab } from "../cli.js";
 
 const headersFrom = (obj) => ({ headers: { get: (name) => obj[name.toLowerCase()] ?? null } });
 
@@ -85,6 +85,43 @@ test("conditionalHeaders only sets validators it actually has", () => {
   );
 });
 
+test("infers AMC and Alamo theatre arguments", () => {
+  assert.equal(inferTheatreChain("new-york-city/amc-lincoln-square-13"), "amc");
+  assert.equal(inferTheatreChain("nyc"), "alamo");
+  assert.throws(() => inferTheatreChain("Lincoln Square"), /seatwatch theatres/);
+  assert.throws(() => inferTheatreChain("bad/path/extra"), /seatwatch theatres/);
+});
+
+test("infers both id shapes in a mixed check target list", () => {
+  assert.deepEqual(["134717192", "2103/93423", "145066519"].map(inferIdChain), ["amc", "alamo", "amc"]);
+  assert.throws(() => inferIdChain("showtime-123"), /AMC numeric id or Alamo/);
+});
+
+test("new showtimes syntax and discovery aliases normalize equivalently", () => {
+  assert.deepEqual(
+    normalizeDiscoveryInvocation("showtimes", ["new-york-city/amc-lincoln-square-13", "--movie", "odyssey", "--date", "2026-07-17"]),
+    normalizeDiscoveryInvocation("discover", ["new-york-city/amc-lincoln-square-13", "2026-07-17", "odyssey"]),
+  );
+  assert.deepEqual(
+    normalizeDiscoveryInvocation("showtimes", ["nyc", "--date", "2026-07-17", "--movie", "odyssey"]),
+    normalizeDiscoveryInvocation("alamo-discover", ["nyc", "odyssey", "2026-07-17"]),
+  );
+});
+
+test("alamo-check alias normalizes like unified check", () => {
+  assert.deepEqual(
+    normalizeCheckInvocation("check", ["2103/93423", "--together", "2"]),
+    normalizeCheckInvocation("alamo-check", ["2103/93423", "--together", "2"]),
+  );
+});
+
+test("monitor add infers chain and rejects explicit mismatches", () => {
+  assert.deepEqual(resolveMonitorTarget(["134717192"]), { chain: "amc", target: "134717192" });
+  assert.deepEqual(resolveMonitorTarget(["2103/93423"]), { chain: "alamo", target: "2103/93423" });
+  assert.deepEqual(resolveMonitorTarget(["alamo", "2103/93423"]), { chain: "alamo", target: "2103/93423" });
+  assert.throws(() => resolveMonitorTarget(["amc", "2103/93423"]), /does not match alamo id/);
+});
+
 test("webhook payloads match Discord, Slack, and generic endpoints", async () => {
   const originalFetch = globalThis.fetch;
   const calls = [];
@@ -111,8 +148,8 @@ test("monitor add rejects non-http webhook URLs", async () => {
   const originalError = console.error;
   console.error = () => {};
   try {
-    assert.equal(await main(["monitor", "add", "alamo", "1/2", "--notify", "file:///tmp/hook"]), 1);
-    assert.equal(await main(["monitor", "add", "alamo", "1/2", "--notify", "not-a-url"]), 1);
+    assert.equal(await main(["monitor", "add", "1/2", "--notify", "file:///tmp/hook"]), 1);
+    assert.equal(await main(["monitor", "add", "1/2", "--notify", "not-a-url"]), 1);
   } finally {
     console.error = originalError;
   }
@@ -145,7 +182,7 @@ test("rejects together ranking for monitors instead of silently ignoring it", as
   const originalError = console.error;
   console.error = () => {};
   try {
-    assert.equal(await main(["monitor", "add", "amc", "123", "--together", "2"]), 1);
+    assert.equal(await main(["monitor", "add", "123", "--together", "2"]), 1);
   } finally {
     console.error = originalError;
   }

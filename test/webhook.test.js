@@ -80,7 +80,7 @@ test("monitor tick posts webhook alerts and records delivery failures", async ()
 
     const { main } = await import(`../cli.js?webhook-test=${Date.now()}`);
     assert.equal(await main([
-      "monitor", "add", "alamo", "2103/93423", "--label", "Odyssey 7pm",
+      "monitor", "add", "2103/93423", "--label", "Odyssey 7pm",
       "--notify", `http://127.0.0.1:${port}/hook`,
     ]), 0);
     const added = JSON.parse(logs.pop());

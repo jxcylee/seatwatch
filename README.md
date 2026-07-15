@@ -22,10 +22,10 @@ npm i -g seatwatch
 seatwatch theatres 'lincoln square'
 
 # what showtimes? (movie regex + date)
-seatwatch discover new-york-city/amc-lincoln-square-13 2026-07-17 odyssey
+seatwatch showtimes new-york-city/amc-lincoln-square-13 --movie odyssey --date 2026-07-17
 
 # watch the sold-out 7pm, ping my phone when anything opens
-seatwatch monitor add amc 134717192 \
+seatwatch monitor add 134717192 \
   --label 'Odyssey 70mm — Fri 7pm' \
   --notify 'https://ntfy.sh/my-secret-topic' \
   --until 2026-07-17T19:00:00-04:00
@@ -58,7 +58,7 @@ Either way you get a **skill** containing a six-play playbook mapped to the ques
 
 The contract an agent can rely on:
 
-- `check` / `alamo-check` → JSON array: `total`, `openCount`, `open`, `bestOpen` (ranked), `bestTogether` (with `--together N`), `newlyOpen` (the alert diff)
+- `check` → JSON array: `total`, `openCount`, `open`, `bestOpen` (ranked), `bestTogether` (with `--together N`), `newlyOpen` (the alert diff)
 - `monitor tick` → exit `0` quiet, exit `3` when seats opened (cheap cron/wrapper branching)
 - `monitor status` → answers "anything open yet?" from SQLite, zero network
 - errors are structured (`error` field with a plain-language reason, including rate-limit backoff timing)
@@ -67,11 +67,9 @@ The contract an agent can rely on:
 
 ```text
 seatwatch theatres <query>
-seatwatch discover <theatre-slug> [date] [movie-regex]
-seatwatch check <showtimeId...> [--want <seat-regex>] [--together N]
-seatwatch alamo-discover [market=nyc] [movie-regex] [date]
-seatwatch alamo-check <cinemaId/sessionId...> [--want <seat-regex>] [--together N]
-seatwatch monitor add <amc|alamo> <id> [--want <seat-regex>] [--label <text>] [--notify <url>] [--until <ISO-datetime>] [--interval <minutes>]
+seatwatch showtimes <theatre> [--movie <regex>] [--date <YYYY-MM-DD>]
+seatwatch check <id...> [--want <seat-regex>] [--together N]
+seatwatch monitor add [chain] <id> [--want <seat-regex>] [--label <text>] [--notify <url>] [--until <ISO-datetime>] [--interval <minutes>]
 seatwatch monitor list
 seatwatch monitor remove <watchId>
 seatwatch monitor clear
@@ -86,32 +84,34 @@ Requires Node 22 or newer for built-in `fetch`, `WebSocket`, and `node:sqlite`.
 
 ## Quick start
 
-Always resolve a theatre name or location before discovery. Do not guess AMC slugs or Alamo markets.
+Always resolve a theatre name or location before looking up showtimes. Do not guess AMC slugs or Alamo markets.
 
 ```bash
 # Resolve a name, neighborhood, or city.
 npx -y seatwatch theatres 'lincoln square'
 npx -y seatwatch theatres brooklyn
 
-# AMC: discover, then check all relevant showtimes together.
-npx -y seatwatch discover new-york-city/amc-lincoln-square-13 2026-07-17 odyssey
+# AMC: find showtimes, then check all relevant IDs together.
+npx -y seatwatch showtimes new-york-city/amc-lincoln-square-13 --movie odyssey --date 2026-07-17
 npx -y seatwatch check 134717192 145066519
 
 # Ask for the best contiguous pair.
 npx -y seatwatch check 134717192 145066519 --together 2
 
-# Alamo: discover, then check all relevant sessions together.
-npx -y seatwatch alamo-discover nyc odyssey 2026-07-17
-npx -y seatwatch alamo-check 2103/93423 2103/93424 --together 2
+# Alamo: find showtimes, then check all relevant sessions together.
+npx -y seatwatch showtimes nyc --movie odyssey --date 2026-07-17
+npx -y seatwatch check 2103/93423 2103/93424 --together 2
 ```
 
 `theatres <query>` searches theatre names, cities, states, and Alamo market names case-insensitively. Its tab-separated output is `chain`, `slug-or-market`, `display name`, `location`. AMC data comes from its theatre sitemap, with a bundled snapshot as a rate-limit fallback; Alamo markets and cinemas come from its open `s/mother` API. Fetched indexes are cached at `~/.seatwatch/theatres-cache.json` for 30 days.
 
-AMC `discover` output is `showtimeId`, `movie`, `time`, optional `status`. Alamo discovery output is `cinemaId/sessionId`, `movie-slug`, `showtime`, `cinema`, `status`. Discovery status is not a substitute for checking the seat map.
+`showtimes` infers AMC when `<theatre>` contains `/`; otherwise it treats the value as an Alamo market. `check` and `monitor add` infer numeric IDs as AMC and `cinemaId/sessionId` pairs as Alamo. A single `check` may mix both shapes, while `--want` and `--together` apply to every ID.
+
+AMC `showtimes` output is `showtimeId`, `movie`, `time`, optional `status`. Alamo `showtimes` output is `cinemaId/sessionId`, `movie-slug`, `showtime`, `cinema`, `status`. Showtime status is not a substitute for checking the seat map.
 
 ## Availability output
 
-`check` and `alamo-check` print a JSON array with one object per showtime:
+`check` prints a JSON array with one object per showtime:
 
 ```json
 {
@@ -131,14 +131,14 @@ AMC `discover` output is `showtimeId`, `movie`, `time`, optional `status`. Alamo
 
 `--want <seat-regex>` filters only `newlyOpen` and alerts; it does not filter `open`, `bestOpen`, or `bestTogether`. An `error` field usually identifies an expired showtime, page change, or rate limit.
 
-To compare a weekend or several showtimes, put all same-chain IDs in one check and compare `openCount` plus the first `bestOpen` score. For a group, add `--together N` and compare the first `bestTogether` score.
+To compare a weekend or several showtimes, put all IDs in one check—even a mix of AMC and Alamo—and compare `openCount` plus the first `bestOpen` score. For a group, add `--together N` and compare the first `bestTogether` score.
 
 ## Recurring monitors
 
 Use monitors for cancellation alerts. Their independent state and history live in `~/.seatwatch/seatwatch.db`.
 
 ```bash
-seatwatch monitor add <amc|alamo> <id> \
+seatwatch monitor add [chain] <id> \
   [--want <seat-regex>] [--label <text>] [--notify <url>] \
   [--until <ISO-datetime>] [--interval <minutes>]
 seatwatch monitor list
@@ -152,7 +152,7 @@ seatwatch monitor uninstall-cron
 
 AMC targets are showtime IDs; Alamo targets are `cinemaId/sessionId`. Include `--until` when the showtime is known so the watch expires after it. The default check interval is 10 minutes. During the final two hours before `--until`, the effective interval becomes the smaller of the configured interval and 2 minutes. Each cron tick skips expired, cooling-down, and not-yet-due watches cheaply.
 
-The first successful tick seeds monitor state without alerting. Monitors support `--want` with the same alert-filter semantics as plain checks, but not `--together`; use `check` or `alamo-check` for current adjacent-group ranking.
+The first successful tick seeds monitor state without alerting. Monitors support `--want` with the same alert-filter semantics as plain checks, but not `--together`; use `check` for current adjacent-group ranking.
 
 Run `monitor install-cron` once per machine, not once per watch. It installs or replaces one seatwatch cron entry, every 2 minutes by default; `--every <minutes>` accepts 1–59. The entry records absolute Node and CLI paths, logs to `~/.seatwatch/tick.log`, and calls `monitor tick`, which decides which watches are due. `monitor uninstall-cron` removes the marked entry.
 
@@ -167,7 +167,7 @@ Use a global install for a stable cron path:
 ```bash
 npm i -g seatwatch
 
-seatwatch monitor add alamo 2103/93423 \
+seatwatch monitor add 2103/93423 \
   --label 'Odyssey — Downtown Brooklyn — Jul 17 7pm' \
   --notify 'https://ntfy.sh/choose-a-private-topic' \
   --until 2026-07-17T19:00:00-04:00 --interval 10
@@ -192,7 +192,7 @@ npx -y seatwatch install-skill
 npx -y seatwatch install-skill --dev
 ```
 
-This installs `skills/seatwatch/SKILL.md` into `~/.claude/skills/seatwatch` and `~/.bb/skills/seatwatch`. New agent sessions pick it up automatically. The skill gives agents exact workflows for theatre resolution, discovery, checking, together-seat ranking, monitoring, and cached follow-up answers.
+This installs `skills/seatwatch/SKILL.md` into `~/.claude/skills/seatwatch` and `~/.bb/skills/seatwatch`. New agent sessions pick it up automatically. The skill gives agents exact workflows for theatre resolution, showtime lookup, checking, together-seat ranking, monitoring, and cached follow-up answers.
 
 Prefer the skills-CLI ecosystem? The repo follows the [skills.sh](https://skills.sh) convention, so `npx skills add jshph/seatwatch` installs the same skill for whichever agents you use, with `npx skills update` for upgrades.
 

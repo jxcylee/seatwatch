@@ -5,7 +5,7 @@ description: Check movie seat availability and watch for cancellation openings a
 
 # seatwatch — movie seat availability checker
 
-The `seatwatch` CLI does the real work. Never scrape ticketing sites by hand: run it and interpret its tab-separated discovery output or JSON check output. AMC uses plain HTTP and falls back to a local Chrome on `--remote-debugging-port=9222` if blocked; Alamo uses its open JSON API.
+The `seatwatch` CLI does the real work. Never scrape ticketing sites by hand: run it and interpret its tab-separated showtime output or JSON check output. AMC uses plain HTTP and falls back to a local Chrome on `--remote-debugging-port=9222` if blocked; Alamo uses its open JSON API.
 
 ## Numbered playbook
 
@@ -21,48 +21,50 @@ npx -y seatwatch theatres 'lincoln square'
 
 The output is tab-separated: `chain`, `slug-or-market`, `display name`, `location`. Choose the intended result; if several are plausible, ask the user which theatre.
 
-For AMC, discover and then check every relevant returned ID in one invocation:
+`showtimes` infers AMC when the theatre contains `/`; otherwise it treats the theatre as an Alamo market. `check` and `monitor add` infer all-digit IDs as AMC and `cinemaId/sessionId` pairs as Alamo. One `check` invocation may mix both ID shapes.
+
+For AMC, find showtimes and then check every relevant returned ID in one invocation:
 
 ```bash
-npx -y seatwatch discover new-york-city/amc-lincoln-square-13 2026-07-17 'odyssey'
+npx -y seatwatch showtimes new-york-city/amc-lincoln-square-13 --movie 'odyssey' --date 2026-07-17
 npx -y seatwatch check 134717192 145066519
 ```
 
-For Alamo, discover and then check every relevant returned `cinemaId/sessionId` in one invocation:
+For Alamo, find showtimes and then check every relevant returned `cinemaId/sessionId` in one invocation:
 
 ```bash
-npx -y seatwatch alamo-discover nyc 'odyssey' 2026-07-17
-npx -y seatwatch alamo-check 2103/93423 2103/93424
+npx -y seatwatch showtimes nyc --movie 'odyssey' --date 2026-07-17
+npx -y seatwatch check 2103/93423 2103/93424
 ```
 
-Tell the user the movie, theatre, date/time, and `openCount` for each relevant showtime. If seats are open, name the first few `bestOpen` seat IDs, best first. If `openCount` is 0, say it is currently sold out and offer the watch workflow in play 3. Do not describe a discovery status such as `AlmostFull` as a seat count; the check result is authoritative.
+Tell the user the movie, theatre, date/time, and `openCount` for each relevant showtime. If seats are open, name the first few `bestOpen` seat IDs, best first. If `openCount` is 0, say it is currently sold out and offer the watch workflow in play 3. Do not describe a showtime status such as `AlmostFull` as a seat count; the check result is authoritative.
 
 ### 2. “Can I get 2–3 seats together somewhere decent?”
 
-Follow play 1 through discovery, then add `--together N` to the single batched check:
+Follow play 1 through showtime lookup, then add `--together N` to the single batched check:
 
 ```bash
 # AMC
 npx -y seatwatch check 134717192 145066519 --together 3
 
 # Alamo
-npx -y seatwatch alamo-check 2103/93423 2103/93424 --together 3
+npx -y seatwatch check 2103/93423 2103/93424 --together 3
 ```
 
-Read `bestTogether`, not merely `openCount`. Recommend the first run and give its seat IDs and showtime; mention up to a few alternatives. An empty `bestTogether` means no qualifying contiguous group is currently open, even if individual seats are available. Seats must have consecutive column values in the same row; a column gap is an aisle. Monitors do not support `--together`, so use a fresh `check` or `alamo-check` when the user later asks whether a group is available.
+Read `bestTogether`, not merely `openCount`. Recommend the first run and give its seat IDs and showtime; mention up to a few alternatives. An empty `bestTogether` means no qualifying contiguous group is currently open, even if individual seats are available. Seats must have consecutive column values in the same row; a column gap is an aisle. Monitors do not support `--together`, so use a fresh `check` when the user later asks whether a group is available.
 
 ### 3. “It’s sold out — alert me the moment seats open”
 
-First resolve and discover as in play 1. Register each chosen showtime once, always including the known showtime datetime as `--until`. On a headless machine, also include `--notify`; a bare ntfy topic provides phone push after the user subscribes to that topic in the ntfy app.
+First resolve and find showtimes as in play 1. Register each chosen showtime once, always including the known showtime datetime as `--until`. On a headless machine, also include `--notify`; a bare ntfy topic provides phone push after the user subscribes to that topic in the ntfy app.
 
 ```bash
 # macOS: native notifications fire locally; --notify is optional
-npx -y seatwatch monitor add amc 134717192 \
+npx -y seatwatch monitor add 134717192 \
   --label 'Odyssey — Lincoln Square — Jul 17 7pm' \
   --until 2026-07-17T19:00:00-04:00 --interval 10
 
 # VPS/server: --notify is required for an external alert
-npx -y seatwatch monitor add alamo 2103/93423 \
+npx -y seatwatch monitor add 2103/93423 \
   --label 'Odyssey — Downtown Brooklyn — Jul 17 7pm' \
   --notify 'https://ntfy.sh/choose-a-private-topic' \
   --until 2026-07-17T19:00:00-04:00 --interval 10
@@ -87,40 +89,40 @@ Tell the user `status`, `lastChecked`, `lastOpenCount`, the best seats in `lastR
 
 ### 4. “What’s the best seat left?”
 
-Resolve, discover, and check as in play 1:
+Resolve, find showtimes, and check as in play 1:
 
 ```bash
 npx -y seatwatch check 134717192
 # or
-npx -y seatwatch alamo-check 2103/93423
+npx -y seatwatch check 2103/93423
 ```
 
 Recommend `bestOpen[0]`, naming its seat ID and score. Offer the next few entries in order if useful. `bestOpen` scores 0–1 and favors seats about 60% back and centered in their row. If `bestOpen` is empty, say no seats are currently open.
 
 ### 5. “Where is this movie playing near me?”
 
-If the user has not provided a city, neighborhood, or theatre, ask for one. Resolve theatres **before** discovery:
+If the user has not provided a city, neighborhood, or theatre, ask for one. Resolve theatres **before** showtime lookup:
 
 ```bash
 npx -y seatwatch theatres 'brooklyn'
 ```
 
-Run discovery for each plausible returned AMC slug or Alamo market, using the requested movie/date:
+Run `showtimes` for each plausible returned AMC slug or Alamo market, using the requested movie/date:
 
 ```bash
-npx -y seatwatch discover new-york-city/amc-empire-25 2026-07-17 'odyssey'
-npx -y seatwatch alamo-discover nyc 'odyssey' 2026-07-17
+npx -y seatwatch showtimes new-york-city/amc-empire-25 --movie 'odyssey' --date 2026-07-17
+npx -y seatwatch showtimes nyc --movie 'odyssey' --date 2026-07-17
 ```
 
 Tell the user which matching theatres have sessions and list their times. `theatres` matches theatre names, cities, states, and Alamo market names; it does not itself prove that a movie is playing. If the user also asks about seats, continue to play 1 and check the returned IDs.
 
 ### 6. “Which showtime this weekend has the most/best availability?”
 
-Resolve theatres first, run discovery for each requested date, collect the relevant IDs, then check all same-chain IDs in one command:
+Resolve theatres first, run `showtimes` for each requested date, collect the relevant IDs, then check them in one command:
 
 ```bash
 npx -y seatwatch check 134717192 134717193 134717194 145066519
-npx -y seatwatch alamo-check 2103/93423 2103/93424 2103/93425
+npx -y seatwatch check 2103/93423 2103/93424 2103/93425
 ```
 
 Compare `openCount` across results. For quality, also compare the first `bestOpen` score; if the user needs a group, use `--together N` and compare the first `bestTogether` score instead. Tell the user the best showtime, its count and best seat/run, then summarize close alternatives. Keep IDs in one invocation rather than spawning one check per showtime.
@@ -129,11 +131,9 @@ Compare `openCount` across results. For quality, also compare the first `bestOpe
 
 ```text
 npx -y seatwatch theatres <query>
-npx -y seatwatch discover <theatre-slug> [date] [movie-regex]
-npx -y seatwatch check <showtimeId...> [--want <seat-regex>] [--together N]
-npx -y seatwatch alamo-discover [market=nyc] [movie-regex] [date]
-npx -y seatwatch alamo-check <cinemaId/sessionId...> [--want <seat-regex>] [--together N]
-npx -y seatwatch monitor add <amc|alamo> <id> [--want <seat-regex>] [--label <text>] [--notify <url>] [--until <ISO-datetime>] [--interval <minutes>]
+npx -y seatwatch showtimes <theatre> [--movie <regex>] [--date <YYYY-MM-DD>]
+npx -y seatwatch check <id...> [--want <seat-regex>] [--together N]
+npx -y seatwatch monitor add [chain] <id> [--want <seat-regex>] [--label <text>] [--notify <url>] [--until <ISO-datetime>] [--interval <minutes>]
 npx -y seatwatch monitor list
 npx -y seatwatch monitor remove <watchId>
 npx -y seatwatch monitor clear
@@ -144,11 +144,11 @@ npx -y seatwatch monitor uninstall-cron
 npx -y seatwatch install-skill [--dev]
 ```
 
-AMC `discover` output is tab-separated: `showtimeId`, `movie`, `time`, optional `status`. Alamo discovery output is: `cinemaId/sessionId`, `movie-slug`, `showtime`, `cinema`, `status`.
+AMC `showtimes` output is tab-separated: `showtimeId`, `movie`, `time`, optional `status`. Alamo `showtimes` output is: `cinemaId/sessionId`, `movie-slug`, `showtime`, `cinema`, `status`.
 
 ## Check output and alert semantics
 
-Both check commands print a JSON array with one object per showtime:
+`check` prints a JSON array with one object per showtime:
 
 ```json
 {
