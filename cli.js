@@ -1021,7 +1021,7 @@ function cmdMonitorStatus(watchId) {
 // ---------- skill installer ----------
 function cmdInstallSkill({ dev }) {
   const here = dirname(fileURLToPath(import.meta.url));
-  let body = readFileSync(join(here, "skill", "SKILL.md"), "utf8");
+  let body = readFileSync(join(here, "skills", "seatwatch", "SKILL.md"), "utf8");
   if (dev) body = body.replaceAll("npx -y seatwatch", `node ${join(here, "cli.js")}`);
   const targets = [join(homedir(), ".claude", "skills", "seatwatch"), join(homedir(), ".bb", "skills", "seatwatch")];
   for (const dir of targets) {

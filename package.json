@@ -21,7 +21,7 @@
   "files": [
     "cli.js",
     "data/amc-theatres.json",
-    "skill/SKILL.md",
+    "skills/seatwatch/SKILL.md",
     "README.md"
   ],
   "engines": {

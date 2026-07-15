@@ -40,13 +40,21 @@ Works with **AMC** and **Alamo Drafthouse**. Knows which seats are good (center,
 
 ## 🤖 Built for agents
 
-seatwatch is designed to be *driven by an AI agent*, not just a human. Every command is single-shot, prints JSON (or clean TSV), and uses meaningful exit codes — no daemon, no interactive prompts, nothing to babysit. If you use Claude Code or a compatible agent harness:
+seatwatch is designed to be *driven by an AI agent*, not just a human. Every command is single-shot, prints JSON (or clean TSV), and uses meaningful exit codes — no daemon, no interactive prompts, nothing to babysit.
+
+Install the skill with the [skills CLI](https://skills.sh) (Claude Code, Codex, Cursor, and 70+ other agents):
+
+```bash
+npx skills add jshph/seatwatch
+```
+
+Or use the built-in installer (bundled with the npm package, works offline, also targets `~/.bb/skills`):
 
 ```bash
 npx -y seatwatch install-skill
 ```
 
-That installs a **skill** (`~/.claude/skills/seatwatch`) containing a six-play playbook mapped to the questions people actually ask — *"are there seats for X Friday?"*, *"can I get 3 together?"*, *"it's sold out, watch it"*, *"best seat left?"*, *"where's it playing near me?"*, *"which showtime has the best availability?"* — each with the exact command sequence and how to interpret the output. Your agent picks it up in its next session and can answer all of the above, set up monitors, and read cached results (`monitor status`) without burning a network request.
+Either way you get a **skill** containing a six-play playbook mapped to the questions people actually ask — *"are there seats for X Friday?"*, *"can I get 3 together?"*, *"it's sold out, watch it"*, *"best seat left?"*, *"where's it playing near me?"*, *"which showtime has the best availability?"* — each with the exact command sequence and how to interpret the output. Your agent picks it up in its next session and can answer all of the above, set up monitors, and read cached results (`monitor status`) without burning a network request.
 
 The contract an agent can rely on:
 
@@ -184,7 +192,9 @@ npx -y seatwatch install-skill
 npx -y seatwatch install-skill --dev
 ```
 
-This installs `skill/SKILL.md` into `~/.claude/skills/seatwatch` and `~/.bb/skills/seatwatch`. New agent sessions pick it up automatically. The skill gives agents exact workflows for theatre resolution, discovery, checking, together-seat ranking, monitoring, and cached follow-up answers.
+This installs `skills/seatwatch/SKILL.md` into `~/.claude/skills/seatwatch` and `~/.bb/skills/seatwatch`. New agent sessions pick it up automatically. The skill gives agents exact workflows for theatre resolution, discovery, checking, together-seat ranking, monitoring, and cached follow-up answers.
+
+Prefer the skills-CLI ecosystem? The repo follows the [skills.sh](https://skills.sh) convention, so `npx skills add jshph/seatwatch` installs the same skill for whichever agents you use, with `npx skills update` for upgrades.
 
 ## How it works
 
