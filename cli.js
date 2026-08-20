@@ -583,7 +583,7 @@ async function alamoFetchSeats(pair) {
   for (const area of data.seatingData?.areas || [])
     for (const row of area.rows || [])
       for (const seat of row.seats || []) {
-        if (seat.seatStatus === "NONE") continue;
+        if (!["EMPTY", "SOLD", "RESERVED"].includes(seat.seatStatus)) continue;
         seats.push({
           id: `${row.name || row.rowNumber || ""}${seat.seatNumber}`,
           row: seat.rowIndex,
