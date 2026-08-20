@@ -574,9 +574,7 @@ async function alamoFetchSeats(pair) {
   const [cinemaId, sessionId] = pair.split("/");
   const url = `https://drafthouse.com/s/mother/v1/app/seats/${cinemaId}/${sessionId}`;
   await politeJitter();
-  const cached = loadEtags()[url];
-  const res = await fetch(url, { headers: conditionalHeaders(cached) });
-  if (res.status === 304 && cached?.seats) return { seats: cached.seats, notModified: true };
+  const res = await fetch(url);
   if (res.status === 429 || res.status === 403) return { blocked: res.status, retryAfterMs: parseRetryAfter(res) };
   if (!res.ok) return { error: `seat fetch failed (${res.status})` };
   const { data } = await res.json();
