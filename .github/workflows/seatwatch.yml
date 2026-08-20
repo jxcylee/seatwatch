@@ -21,7 +21,7 @@ jobs:
           RESULT=$(npx -y seatwatch check 2601/55276)
           echo "$RESULT"
 
-          OPEN=$(echo "$RESULT" | jq -r '.[0].openCount // 0')
+          OPEN=$(echo "$RESULT" | jq -r '.[0].open | map(select(. != "304")) | length')
           echo "open=$OPEN" >> "$GITHUB_OUTPUT"
 
           if [ "$OPEN" -gt 0 ]; then
