@@ -575,6 +575,7 @@ async function alamoFetchSeats(pair) {
   const url = `https://drafthouse.com/s/mother/v1/app/seats/${cinemaId}/${sessionId}`;
   await politeJitter();
   const res = await fetch(url);
+  console.log(await res.clone().text());
   if (res.status === 429 || res.status === 403) return { blocked: res.status, retryAfterMs: parseRetryAfter(res) };
   if (!res.ok) return { error: `seat fetch failed (${res.status})` };
   const { data } = await res.json();
