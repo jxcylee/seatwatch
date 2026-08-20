@@ -1,0 +1,42 @@
+name: Breaking Bad Seat Watch
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+jobs:
+  check-seats:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Check Alamo seats
+        id: seats
+        run: |
+          RESULT=$(npx -y seatwatch check 2601/55276)
+          echo "$RESULT"
+
+          OPEN=$(echo "$RESULT" | jq -r '.[0].openCount // 0')
+          echo "open=$OPEN" >> "$GITHUB_OUTPUT"
+
+          if [ "$OPEN" -gt 0 ]; then
+            echo "🎟️ SEAT AVAILABLE!"
+          else
+            echo "Still sold out."
+          fi
+
+      - name: Notify phone
+        if: steps.seats.outputs.open != '0'
+        run: |
+          curl -s \
+            -H "Title: 🚨 HEISENBERG ALERT 🚨" \
+            -H "Priority: urgent" \
+            -H "Tags: warning,film_frames" \
+            -H "Click: https://drafthouse.com/st-louis/event/free-victory-screening-breaking-bad-day-free-tv-party-screening?sessionId=55276&cinemaId=2601&date=2026-09-07" \
+            -d "A seat is available for Breaking Bad Day at Alamo City Foundry! GO GO GO. 🎟️" \
+            "https://ntfy.sh/${{ secrets.NTFY_TOPIC }}"
